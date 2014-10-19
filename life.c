@@ -11,8 +11,8 @@
 #include <time.h>
 /*---------- Custom Headers	-----------*/
 
-#include ".headers/debug.h"
-#include ".headers/defFunct.h"
+//#include ".headers/debug.h"
+//#include ".headers/defFunct.h"
 #include ".headers/life.h"
 
 /*---------- Symbolic Constants  -----------*/
