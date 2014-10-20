@@ -31,3 +31,4 @@ void initGrid(Lifeform **grid, int size);
 void setLife(Lifeform *life, state setState, int row, int col);
 state genState();
 int boundaryCheck(int coord, int size);
+void delay(int milliseconds);

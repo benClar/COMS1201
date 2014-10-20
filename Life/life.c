@@ -11,8 +11,7 @@
 #include <time.h>
 /*---------- Custom Headers	-----------*/
 
-//#include ".headers/debug.h"
-//#include ".headers/defFunct.h"
+#include ".headers/debug.h"
 #include ".headers/life.h"
 
 /*---------- Symbolic Constants  -----------*/
@@ -22,14 +21,14 @@
 
 int main(){
 	srand(time(NULL));
-	int size = 25;
+	int size = 50;
 	Lifeform **grid1 = makeGrid(size);
 	Lifeform **grid2 = makeGrid(size);
 
 	initGrid(grid1,size);
 	initGrid(grid2,size);
 
-	times(grid1,grid2,size,10);
+	times(grid1,grid2,size,1000);
 	return 0;
 
 }
@@ -42,7 +41,6 @@ void times(Lifeform **gridOne, Lifeform **gridTwo, int size, int n )
 	for (i = 0; i < n; i++)	{
 		printf("cycle:	%d \n",i);
 		if (cycle)	{
-			iprint(cycle);
 			printGrid(gridOne,size);
 			nextState(gridOne,gridTwo,size);
 			cycle--;
@@ -51,10 +49,22 @@ void times(Lifeform **gridOne, Lifeform **gridTwo, int size, int n )
 			nextState(gridTwo,gridOne,size);	
 			cycle++;
 		}
-		pNL();
+		delay(100);	
 	}	
 
 
+}
+
+void delay(int milliseconds)
+{
+    double interval;
+    clock_t a,b;
+
+    interval = milliseconds*(CLOCKS_PER_SEC/1000);
+    a = b = clock();
+    while( (a-b) < interval )	{
+    	a = clock();
+    }
 }
 
 
@@ -131,9 +141,9 @@ void printGrid(Lifeform **grid, int size)	{
 	for(row = LOWERBOUND; row < size; row++)	{
 		for (col = LOWERBOUND; col < size; col++)	{
 			if (grid[row][col].s1 == ALIVE)	{
-				printf(" X ");
+				printf(" * ");
 			} else {
-				printf(" - ");
+				printf("   ");
 			}
 		}
 		pNL();
@@ -156,8 +166,6 @@ void initGrid(Lifeform **grid, int size)	{
 void setLife(Lifeform *life, state setState, int row, int col)	{
 
 	life->s1 = setState;
-	life->x=row;
-	life->y=col;
 }
 
 
