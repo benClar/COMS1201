@@ -21,19 +21,30 @@
 
 int main(){
 	srand(time(NULL));
-	int size = 50;
+	int size, cycles;
+	getSize(&size, &cycles);
 	Lifeform **grid1 = makeGrid(size);
 	Lifeform **grid2 = makeGrid(size);
 
 	initGrid(grid1,size);
 	initGrid(grid2,size);
 
-	times(grid1,grid2,size,1000);
+	times(grid1,grid2,size,cycles);
 	return 0;
 
 }
 
 /*---------- Functions ----------*/
+void getSize(int *size, int *cycles)	
+{
+	printf("Enter Size of grid desired:	\n");
+	scanf("%d", size);
+	printf("Enter Cycles desired:	\n");
+	scanf("%d", cycles);
+
+
+}
+
 
 void times(Lifeform **gridOne, Lifeform **gridTwo, int size, int n )
 {
@@ -49,7 +60,7 @@ void times(Lifeform **gridOne, Lifeform **gridTwo, int size, int n )
 			nextState(gridTwo,gridOne,size);	
 			cycle++;
 		}
-		delay(100);	
+		delay(150);	
 	}	
 
 

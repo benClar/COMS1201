@@ -20,7 +20,7 @@ typedef struct	{
 } Lifeform;
 
 //----------Function Prototypes-----------
-
+void getSize(int *size, int *cycles);
 void times(Lifeform **gridOne, Lifeform **gridTwo, int size, int n );
 Lifeform **makeGrid(int size);
 void nextState(Lifeform **gridOne, Lifeform **gridTwo, int size);
