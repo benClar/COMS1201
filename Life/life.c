@@ -19,9 +19,12 @@
 
 /*---------- Main -----------*/
 
-int main(){
+int main(int argc, char **argv) {
 	srand(time(NULL));
-	int size, cycles;
+	int size, cycles, argCnt = argc - 1;
+		
+	mode m1 = setMode(argCnt, argv[1]);
+
 	getSize(&size, &cycles);
 	Lifeform **grid1 = makeGrid(size);
 	Lifeform **grid2 = makeGrid(size);
@@ -29,14 +32,30 @@ int main(){
 	initGrid(grid1,size);
 	initGrid(grid2,size);
 
-	times(grid1,grid2,size,cycles);
+	times(grid1,grid2,size,cycles,m1);
 	return 0;
 
 }
 
 /*---------- Functions ----------*/
+
+//switches off graphics in debug mode
+mode setMode(int argc, char *mode)
+{
+	int nstring = 2; //number of strings to be compared
+	if (argc)	{
+		if (!strncmp("debug",mode,nstring)) {
+			printf("***debug mode***\n");
+			return DEBUG;	
+		}
+	}
+	return GRAPHIC;
+}
+
+//get size and cycle number.
 void getSize(int *size, int *cycles)	
 {
+	//add validation
 	printf("Enter Size of grid desired:	\n");
 	scanf("%d", size);
 	printf("Enter Cycles desired:	\n");
@@ -45,22 +64,26 @@ void getSize(int *size, int *cycles)
 
 }
 
-
-void times(Lifeform **gridOne, Lifeform **gridTwo, int size, int n )
+//controls grids 
+void times(Lifeform **gridOne, Lifeform **gridTwo, int size, int n, mode m1)
 {
-	int	i, cycle=1;
+	int	gridDelay = 150, i, cycle=1;
 	for (i = 0; i < n; i++)	{
 		printf("cycle:	%d \n",i);
 		if (cycle)	{
-			printGrid(gridOne,size);
-			nextState(gridOne,gridTwo,size);
+			if (m1)	{ //graphic mode
+				printGrid(gridOne,size);
+			}
+			nextState(gridOne,gridTwo,size,m1);
 			cycle--;
 		} else	{
-			printGrid(gridTwo,size);
-			nextState(gridTwo,gridOne,size);	
+			if (m1)	{
+				printGrid(gridTwo,size);
+			}
+			nextState(gridTwo,gridOne,size,m1);	
 			cycle++;
 		}
-		delay(150);	
+		delay(gridDelay);	
 	}	
 
 
@@ -93,13 +116,15 @@ Lifeform **makeGrid(int size)    {
 }
 
 //generated next state of grid
-void nextState(Lifeform **gridOne, Lifeform **gridTwo, int size)	{
+void nextState(Lifeform **gridOne, Lifeform **gridTwo, int size, mode m1)	{
 
     int row, col, liveCnt;
     for(row = LOWERBOUND; row < size; row++) {
         for (col = LOWERBOUND; col < size; col++)    {
 			liveCnt= checkNeighbour(row,col,gridOne, size);
-	//		printf("status: %d, live neighbours of %d, %d:	%d\n",gridOne[row][col].s1,row,col,liveCnt);
+			if (!m1)	{
+				printf("Coordinates: %d, %d, status: %d, Neighbour count: %d\n",row,col, gridOne[row][col].s1,liveCnt);
+			}
 			calcNewState(liveCnt,&gridOne[row][col], &gridTwo[row][col]);
         }
     }
@@ -124,6 +149,7 @@ int checkNeighbour(int curRow, int curCol, Lifeform **grid, int size)	{
 	return liveCnt;
 }
 
+//kills or births life depending on neighbour count
 void calcNewState(int liveCnt, Lifeform *current, Lifeform *next)	{
 	switch (current->s1)	{
 
@@ -146,6 +172,7 @@ void calcNewState(int liveCnt, Lifeform *current, Lifeform *next)	{
 	}
 }
 
+//prints graphical representation of 2d array holding lifeforms
 void printGrid(Lifeform **grid, int size)	{
 
 	int	row, col;
