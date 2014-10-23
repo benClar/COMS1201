@@ -12,6 +12,7 @@ typedef enum { DEBUG, GRAPHIC } mode;
 #define LOWERBOUND	0	//Lower boundary of grid
 #define OPTIMALPOP	3 	//Over this is overpopulation
 #define UNDERPOP	2	//under this is underpopulation
+#define DELAY		150 	//delay between frames
 /*----------Structures----------*/
 
 typedef struct	{
@@ -34,3 +35,4 @@ void setLife(Lifeform *life, state setState, int row, int col);
 state genState();
 int boundaryCheck(int coord, int size);
 void delay(int milliseconds);
+void scanInt(int *toScan);

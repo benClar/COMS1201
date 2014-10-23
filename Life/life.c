@@ -9,6 +9,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
+
 /*---------- Custom Headers	-----------*/
 
 #include ".headers/debug.h"
@@ -57,17 +58,25 @@ void getSize(int *size, int *cycles)
 {
 	//add validation
 	printf("Enter Size of grid desired:	\n");
-	scanf("%d", size);
+	scanInt(size);
 	printf("Enter Cycles desired:	\n");
-	scanf("%d", cycles);
+	scanInt(cycles);
 
+}
 
+//validated scanf function for ints
+void scanInt(int *toScan)	{
+
+	while(!scanf("%d", toScan))       {
+               cL
+               printf("Please enter int\n");
+	}	
 }
 
 //controls grids 
 void times(Lifeform **gridOne, Lifeform **gridTwo, int size, int n, mode m1)
 {
-	int	gridDelay = 150, i, cycle=1;
+	int i, cycle=1;
 	for (i = 0; i < n; i++)	{
 		printf("cycle:	%d \n",i);
 		if (cycle)	{
@@ -83,10 +92,8 @@ void times(Lifeform **gridOne, Lifeform **gridTwo, int size, int n, mode m1)
 			nextState(gridTwo,gridOne,size,m1);	
 			cycle++;
 		}
-		delay(gridDelay);	
+		delay(DELAY);	
 	}	
-
-
 }
 
 void delay(int milliseconds)
