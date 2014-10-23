@@ -4,4 +4,3 @@
 #define lfprint(expr)	printf(#expr "= %lf \n",expr)
 #define pNL()           printf("\n");
 #define	cL		while(getchar() != '\n') {}
-//#define ECHO()		printf(#expr);

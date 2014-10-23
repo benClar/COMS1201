@@ -36,3 +36,4 @@ state genState();
 int boundaryCheck(int coord, int size);
 void delay(int milliseconds);
 void scanInt(int *toScan);
+int strnCompare(char stringOne[], char stringTwo[]);

@@ -43,15 +43,15 @@ int main(int argc, char **argv) {
 //switches off graphics in debug mode
 mode setMode(int argc, char *mode)
 {
-	int nstring = 2; //number of strings to be compared
 	if (argc)	{
-		if (!strncmp("debug",mode,nstring)) {
+		if (strnCompare(mode,"debug")) {
 			printf("***debug mode***\n");
 			return DEBUG;	
 		}
 	}
 	return GRAPHIC;
 }
+
 
 //get size and cycle number.
 void getSize(int *size, int *cycles)	
@@ -96,6 +96,7 @@ void times(Lifeform **gridOne, Lifeform **gridTwo, int size, int n, mode m1)
 	}	
 }
 
+//creating delay
 void delay(int milliseconds)
 {
     double interval;
@@ -233,4 +234,19 @@ int boundaryCheck(int coord, int size)	{
 	}
 	return 0;
 
+}
+
+//compares strings returning true or false value 
+int strnCompare(char stringOne[], char stringTwo[])     {
+
+        int i, aC, bC;
+        if (strlen(stringOne) == strlen(stringTwo))     {
+                for(i = 0, aC = stringOne[i], bC = stringTwo[i]; aC != '\0' && bC != '\0'; i++, aC = stringOne[i], bC=stringTwo[i])     {
+                                if (aC != bC)   {
+                                        return 0;
+                                }
+
+                }
+        }
+        return 1;
 }
