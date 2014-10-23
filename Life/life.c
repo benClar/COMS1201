@@ -247,6 +247,8 @@ int strnCompare(char stringOne[], char stringTwo[])     {
                                 }
 
                 }
-        }
+        } else {
+		return 0;
+	}
         return 1;
 }
