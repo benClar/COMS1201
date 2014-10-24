@@ -52,7 +52,7 @@ int main(int argc, char **argv) {
 mode setMode(int argc, char *mode)
 {
 	if (argc)	{
-		if (strnCompare(mode,"debug")) {
+		if (!strcmp(mode,"debug")) {
 			printf("***debug mode***\n");
 			return DEBUG;	
 		}
@@ -255,21 +255,4 @@ int boundaryCheck(int coord, int size)	{
 	}
 	return 0;
 
-}
-
-//compares strings returning true or false value 
-int strnCompare(char stringOne[], char stringTwo[])     {
-
-        int i, aC, bC;
-        if (strlen(stringOne) == strlen(stringTwo))     {
-       		 for(i = 0, aC = stringOne[i], bC = stringTwo[i]; aC != '\0' && bC != '\0'; i++, aC = stringOne[i], bC=stringTwo[i])     {
-    	            if (aC != bC)   {
-           		         return 0;
-                    }
-
-             }
-        } else {
-			return 0;
-	}
-	return 1;
 }
