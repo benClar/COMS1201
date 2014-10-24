@@ -1,7 +1,7 @@
 //
 // life.c
-// Created by benji on 2014/17/10
-// tags: 
+// Created by bclarke on 2014/17/10
+// simulation of conways game of life   
 //
 /*---------- Standard Headers -----------*/
 
@@ -22,18 +22,26 @@
 
 int main(int argc, char **argv) {
 	srand(time(NULL));
-	int size, cycles, argCnt = argc - 1;
-		
+	int size, 		//size of the grid
+		cycles,		//number of cycles to be done 
+		argCnt = argc - 1; 
+	
 	mode m1 = setMode(argCnt, argv[1]);
 
-	getSize(&size, &cycles);
+	getSize(&size, &cycles);	//set size and cycle count from user input
+	
+	//Creating two grids of specified size to hold lifeforms
 	Lifeform **grid1 = makeGrid(size);
 	Lifeform **grid2 = makeGrid(size);
-
+	
+	//initialising both grids with lifeforms
 	initGrid(grid1,size);
 	initGrid(grid2,size);
 
+	//rotate and update grids
 	times(grid1,grid2,size,cycles,m1);
+	free(grid1);
+	free(grid2);
 	return 0;
 
 }
@@ -57,8 +65,10 @@ mode setMode(int argc, char *mode)
 void getSize(int *size, int *cycles)	
 {
 	//add validation
-	printf("Enter Size of grid desired:	\n");
-	scanInt(size);
+	do { 
+		printf("Enter Size of grid desired (max size is 50): \n");
+		scanInt(size);
+	}	while (!(*size <= MAXSIZE) && (*size >= 0)); 
 	printf("Enter Cycles desired:	\n");
 	scanInt(cycles);
 
@@ -92,7 +102,7 @@ void times(Lifeform **gridOne, Lifeform **gridTwo, int size, int n, mode m1)
 			nextState(gridTwo,gridOne,size,m1);	
 			cycle++;
 		}
-		delay(DELAY);	
+		delay(DELAY);	//delay between cycle prints
 	}	
 }
 
@@ -115,12 +125,24 @@ Lifeform **makeGrid(int size)    {
 	
 	int	i;
     Lifeform **array;
-    array = (Lifeform**) malloc(size*sizeof(Lifeform*));
+    array = (Lifeform**) checkMal(malloc(size*sizeof(Lifeform*)));
 	for (i = LOWERBOUND; i < size; i++)	{
-		array[i] = malloc(size * (sizeof(Lifeform)));
+		array[i] = (Lifeform*) checkMal(malloc(size * (sizeof(Lifeform))));
 	}
-
+	
 	return array;	
+}
+
+//validating malloc
+void *checkMal(void *point)	{
+
+	if (point == NULL)	{
+		fprintf(stderr, "null address generated");
+		exit(1);
+	}	
+
+	return point;
+
 }
 
 //generated next state of grid
@@ -140,9 +162,8 @@ void nextState(Lifeform **gridOne, Lifeform **gridTwo, int size, mode m1)	{
 
 //Checks surrounding elements for life
 int checkNeighbour(int curRow, int curCol, Lifeform **grid, int size)	{
-
+	
 	int rowCnt, colCnt, liveCnt=0,row, col;
-
     for(rowCnt=LOWERBOUND, row=curRow-1; rowCnt < AREASIZE; rowCnt++, row++) {
         for (colCnt=LOWERBOUND, col=curCol -1; colCnt < AREASIZE; colCnt++, col++)	{	
 			if (row != curRow || col != curCol)	{
@@ -241,14 +262,14 @@ int strnCompare(char stringOne[], char stringTwo[])     {
 
         int i, aC, bC;
         if (strlen(stringOne) == strlen(stringTwo))     {
-                for(i = 0, aC = stringOne[i], bC = stringTwo[i]; aC != '\0' && bC != '\0'; i++, aC = stringOne[i], bC=stringTwo[i])     {
-                                if (aC != bC)   {
-                                        return 0;
-                                }
+       		 for(i = 0, aC = stringOne[i], bC = stringTwo[i]; aC != '\0' && bC != '\0'; i++, aC = stringOne[i], bC=stringTwo[i])     {
+    	            if (aC != bC)   {
+           		         return 0;
+                    }
 
-                }
+             }
         } else {
-		return 0;
+			return 0;
 	}
-        return 1;
+	return 1;
 }

@@ -7,6 +7,7 @@ typedef enum { DEBUG, GRAPHIC } mode;
 
 /*---------- Symbolic Constants  -----------*/
 
+#define	MAXSIZE		50	//max grid size
 #define LIFESTATE	2	//Number of states
 #define AREASIZE 	3	//Three rows or columns need checked
 #define LOWERBOUND	0	//Lower boundary of grid
@@ -37,3 +38,4 @@ int boundaryCheck(int coord, int size);
 void delay(int milliseconds);
 void scanInt(int *toScan);
 int strnCompare(char stringOne[], char stringTwo[]);
+void *checkMal(void *point);
