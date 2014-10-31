@@ -12,8 +12,8 @@
 
 /*---------- Custom Headers	-----------*/
 
-#include ".headers/debug.h"
-#include ".headers/life.h"
+#include "debug.h"
+#include "life.h"
 
 /*---------- Symbolic Constants  -----------*/
 
@@ -40,8 +40,10 @@ int main(int argc, char **argv) {
 
 	//rotate and update grids
 	times(grid1,grid2,size,cycles,m1);
+
 	free(grid1);
 	free(grid2);
+
 	return 0;
 
 }
@@ -64,7 +66,6 @@ mode setMode(int argc, char *mode)
 //get size and cycle number.
 void getSize(int *size, int *cycles)	
 {
-	//add validation
 	do { 
 		printf("Enter Size of grid desired (max size is 50): \n");
 		scanInt(size);
@@ -78,7 +79,7 @@ void getSize(int *size, int *cycles)
 void scanInt(int *toScan)	{
 
 	while(!scanf("%d", toScan))       {
-               cL
+	       clearInputBuf
                printf("Please enter int\n");
 	}	
 }
@@ -106,7 +107,7 @@ void times(Lifeform **gridOne, Lifeform **gridTwo, int size, int n, mode m1)
 	}	
 }
 
-//creating delay
+//creating delay.  Adapted from http://c-for-dummies.com/blog/?p=69
 void delay(int milliseconds)
 {
     double interval;
