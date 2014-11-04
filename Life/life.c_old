@@ -11,18 +11,18 @@
 #include <time.h>
 
 /*---------- Custom Headers	-----------*/
-#include "neillsdl2.h"
+
 #include "debug.h"
 #include "life.h"
+#include "neillsdl2.h"
 
 /*---------- Symbolic Constants  -----------*/
-#define RECTSIZE 	20
-#define WHITE		255
-#define BLACK		0
+
+
 /*---------- Main -----------*/
 
 int main(int argc, char **argv) {
-
+	SDL_Simplewin sw;
 	
 	srand(time(NULL));
 	int size, 		//size of the grid
@@ -43,8 +43,6 @@ int main(int argc, char **argv) {
 
 	//rotate and update grids
 	times(grid1,grid2,size,cycles,m1);
-	
-	atexit(SDL_Quit);
 
 	free(grid1);
 	free(grid2);
@@ -92,31 +90,24 @@ void scanInt(int *toScan)	{
 //controls grids 
 void times(Lifeform **gridOne, Lifeform **gridTwo, int size, int n, mode m1)
 {
-		SDL_Simplewin sw;
-       		Neill_SDL_Init(&sw);
-	
-		int i, cycle=1;
-		for (i = 0; i < n && (!sw.finished); i++)	{
-			printf("cycle:	%d \n",i);
-			if (cycle)	{
-				if (m1)	{ //graphic mode
-					printGrid(gridOne,size, sw);
-				}
-				nextState(gridOne,gridTwo,size,m1);
-				cycle--;
-			} else	{
-				if (m1)	{
-					printGrid(gridTwo,size,sw);
-				}
-				nextState(gridTwo,gridOne,size,m1);	
-				cycle++;
+	int i, cycle=1;
+	for (i = 0; i < n; i++)	{
+		printf("cycle:	%d \n",i);
+		if (cycle)	{
+			if (m1)	{ //graphic mode
+				printGrid(gridOne,size);
 			}
-
-			SDL_RenderPresent(sw.renderer);
-			SDL_UpdateWindowSurface(sw.win);
-			Neill_SDL_Events(&sw);
-			delay(DELAY);	//delay between cycle prints
+			nextState(gridOne,gridTwo,size,m1);
+			cycle--;
+		} else	{
+			if (m1)	{
+				printGrid(gridTwo,size);
+			}
+			nextState(gridTwo,gridOne,size,m1);	
+			cycle++;
 		}
+		delay(DELAY);	//delay between cycle prints
+	}	
 }
 
 //creating delay.  Adapted from http://c-for-dummies.com/blog/?p=69
@@ -137,8 +128,8 @@ void delay(int milliseconds)
 Lifeform **makeGrid(int size)    {
 	
 	int	i;
-    	Lifeform **array;
-    	array = (Lifeform**) checkMal(malloc(size*sizeof(Lifeform*)));
+    Lifeform **array;
+    array = (Lifeform**) checkMal(malloc(size*sizeof(Lifeform*)));
 	for (i = LOWERBOUND; i < size; i++)	{
 		array[i] = (Lifeform*) checkMal(malloc(size * (sizeof(Lifeform))));
 	}
@@ -215,26 +206,15 @@ void calcNewState(int liveCnt, Lifeform *current, Lifeform *next)	{
 }
 
 //prints graphical representation of 2d array holding lifeforms
-void printGrid(Lifeform **grid, int size, SDL_Simplewin sw)	{
+void printGrid(Lifeform **grid, int size)	{
 
 	int	row, col;
-
-	SDL_Rect rectangle;
-	rectangle.w = RECTSIZE;
-   	rectangle.h = RECTSIZE;
-	
 	for(row = LOWERBOUND; row < size; row++)	{
 		for (col = LOWERBOUND; col < size; col++)	{
 			if (grid[row][col].s1 == ALIVE)	{
-				Neill_SDL_SetDrawColour(&sw,WHITE,WHITE,WHITE);
-				rectangle.x = (WWIDTH-col-RECTSIZE);
-      				rectangle.y = (WHEIGHT-row-RECTSIZE);
-				SDL_RenderFillRect(sw.renderer, &rectangle);	
+				printf(" * ");
 			} else {
-				Neill_SDL_SetDrawColour(&sw,BLACK,BLACK,BLACK);
-                                rectangle.x = (WWIDTH-col-RECTSIZE);
-                                rectangle.y = (WHEIGHT-row-RECTSIZE);
-				SDL_RenderFillRect(sw.renderer, &rectangle);
+				printf("   ");
 			}
 		}
 		pNL();

@@ -7,7 +7,7 @@ typedef enum { DEBUG, GRAPHIC } mode;
 
 /*---------- Symbolic Constants  -----------*/
 
-#define	MAXSIZE		50	//max grid size
+#define	MAXSIZE		1000	//max grid size
 #define LIFESTATE	2	//Number of states
 #define AREASIZE 	3	//Three rows or columns need checked
 #define LOWERBOUND	0	//Lower boundary of grid
@@ -30,7 +30,6 @@ Lifeform **makeGrid(int size);
 void nextState(Lifeform **gridOne, Lifeform **gridTwo, int size, mode m1);
 int checkNeighbour(int curRow, int curCol, Lifeform **grid, int size);
 void calcNewState(int liveCnt, Lifeform *current, Lifeform *next);
-void printGrid(Lifeform **grid, int size);
 void initGrid(Lifeform **grid, int size);
 void setLife(Lifeform *life, state setState, int row, int col);
 state genState();
@@ -39,3 +38,4 @@ void delay(int milliseconds);
 void scanInt(int *toScan);
 int strnCompare(char stringOne[], char stringTwo[]);
 void *checkMal(void *point);
+void printGrid(Lifeform **grid, int size, SDL_Simplewin sw);
