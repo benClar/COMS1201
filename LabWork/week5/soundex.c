@@ -114,8 +114,7 @@ int searchCode(char **codes, char *name, int letter,int size, int prevSoundCode)
 			if (toupper(name[letter]) == codes[row][col])	{
 				if (row != prevSoundCode)	{
 				        if (toupper(name[letter - 1]) == 'H' || toupper(name[letter - 1] == 'W'))       {
-						int recurseCode = searchCode(codes,name,letter-2,size,row);
-						return recurseCode;
+						return(searchCode(codes,name,letter-2,size,row));
 					}
 					return row;
 				}	else	{
