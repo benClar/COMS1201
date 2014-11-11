@@ -43,18 +43,70 @@ struct mazeMap	{
 	//return 0;
 //}
 
+int findEntrance(MazeMap maze)	{
+
+	int side,top;
+	BOOL entranceFound;
+	for(side = 0,entranceFound=FALSE; side < maze->height && entranceFound == FALSE; side++)	{
+		if((getBlock(maze,side,LEFTSIDE)) == ' ') {
+			entranceFound = TRUE;
+		}
+	}
+
+	for(top = 0; top < maze->width; top++)	{
+		if((getBlock(maze,TOPSIDE,side)) == ' ')	{
+		//determines if opening on top is closer than opening on side to left hand corner
+			if(--side <= top)	{ 
+				return(setBlockType(maze,side,LEFTSIDE,ENTRANCE));
+			} else {
+				return(setBlockType(maze,TOPSIDE,top,ENTRANCE));
+			}
+		}
+	}
+
+		return entranceFound;
+}
+
+int findExits(MazeMap maze)	{
+
+	int i;
+	//check top
+	for(i = 0; i <maze->width; i++)	{
+		if(getBlockType(maze,TOPSIDE,i) != ENTRANCE )	{
+			if(getBlock(maze,TOPSIDE,i) == ' ')	{
+				setBlockType(maze,TOPSIDE,top,EXIT);
+			}
+		}
+	}
+	//check bottom
+	for(i = 0; i <maze->width; i++)	{
+
+	}
+	//check left
+	for(i = 0; i <maze->height; i++)	{
+
+	}
+	//check right
+	for(i = 0; i <maze->height; i++)	{
+
+	}
+
+}
+
 int setExits(MazeMap maze, int rowStart, int side, int increment)	{
+	//checks sides
 	for(; rowStart < maze->height; rowStart+=increment)	{
 		if((getBlock(maze,rowStart,side)) == ' ')	{
 			if(side == LEFTSIDE)	{
-				setBlockType(maze,rowStart,side,ENTRANCE);
-				return rowStart;
+				//setBlockType(maze,rowStart,side,ENTRANCE);
+				//return rowStart;
 			} else if(side == (maze->width-1))	{
 				setBlockType(maze,rowStart,side,EXIT);
 				return rowStart;
 			}	
 		}
 	}
+	//checks top
 	return 0;	
 }
 
@@ -97,7 +149,7 @@ void *checkMalloc(void *malP)	{
 	return malP;		
 }
 
-int addToGrid(MazeMap maze, int *row, int *col, char value)	{
+int addToGrid(MazeMap maze, int *row, int *col, char value, char wallCharacter)	{
 	
 	if (value != '\n')	{
 		if(*col == maze->width )	{
@@ -105,6 +157,9 @@ int addToGrid(MazeMap maze, int *row, int *col, char value)	{
 			*col = 0;
 		}
 		maze->mazeGrid[(*row)][(*col)].block = value;
+		if(maze->mazeGrid[(*row)][(*col)].block == wallCharacter)	{
+			setBlockType(maze, *row, *col, WALL);
+		}
 		*col = *col + 1;	
 	}
 	return value;
@@ -130,7 +185,11 @@ int printMap(MazeMap maze)	{
 	int	r,c;
 	for(r = 0; r < getHeight(maze); r++)	{
 		for(c = 0; c < getWidth(maze); c++)	{
-			printf("%c",getBlock(maze,r,c));
+			if(getBlockType(maze,r,c)==EXITROUTE)	{
+				printf(" .");
+			} else{
+					printf(" %c",getBlock(maze,r,c));
+			}
 		}
 		pNL();
 	}
@@ -143,7 +202,16 @@ int setBlockType(MazeMap maze, int row, int col, blockType newBT)	{
 
 }
 
+int getBlockType(MazeMap maze, int row, int col)	{
 
+	return maze->mazeGrid[row][col].bT;
 
+}
 
+int mazeBoundaryCheck(MazeMap maze, int row, int col) {
 
+	if((row < maze->height && row >= 0) && (col < maze->width && col >= 0))	{
+		return 1;
+	}
+		return 0;
+}

@@ -21,13 +21,42 @@ int main(int argc, char *argv[]){
 	argc--;
 	MazeMap Maze = readMaze(argv[1]);
 	printMap(Maze);
-	iprint(setExits(Maze,TOPWALL,LEFTSIDE,DECREMROW));
-	iprint(setExits(Maze,(getHeight(Maze)-1),(getWidth(Maze)-1),INCREMROW));
+	iprint(findEntrance(Maze));
+	//setExits(Maze,(getHeight(Maze)-1),(getWidth(Maze)-1),INCREMROW); //setting Exit
+	//exploreMaze(Maze,setExits(Maze,TOPWALL,LEFTSIDE,DECREMROW),LEFTSIDE);//setting Entrance
+	//getBlockType(Maze,(setExits(Maze,(getHeight(Maze)-1),(getWidth(Maze)-1),INCREMROW)),(getWidth(Maze)-1)); displays type of exit
 	return 0;
 
 }
 
 /*---------- Functions ----------*/
+
+int exploreMaze(MazeMap Maze, int row, int col)	{
+	
+	if (!mazeBoundaryCheck(Maze, row, col)) { return 0;}	
+	if (getBlockType(Maze,row,col) == EXIT) { setBlockType(Maze,row,col,EXITROUTE); printMap(Maze); printf("exit\n"); return 1;}
+	if (getBlockType(Maze,row,col) == EXITROUTE) { return 0;}
+
+	printMap(Maze);
+
+	switch (getBlockType(Maze,row,col))	{
+		case WALL:
+				return 0;
+				break;
+		default:
+				setBlockType(Maze,row,col,EXITROUTE);
+				if(exploreMaze(Maze,row+UP,col)) { return 1;}
+				if(exploreMaze(Maze,row+DOWN,col)) { return 1;} 
+				if(exploreMaze(Maze,row,col+LEFT)) { return 1; } 
+				if(exploreMaze(Maze,row,col+RIGHT)) { return 1; }
+				break;
+	}
+
+	setBlockType(Maze,row,col,DEADEND);
+
+	return 0;	
+
+}
 
 MazeMap readMaze(char fileLocation[])	{
 	//char **dimensions=createStringArray(2,3);
@@ -51,10 +80,10 @@ MazeMap readMaze(char fileLocation[])	{
 					scanned++;
 			} else if(lineCount && scanned) {
 				//build map
-					addToGrid(Maze,&row,&col,letter);	
+					addToGrid(Maze,&row,&col,letter,'#');	
 			}
 				
-			}
+		}
 	} else {
 		fprintf(stderr, "File does not exist\n");	
 		exit(1);
@@ -74,7 +103,7 @@ int getFirstLine(FILE *fp,int *row, int *col)	{
 		//iprint(*row);
 		//iprint(*col);
 	} 
-
+	
 	return argCnt;
 }
 
