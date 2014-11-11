@@ -12,51 +12,73 @@
 /*---------- Custom Headers	-----------*/
 
 #include ".headers/debug.h"
-#include ".headers/maze.h"
 #include ".headers/mazeDataFunctions.h"
+#include ".headers/maze.h"
 
 /*---------- Main -----------*/
 
 int main(int argc, char *argv[]){
 	argc--;
-	readMaze(argv[1]);
+	MazeMap Maze = readMaze(argv[1]);
+	printMap(Maze);
+	iprint(setExits(Maze,TOPWALL,LEFTSIDE,DECREMROW));
+	iprint(setExits(Maze,(getHeight(Maze)-1),(getWidth(Maze)-1),INCREMROW));
 	return 0;
 
 }
 
 /*---------- Functions ----------*/
 
-FILE *readMaze(char fileLocation[])	{
-	char dimensions[2][3];
+MazeMap readMaze(char fileLocation[])	{
+	//char **dimensions=createStringArray(2,3);
 	FILE *fp;
 	char letter;
-	int lineCount = 0, charCount = 0, rowDim = 0, colDim = 0;
+	int lineCount = 0,scanned = 0, rowDim = 0, colDim = 0,row = 0, col = 0;
+	MazeMap Maze = NULL;
 	if ((fp = fopen(fileLocation,"r")) != NULL) {
 		while((letter = getc(fp)) != EOF)	{
-			//iprint(letter);
 			if(letter == '\n')	{
 				lineCount++;
 			}
 			//First line only
-			if(!lineCount && isdigit(letter))	{	
-					gettingDimensions(dimensions,letter,charCount++, &rowDim, &colDim);
-				if(charCount > 3)	{
-					createMap(rowDim,colDim);
-				}
-			} else {
-				//putchar(letter);
+			if((!scanned) && (!lineCount) && (isdigit(letter)))	{	
+					//getFirstLine(fp,&rowDim,&colDim);
+					rowDim = colDim = 10;	
+					//iprint(rowDim);
+					//iprint(colDim);
+					//gettingDimensions(dimensions,letter,charCount++, &rowDim, &colDim);
+					Maze = createMap(rowDim,colDim);
+					scanned++;
+			} else if(lineCount && scanned) {
+				//build map
+					addToGrid(Maze,&row,&col,letter);	
 			}
-
+				
 			}
 	} else {
-		fprintf(stderr, "null address generated\n");	
+		fprintf(stderr, "File does not exist\n");	
 		exit(1);
 	}
 	
-	return fp;
+	return Maze;
 }
 
-int gettingDimensions(char dimensions[2][3], char letter,int charCount, int *rowLngth, int *colLngth)	{
+int getFirstLine(FILE *fp,int *row, int *col)	{
+
+	int testr, testc;
+	int count = 0, argCnt;
+	while((argCnt = (fscanf(fp,"%d %d",&testr,&testc))) != EOF && count < 1)	{
+		count++;	
+		iprint(testr);
+		iprint(testc);
+		//iprint(*row);
+		//iprint(*col);
+	} 
+
+	return argCnt;
+}
+
+int gettingDimensions(char **dimensions, char letter,int charCount, int *rowLngth, int *colLngth)	{
 		switch (charCount)	{
 			case 0:
 				dimensions[0][0] = letter;	
