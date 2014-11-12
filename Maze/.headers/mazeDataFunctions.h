@@ -1,6 +1,6 @@
 /*----------Enumerated Types-----------*/
 //change to capital?
-typedef enum { ENTRANCE, EXIT, WALL, EXITROUTE, DEADEND } blockType;
+typedef enum { MISC, ENTRANCE, EXIT, WALL, EXITROUTE, DEADEND } blockType;
 typedef enum {FALSE, TRUE} BOOL;
 /*----------Symbolic Constants-----------*/
 
@@ -24,7 +24,7 @@ int getWidth(MazeMap maze);
 int getHeight(MazeMap maze);
 int printMap(MazeMap maze);
 int setBlockType(MazeMap maze, int row, int col,blockType newBT);
-int setExits(MazeMap maze, int rowStart, int side, int increment);
 int getBlockType(MazeMap maze, int row, int col);
 int mazeBoundaryCheck(MazeMap maze, int row, int col);
 int findEntrance(MazeMap maze);
+int detectExit(MazeMap maze, int row, int col);

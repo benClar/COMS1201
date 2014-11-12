@@ -23,7 +23,6 @@ Node AllocateNode(char *name);
 int** malArray(int width, int height);
 int permutationsCalc(int num);
 void numbersCalc(int **array, int range,int size);
-void printArr(int *array[], int row, int col);
 int checkWord(Node start, char *wStart, char *wEnd, int **permutations,int row, int col);
 int searchWord(Node start, char*word);
 
@@ -47,7 +46,7 @@ int main(int argc, char *argv[]){
 	int **perms = malArray(WORDSIZE,permutationsCalc(WORDSIZE));
 	numbersCalc(perms,permutationsCalc(WORDSIZE),WORDSIZE);
 	
-	for (row = 0; row < 24 && success == 0; row++)	{	
+	for (row = 0; row < 24  && success == 0; row++)	{	
 		if((captured = checkWord(start,argv[1],argv[2],perms,row,0)))	{
 				success = 1;
 				printf("%s\n",argv[1]);
@@ -151,15 +150,4 @@ int** malArray(int width, int height)	{
 		array[i] = (int*) malloc(width*sizeof(int));
 	}
 	return array;
-}
-
-void printArr(int *array[], int row, int col)	{
-
-	int rCnt, cCnt;
-	for (rCnt  = 0; rCnt < row; rCnt++)	{
-		for(cCnt=0; cCnt < col; cCnt++)	{
-			printf("%d",array[rCnt][cCnt]);
-		}
-		pNL();
-	}
 }

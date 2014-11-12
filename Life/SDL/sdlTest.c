@@ -33,10 +33,10 @@ int main(){
 
 	rectangle_clear.w = WWIDTH;
 	rectangle_clear.h = WHEIGHT;
-	double x = 750;
-	double y = 0;
-	double dy =10;
-	double dx =10;
+	double x = 100;
+	double y =100;
+	double dy =-10;
+	double dx =-10;
 	
 
 	int col1 = 100;	
@@ -45,12 +45,15 @@ int main(){
 	
 	Neill_SDL_Init(&sw);
 	do	{	
-		gravity(&dx);
-		lfprint(dx);
-		x= x + dx;
+	//	gravity(&dx);
+	//	gravity(&dy);
+	//	x= x + dx;
+		lfprint(dy);
+		lfprint(x);
 		y=y + dy;
 		collisionDet(y,x, &dx, &dy);
-	
+		lfprint(x);	
+		lfprint(dx);
 		col1 = col1 + 10;
 		
 
@@ -58,7 +61,7 @@ int main(){
 		Neill_SDL_SetDrawColour(&sw,col1,50,11);
 
 		rectangle.x = x;
-      		rectangle.y = y;
+      	rectangle.y = y;
 		rectangle_clear.x = 0;
 		rectangle_clear.y = 0;
 		SDL_RenderFillRect(sw.renderer, &rectangle);
@@ -84,21 +87,23 @@ int main(){
 
 void collisionDet(double y, double x, double *dx, double *dy)	{
 
-                if (y > 570 || y < 10 ) {
+                if (y > 570 || y < 5 ) {
                         *dy = -*dy;
+						printf("collision detected \n");
+						gravity(dy);
                 }
-                if (x > 770 || x < 10 ) {
+                if (x > 770 || x < 5 ) {
                         *dx = -*dx;
+						gravity(dx);
                 }	
 
 }
 
 void gravity(double *modifier)	{
 
-
-		*modifier = *modifier - 1;
-
-
-
-
+		if(*modifier > 0)	{
+			*modifier = *modifier - 2;
+		} else if(*modifier > 0)  {
+			*modifier = *modifier + 2;	
+		}
 }

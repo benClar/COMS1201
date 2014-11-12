@@ -16,7 +16,7 @@
 #include "life.h"
 
 /*---------- Symbolic Constants  -----------*/
-#define RECTSIZE 	20
+#define RECTSIZE 	3	
 #define WHITE		255
 #define BLACK		0
 /*---------- Main -----------*/
@@ -93,8 +93,7 @@ void scanInt(int *toScan)	{
 void times(Lifeform **gridOne, Lifeform **gridTwo, int size, int n, mode m1)
 {
 		SDL_Simplewin sw;
-       		Neill_SDL_Init(&sw);
-	
+       	Neill_SDL_Init(&sw);
 		int i, cycle=1;
 		for (i = 0; i < n && (!sw.finished); i++)	{
 			printf("cycle:	%d \n",i);
@@ -112,8 +111,10 @@ void times(Lifeform **gridOne, Lifeform **gridTwo, int size, int n, mode m1)
 				cycle++;
 			}
 
+
 			SDL_RenderPresent(sw.renderer);
 			SDL_UpdateWindowSurface(sw.win);
+
 			Neill_SDL_Events(&sw);
 			delay(DELAY);	//delay between cycle prints
 		}
@@ -222,23 +223,32 @@ void printGrid(Lifeform **grid, int size, SDL_Simplewin sw)	{
 	SDL_Rect rectangle;
 	rectangle.w = RECTSIZE;
    	rectangle.h = RECTSIZE;
-	
+    SDL_Rect rectangle_clear;
+
+    rectangle_clear.w = WWIDTH;
+    rectangle_clear.h = WHEIGHT;
+    rectangle_clear.x  = 0;
+    rectangle_clear.y  = 0;
+	Neill_SDL_SetDrawColour(&sw,0,0,0);
+	SDL_RenderFillRect(sw.renderer,&rectangle_clear);
 	for(row = LOWERBOUND; row < size; row++)	{
 		for (col = LOWERBOUND; col < size; col++)	{
 			if (grid[row][col].s1 == ALIVE)	{
 				Neill_SDL_SetDrawColour(&sw,WHITE,WHITE,WHITE);
-				rectangle.x = (WWIDTH-col-RECTSIZE);
-      				rectangle.y = (WHEIGHT-row-RECTSIZE);
+				rectangle.x = (WWIDTH-(col*RECTSIZE));
+      			rectangle.y = (WHEIGHT-(row*RECTSIZE));
 				SDL_RenderFillRect(sw.renderer, &rectangle);	
 			} else {
 				Neill_SDL_SetDrawColour(&sw,BLACK,BLACK,BLACK);
-                                rectangle.x = (WWIDTH-col-RECTSIZE);
-                                rectangle.y = (WHEIGHT-row-RECTSIZE);
+                rectangle.x = (WWIDTH-(col*RECTSIZE));
+                rectangle.y = (WHEIGHT-(row*RECTSIZE));
 				SDL_RenderFillRect(sw.renderer, &rectangle);
 			}
 		}
 		pNL();
-	} 
+	}
+	       	//Neill_SDL_SetDrawColour(&sw,0,0,0);
+            //SDL_RenderFillRect(sw.renderer,&rectangle_clear);
 }
 
 //initialising new lifeform on the grid

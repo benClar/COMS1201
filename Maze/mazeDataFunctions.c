@@ -49,6 +49,7 @@ int findEntrance(MazeMap maze)	{
 	BOOL entranceFound;
 	for(side = 0,entranceFound=FALSE; side < maze->height && entranceFound == FALSE; side++)	{
 		if((getBlock(maze,side,LEFTSIDE)) == ' ') {
+			iprint(side);
 			entranceFound = TRUE;
 		}
 	}
@@ -57,57 +58,25 @@ int findEntrance(MazeMap maze)	{
 		if((getBlock(maze,TOPSIDE,side)) == ' ')	{
 		//determines if opening on top is closer than opening on side to left hand corner
 			if(--side <= top)	{ 
+				iprint(side);
+				iprint(LEFTSIDE);
 				return(setBlockType(maze,side,LEFTSIDE,ENTRANCE));
 			} else {
 				return(setBlockType(maze,TOPSIDE,top,ENTRANCE));
 			}
 		}
 	}
-
+		--side;
+		iprint(side);
+		setBlockType(maze,side,LEFTSIDE,ENTRANCE);
 		return entranceFound;
 }
 
-int findExits(MazeMap maze)	{
-
-	int i;
-	//check top
-	for(i = 0; i <maze->width; i++)	{
-		if(getBlockType(maze,TOPSIDE,i) != ENTRANCE )	{
-			if(getBlock(maze,TOPSIDE,i) == ' ')	{
-				setBlockType(maze,TOPSIDE,top,EXIT);
-			}
-		}
+int detectExit(MazeMap maze, int row, int col)	{
+	if((row == maze->width -1 || col == maze->height - 1 || row == 0 || col == 0)  && (getBlock(maze,row,col) == ' ') && (getBlockType(maze,row,col) != ENTRANCE) )	{
+		return 1;
 	}
-	//check bottom
-	for(i = 0; i <maze->width; i++)	{
-
-	}
-	//check left
-	for(i = 0; i <maze->height; i++)	{
-
-	}
-	//check right
-	for(i = 0; i <maze->height; i++)	{
-
-	}
-
-}
-
-int setExits(MazeMap maze, int rowStart, int side, int increment)	{
-	//checks sides
-	for(; rowStart < maze->height; rowStart+=increment)	{
-		if((getBlock(maze,rowStart,side)) == ' ')	{
-			if(side == LEFTSIDE)	{
-				//setBlockType(maze,rowStart,side,ENTRANCE);
-				//return rowStart;
-			} else if(side == (maze->width-1))	{
-				setBlockType(maze,rowStart,side,EXIT);
-				return rowStart;
-			}	
-		}
-	}
-	//checks top
-	return 0;	
+	return 0;
 }
 
 MazeMap createMap(int height, int width)	{
@@ -119,10 +88,9 @@ MazeMap createMap(int height, int width)	{
 		for(i = 0; i < width; i++)	{
 			newMaze->mazeGrid[i] = (struct mazeBlock*) checkMalloc(malloc(width * sizeof(struct mazeBlock)));	
 		}
-		
+		iprint(height);
 		newMaze->height = height;
 		newMaze->width = width;
-		newMaze->mazeGrid[0][0].block = 'd';
 		return newMaze;
 	} else {
 		fprintf(stderr, "No dimensions given for map size in first line of input file\n");	
@@ -150,15 +118,17 @@ void *checkMalloc(void *malP)	{
 }
 
 int addToGrid(MazeMap maze, int *row, int *col, char value, char wallCharacter)	{
-	
 	if (value != '\n')	{
 		if(*col == maze->width )	{
 			*row = *row +1;
 			*col = 0;
 		}
 		maze->mazeGrid[(*row)][(*col)].block = value;
+		
 		if(maze->mazeGrid[(*row)][(*col)].block == wallCharacter)	{
 			setBlockType(maze, *row, *col, WALL);
+		} else {
+			setBlockType(maze, *row, *col, MISC);	
 		}
 		*col = *col + 1;	
 	}
@@ -198,6 +168,7 @@ int printMap(MazeMap maze)	{
 
 int setBlockType(MazeMap maze, int row, int col, blockType newBT)	{
 	maze->mazeGrid[row][col].bT = newBT;
+	
 	return 1;
 
 }

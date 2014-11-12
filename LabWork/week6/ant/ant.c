@@ -10,10 +10,9 @@
 #include <stdlib.h>
 #include <time.h>
 /*---------- Custom Headers	-----------*/
-
+#include "neillsdl2.h"
 #include ".headers/debug.h"
 #include ".headers/ant.h"
-
 /*---------- Main -----------*/
 
 int main(int argc, char *argv[]){
@@ -21,13 +20,20 @@ int main(int argc, char *argv[]){
 	int i;	
 	Square **grid = makeGrid(GRIDSIZE);
 
+	SDL_Simplewin sw;
+	Neill_SDL_Init(&sw);
+
 	initGrid(grid,GRIDSIZE);
-	for (i = 0; i <1000000; i++)	{
-		printGrid(grid,GRIDSIZE);
+	for (i = 0; i <1000000 && (!sw.finished); i++)	{
+		iprint(i);
+		SDL_Delay(MILLISECONDDELAY);
+		printGrid(sw, grid,GRIDSIZE);
 		directionTest(grid,&x,&y);
-		//printf("after move %d %d: facing %d \n",x,y,grid[y][x].currDir);
-		pNL();
-		delay(200);
+//		delay(200);
+		SDL_RenderPresent(sw.renderer);
+		SDL_UpdateWindowSurface(sw.win);
+
+		Neill_SDL_Events(&sw);
 	}
 	return 0;
 
@@ -77,28 +83,28 @@ int getMiddle(int size)	{
 void directionTest(Square **grid, int *col, int *row)	{
 	int x =*col; 
 	int y =*row; 
-	printf("current square row : %d Col : %d\n",*row,*col);
+	//printf("current square row : %d Col : %d\n",*row,*col);
 	switch (grid[(*row)][(*col)].currDir) {
 
 		case NORTH:
-		printf("Facing North\n");
+	//	printf("Facing North\n");
 				testCurr(grid[(y)][(x)].currDir,grid,*col, --(*row));	
 				break;
 
 		case EAST:
-		printf("Facing East\n");
+	//	printf("Facing East\n");
 				testCurr(grid[(y)][(x)].currDir,grid,++(*col), *(row)); 
 
 				break;
 
 		case SOUTH:
-		printf("Facing South\n");
+	//	printf("Facing South\n");
 				testCurr(grid[(y)][(x)].currDir,grid,*col, ++(*row)); 
 
 				break;
 
 		case WEST:
-		printf("Facing West\n");
+	//	printf("Facing West\n");
 				testCurr(grid[(y)][(x)].currDir,grid,--(*col), *row);
 				break;
 
@@ -113,13 +119,13 @@ void directionTest(Square **grid, int *col, int *row)	{
 void testCurr(direction current, Square **grid, int col, int row)	{
 
 	grid[row][col].currDir=current;
-	printf("now I have moved to ");
-	printf("row: %d col: %d. Current ",row,col);
+//	printf("now I have moved to ");
+//	printf("row: %d col: %d. Current ",row,col);
 
 	switch(grid[row][col].currState)	{
 
 		case BLACK:
-					printf("Square is black, turn left \n");
+//					printf("Square is black, turn left \n");
 					grid[row][col].currState = WHITE;
 					if(grid[row][col].currDir == NORTH)	{
 						grid[row][col].currDir = WEST;
@@ -129,14 +135,14 @@ void testCurr(direction current, Square **grid, int col, int row)	{
 					break;
 
 		case WHITE:
-					printf("square is white, turn right");
+//					printf("square is white, turn right");
 					grid[row][col].currState = BLACK;	
 					if(grid[row][col].currDir == WEST)	{
 						grid[row][col].currDir = NORTH;
 					} else {
 						grid[row][col].currDir++;
 					}
-					printf(" so facing %d \n", grid[row][col].currDir);
+//					printf(" so facing %d \n", grid[row][col].currDir);
 					break;
 		default:
 
@@ -158,26 +164,40 @@ void testCurr(direction current, Square **grid, int col, int row)	{
 //    iprint(grid[yPos][xPos].currDir);
 }
 
-void printGrid(Square **grid, int size)	{
+void printGrid(SDL_Simplewin sw, Square **grid, int size)	{
 	
+	SDL_Rect rectangle;
+	rectangle.w = RECTSIZE;
+	rectangle.h = RECTSIZE;
+
 	int row, col;	
 	for(row = 0; row < size; row++)	{
-	printf("row: %d", row);
 		for (col = 0; col < size; col++)	{
 		//	iprint(grid[row][col].currState);
 			switch (grid[row][col].currState)	{
 				case	WHITE:
-						printf(" # ");
+						//printf(" # ");
+						Neill_SDL_SetDrawColour(&sw,255,255,255);
+						rectangle.x =(WWIDTH -(col*RECTSIZE));
+						rectangle.y = (WHEIGHT-(row*RECTSIZE)); 
+						//iprint(rectangle.x);
+						//iprint(rectangle.y);
+						SDL_RenderFillRect(sw.renderer, &rectangle);
 						break;
 
 				case BLACK:
-						printf(" . ");
+						Neill_SDL_SetDrawColour(&sw,0,0,0);
+						rectangle.x = (WWIDTH -(col*RECTSIZE));
+						rectangle.y = (WHEIGHT-(row*RECTSIZE)); 
+						//iprint(rectangle.x);
+						//iprint(rectangle.y);
+						SDL_RenderFillRect(sw.renderer, &rectangle);
+						//printf(" . ");
 						break;
 				default:
 						break;			
 			}
 		}
-		pNL();
 	}
 }
 
