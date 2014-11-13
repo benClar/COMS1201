@@ -43,13 +43,12 @@ struct mazeMap	{
 	//return 0;
 //}
 
-int findEntrance(MazeMap maze)	{
+int findEntrance(MazeMap maze,int *eRow, int *eCol)	{
 
 	int side,top;
 	BOOL entranceFound;
 	for(side = 0,entranceFound=FALSE; side < maze->height && entranceFound == FALSE; side++)	{
 		if((getBlock(maze,side,LEFTSIDE)) == ' ') {
-			iprint(side);
 			entranceFound = TRUE;
 		}
 	}
@@ -57,19 +56,16 @@ int findEntrance(MazeMap maze)	{
 	for(top = 0; top < maze->width; top++)	{
 		if((getBlock(maze,TOPSIDE,side)) == ' ')	{
 		//determines if opening on top is closer than opening on side to left hand corner
-			if(--side <= top)	{ 
-				iprint(side);
-				iprint(LEFTSIDE);
-				return(setBlockType(maze,side,LEFTSIDE,ENTRANCE));
-			} else {
+			if(--side >= top)	{ 
+				*eRow = TOPSIDE;
+				*eCol = top;
 				return(setBlockType(maze,TOPSIDE,top,ENTRANCE));
 			}
 		}
 	}
-		--side;
-		iprint(side);
-		setBlockType(maze,side,LEFTSIDE,ENTRANCE);
-		return entranceFound;
+		*eRow = --side;
+		*eCol = LEFTSIDE;
+		return(setBlockType(maze,side,LEFTSIDE,ENTRANCE));
 }
 
 int detectExit(MazeMap maze, int row, int col)	{

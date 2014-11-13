@@ -18,13 +18,13 @@
 /*---------- Main -----------*/
 
 int main(int argc, char *argv[]){
+	int eRow, eCol;
 	argc--;
 	MazeMap Maze = readMaze(argv[1]);
 	printMap(Maze);
-	findEntrance(Maze);
-	//iprint(getHeight(Maze));
-	exploreMaze(Maze,1,0);
-	//iprint(detectExit(Maze,8,9));
+	if(findEntrance(Maze, &eRow, &eCol))	{
+		exploreMaze(Maze,eRow,eCol);
+	}	
 	return 0;
 
 }
@@ -32,10 +32,13 @@ int main(int argc, char *argv[]){
 /*---------- Functions ----------*/
 
 int exploreMaze(MazeMap Maze, int row, int col)	{
-	int	type;
 	if (!mazeBoundaryCheck(Maze, row, col)) {  return 0;}	
-	if (detectExit(Maze,row,col)) {setBlockType(Maze,row,col,EXITROUTE);  printMap(Maze); return 1;}
 	if (getBlockType(Maze,row,col) == EXITROUTE) { return 0;}
+	if (detectExit(Maze,row,col)) {	
+		setBlockType(Maze,row,col,EXITROUTE);  printMap(Maze); 
+		return 1;
+	}
+	//if (getBlockType(Maze,row,col) == EXITROUTE) { return 0;}
 	
 	//printMap(Maze);
 		switch(getBlockType(Maze,row,col))	{
@@ -44,11 +47,13 @@ int exploreMaze(MazeMap Maze, int row, int col)	{
 				break;
 		default:
 				printMap(Maze);
+				iprint(col);	
+				iprint(row);
 				setBlockType(Maze,row,col,EXITROUTE);
-				if((type = exploreMaze(Maze,row+UP,col))) { return 1;}
-				if((type = exploreMaze(Maze,row+DOWN,col))) { return 1;} 
-				if((type = exploreMaze(Maze,row,col+LEFT))) { return 1; } 
-				if((type = exploreMaze(Maze,row,col+RIGHT))) { return 1; }
+				if(exploreMaze(Maze,row+UP,col)) { return 1;}
+				if(exploreMaze(Maze,row+DOWN,col)) { return 1;} 
+				if(exploreMaze(Maze,row,col+LEFT)) { return 1; } 
+				if(exploreMaze(Maze,row,col+RIGHT)) { return 1; }
 				break;
 	}
 	

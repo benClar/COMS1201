@@ -26,5 +26,5 @@ int printMap(MazeMap maze);
 int setBlockType(MazeMap maze, int row, int col,blockType newBT);
 int getBlockType(MazeMap maze, int row, int col);
 int mazeBoundaryCheck(MazeMap maze, int row, int col);
-int findEntrance(MazeMap maze);
+int findEntrance(MazeMap maze,int *eRow, int *eCol);
 int detectExit(MazeMap maze, int row, int col);
