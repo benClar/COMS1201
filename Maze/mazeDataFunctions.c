@@ -25,20 +25,20 @@ struct mazeMap	{
 	int width;
 };
 
-struct pathNode	{
+//struct pathNode	{
 
-	int row;
+//	int row;
 	int col;
 
-}
+//}
 
-struct pathList	{
+//struct pathList	{
 
-	struct PathNode start;
-	struct PathNode current;
-	int nItems;
+//	struct PathNode start;
+//	struct PathNode current;
+//	int nItems;
 
-};
+//};
 
 
 
