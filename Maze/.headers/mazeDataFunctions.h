@@ -3,7 +3,7 @@
 typedef enum { MISC, ENTRANCE, EXIT, WALL, EXITROUTE, DEADEND } blockType;
 typedef enum {FALSE, TRUE} BOOL;
 /*----------Symbolic Constants-----------*/
-
+#define RECTSIZE	20	//rectangle size
 #define LEFTSIDE 	0	//Far lefthand side of maze
 #define	TOPSIDE		0
 #define TOPWALL		0 	//Top wall of maze
@@ -13,12 +13,13 @@ typedef enum {FALSE, TRUE} BOOL;
 
 //typedef struct mazeBlock *MazeBlock;
 typedef struct mazeMap *MazeMap;
-
+typedef struct pathList *PathList;
+typedef struct pathNode *PathNode;
 /*----------Function Prototypes-----------*/
 MazeMap createMap(int height, int width);
 void *checkMalloc(void *malP);
 int addToGrid(MazeMap maze, int *row, int *col, char value, char wallCharacter);
-char **createStringArray(int height, int width);
+int **createIntArray(int height, int width);
 char getBlock(MazeMap maze, int row, int col); 
 int getWidth(MazeMap maze);
 int getHeight(MazeMap maze);
@@ -28,3 +29,4 @@ int getBlockType(MazeMap maze, int row, int col);
 int mazeBoundaryCheck(MazeMap maze, int row, int col);
 int findEntrance(MazeMap maze,int *eRow, int *eCol);
 int detectExit(MazeMap maze, int row, int col);
+int graphicalPrint(MazeMap maze,SDL_Simplewin sw);

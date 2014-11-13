@@ -6,6 +6,7 @@
 
 /*---------- Custom Headers	-----------*/
 
+#include ".headers/neillsdl2.h"
 #include ".headers/debug.h"
 #include ".headers/mazeDataFunctions.h"
 
@@ -23,6 +24,23 @@ struct mazeMap	{
 	int height;
 	int width;
 };
+
+struct pathNode	{
+
+	int row;
+	int col;
+
+}
+
+struct pathList	{
+
+	struct PathNode start;
+	struct PathNode current;
+	int nItems;
+
+};
+
+
 
 /*---------- Functions ----------*/
 
@@ -94,12 +112,12 @@ MazeMap createMap(int height, int width)	{
 	}
 }
 
-char **createStringArray(int height, int width)	{
+int **createIntArray(int height, int width)	{
 
 	int	i;
-	char **array = (char**) checkMalloc(malloc(height * sizeof(char*)));
+	int **array = (int**) checkMalloc(malloc(height * sizeof(int*)));
 	for(i = 0; i < height; i++)	{
-		array[i] = (char *) checkMalloc(malloc((width * sizeof(char))));
+		array[i] = (int *) checkMalloc(malloc((width * sizeof(int))));
 	}
 	return array;
 }
@@ -159,6 +177,54 @@ int printMap(MazeMap maze)	{
 		}
 		pNL();
 	}
+	return 1;
+}
+
+int graphicalPrint(MazeMap maze,SDL_Simplewin sw)	{
+	int	r,c;
+
+	SDL_Rect rectangle;
+	rectangle.w = RECTSIZE;
+	rectangle.h = RECTSIZE;
+
+	for(r = 0; r < getHeight(maze); r++)	{
+		for(c = 0; c < getWidth(maze); c++)	{
+			if(getBlockType(maze,r,c)==EXITROUTE)	{
+				Neill_SDL_SetDrawColour(&sw,255,165,0);
+				rectangle.x = (c*RECTSIZE);
+				rectangle.y = (r*RECTSIZE);
+				SDL_RenderFillRect(sw.renderer, &rectangle);
+				iprint(rectangle.x);
+				iprint(rectangle.y);
+				iprint(c*RECTSIZE);
+				iprint(r*RECTSIZE);
+				iprint(WWIDTH);	
+				iprint(WHEIGHT);
+			} else if(getBlockType(maze,r,c)==WALL) {
+		                Neill_SDL_SetDrawColour(&sw,128,0,0);
+                               rectangle.x = (c*RECTSIZE);
+                              rectangle.y = (r*RECTSIZE);
+				SDL_RenderFillRect(sw.renderer, &rectangle);
+			} else if (getBlockType(maze,r,c)==ENTRANCE) {
+                               Neill_SDL_SetDrawColour(&sw,0,128,0);
+                              rectangle.x = (c*RECTSIZE);
+                             rectangle.y = (r*RECTSIZE);	
+				SDL_RenderFillRect(sw.renderer, &rectangle);
+			} else {
+                               Neill_SDL_SetDrawColour(&sw,0,0,0);
+                              rectangle.x = (c*RECTSIZE);
+                             rectangle.y = (r*RECTSIZE);	
+				SDL_RenderFillRect(sw.renderer, &rectangle);
+			}
+		}
+		pNL();
+	}
+	//Update Window
+	SDL_RenderPresent(sw.renderer);
+        SDL_UpdateWindowSurface(sw.win);
+
+	//Check if User has quit
+	//Neill_SDL_Events(&sw);
 	return 1;
 }
 

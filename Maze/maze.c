@@ -11,6 +11,7 @@
 #include <ctype.h>
 /*---------- Custom Headers	-----------*/
 
+#include ".headers/neillsdl2.h"
 #include ".headers/debug.h"
 #include ".headers/mazeDataFunctions.h"
 #include ".headers/maze.h"
@@ -18,24 +19,36 @@
 /*---------- Main -----------*/
 
 int main(int argc, char *argv[]){
-	int eRow, eCol;
+	SDL_Simplewin sw;
+	int eRow, eCol, gMode = 0;
 	argc--;
+	iprint(argc);
+	if(argc > 1){
+		if(!strcmp(argv[2],"SDL")){
+			gMode = 1;
+			Neill_SDL_Init(&sw);
+		}
+	}
+	sprint(argv[2]);
 	MazeMap Maze = readMaze(argv[1]);
 	printMap(Maze);
 	if(findEntrance(Maze, &eRow, &eCol))	{
-		exploreMaze(Maze,eRow,eCol);
-	}	
+		exploreMaze(Maze, eRow, eCol,gMode,sw);
+	}
+		
 	return 0;
 
 }
 
 /*---------- Functions ----------*/
-
-int exploreMaze(MazeMap Maze, int row, int col)	{
+//int exploreMaze(MazeMap Maze, int row, int col, SDL_Simplewin sw, int gMode)	{
+int exploreMaze(MazeMap Maze, int row, int col,int gMode, SDL_Simplewin sw)	{
 	if (!mazeBoundaryCheck(Maze, row, col)) {  return 0;}	
 	if (getBlockType(Maze,row,col) == EXITROUTE) { return 0;}
 	if (detectExit(Maze,row,col)) {	
-		setBlockType(Maze,row,col,EXITROUTE);  printMap(Maze); 
+		setBlockType(Maze,row,col,EXITROUTE);  
+		//printMap(Maze); 
+		printing(Maze,sw, gMode);
 		return 1;
 	}
 
@@ -44,14 +57,17 @@ int exploreMaze(MazeMap Maze, int row, int col)	{
 				return 0;
 				break;
 		default:
-				printMap(Maze);
-				iprint(col);	
-				iprint(row);
+				if(gMode)	{
+					graphicalPrint(Maze,sw);	
+				} else {
+					printMap(Maze);
+				}
 				setBlockType(Maze,row,col,EXITROUTE);
-				if(exploreMaze(Maze,row+UP,col)) { return 1;}
-				if(exploreMaze(Maze,row+DOWN,col)) { return 1;} 
-				if(exploreMaze(Maze,row,col+LEFT)) { return 1; } 
-				if(exploreMaze(Maze,row,col+RIGHT)) { return 1; }
+				printing(Maze,sw, gMode);
+				if(exploreMaze(Maze,row+UP,col,gMode,sw)) { return 1;}
+				if(exploreMaze(Maze,row+DOWN,col,gMode,sw)) { return 1;} 
+				if(exploreMaze(Maze,row,col+LEFT,gMode,sw)) { return 1; } 
+				if(exploreMaze(Maze,row,col+RIGHT,gMode,sw)) { return 1; }
 				break;
 	}
 	
@@ -59,6 +75,16 @@ int exploreMaze(MazeMap Maze, int row, int col)	{
 
 	return 0;	
 
+}
+
+int printing(MazeMap Maze, SDL_Simplewin sw, int gMode)	{
+	if(gMode)	{
+		graphicalPrint(Maze,sw);	
+		return 2;
+	} else {
+		printMap(Maze);
+	}
+	return 1;
 }
 
 MazeMap readMaze(char fileLocation[])	{

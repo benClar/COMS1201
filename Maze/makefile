@@ -1,9 +1,8 @@
-#CFLAGS = `sdl2-config --cflags` -O4 -Wall -pedantic -std=c99 -lm
-CFLAGS = -O4 -Wall -pedantic -std=c99 -lm
-INCS = 
+CFLAGS = `sdl2-config --cflags` -O4 -Wall -pedantic -std=c99 -lm
+INCS = .headers/neillsdl2.h
 TARGET =  mazeDataFunctions
-SOURCES =  maze.c $(TARGET).c 
-#LIBS =  `sdl2-config --libs`
+SOURCES =  neillsdl2.c maze.c $(TARGET).c 
+LIBS =  `sdl2-config --libs`
 CC = gcc
 
 
