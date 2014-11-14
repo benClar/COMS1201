@@ -15,7 +15,6 @@ void addNode(PathList list, int addRow, int addCol);
 void cleanList(MazeMap maze, PathList list);
 void nextNode(PathList list);
 void setCurr(PathList list, PathNode node);
-void setStart(PathList list, PathNode node);
 int getCurrCol(PathList list);
 int getCurrRow(PathList list);
 PathNode getCurr(PathList list);

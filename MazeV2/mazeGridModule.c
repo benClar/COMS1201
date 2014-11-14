@@ -6,34 +6,35 @@
 
 /*---------- Custom Headers	-----------*/
 
-//#include ".headers/neillsdl2.h"
 #include ".headers/debug.h"
 #include ".headers/mazeDataFunctions.h"
 
 /*---------- Data Structures ----------*/
 
+/* \struct
+ * Building block for maze
+ */
 struct mazeBlock {
 
-	char block;
-	blockType bT;
+	char block; /**< holds character that represents block*/
+	blockType bT; /**< type of block */
 };
 
+/* \struct
+ * Holds maze blocks and store dimension details
+ */
 struct mazeMap	{
 
-	struct mazeBlock **mazeGrid;
-	int height;
-	int width;
+	struct mazeBlock **mazeGrid; /**< array of pointers to blocks */
+	int height; /**<height of maze.  Can only be set once during creation. */
+	int width; /**< width of maze.  Can only be set once during creation. */
 };
 
 /*---------- Functions ----------*/
 
-//int detectExit(MazeMap maze, int row, int col)	{
-//	if((row == maze->width -1 || col == maze->height - 1 || row == 0 || col == 0)  && (getBlock(maze,row,col) == ' ') && (getBlockType(maze,row,col) != ENTRANCE) )	{
-//		return 1;
-//	}
-//	return 0;
-//}
-
+/*
+ *creates structure for required size to hold maze blocks
+ */
 MazeMap createMap(int height, int width)	{
 
 	int i;
@@ -52,6 +53,9 @@ MazeMap createMap(int height, int width)	{
 	}
 }
 
+/*
+ * Validates mallocs
+ */
 void *checkMalloc(void *malP)	{
 
 	if (malP == NULL)	{
@@ -61,6 +65,10 @@ void *checkMalloc(void *malP)	{
 	return malP;		
 }
 
+/*
+ *Accepts characters to be added to maze
+ *		Labels specified characters as walls
+ */
 int addToGrid(MazeMap maze, int *row, int *col, char value, char wallCharacter)	{
 	if (value != '\n')	{
 		if(*col == maze->width )	{
@@ -79,21 +87,32 @@ int addToGrid(MazeMap maze, int *row, int *col, char value, char wallCharacter)	
 	return value;
 }
 
+/*
+ * Accessor for specified block character
+ */
 char getBlock(MazeMap maze, int row, int col)	{
 
 	return maze->mazeGrid[row][col].block;
 }
-
+/*
+ * Accessor for maze height
+ */
 int getHeight(MazeMap maze)	{
 
 	return maze->height;
 }
 
+/*
+ * Accessor for maze width
+ */
 int getWidth(MazeMap maze)	{
 
 	return maze->width;
 }
 
+/*
+ * Setter for type of specified block
+ */
 int setBlockType(MazeMap maze, int row, int col, blockType newBT)	{
 	maze->mazeGrid[row][col].bT = newBT;
 	
@@ -101,12 +120,18 @@ int setBlockType(MazeMap maze, int row, int col, blockType newBT)	{
 
 }
 
+/*
+ * Accessor for type of specified block
+ */
 int getBlockType(MazeMap maze, int row, int col)	{
 
 	return maze->mazeGrid[row][col].bT;
 
 }
 
+/*
+ * Checks given coordinate against maze height and width
+ */
 int mazeBoundaryCheck(MazeMap maze, int row, int col) {
 
 	if((row < maze->height && row >= 0) && (col < maze->width && col >= 0))	{

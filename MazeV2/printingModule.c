@@ -1,8 +1,7 @@
-//
-// printingModule.c
-// Created by bc14627 on 2014/14/11
-// tags: 
-//
+//! printingModule.c
+/*!
+ *  Prints output to screen depending on selected mode
+ */
 /*---------- Standard Headers -----------*/
 
 #include <stdio.h>
@@ -16,15 +15,15 @@
 #include ".headers/mazeDataFunctions.h"
 #include ".headers/coordListModule.h"
 #include ".headers/printingModule.h"
-/*---------- Symbolic Constants  -----------*/
-
-
 
 /*---------- Functions ----------*/
+
+/*
+ * Prints full correct route coordinates stored in route list
+ */
 int printCorrectRoute(MazeMap maze,PathList list)   {
     int r,c,count;
 	setCurr(list,getStart(list));
-    //list->current = list->start;
         while(getCurr(list) != NULL){
             for(r = 0,count = 0; r < getHeight(maze); r++)    {
                 for(c = 0; c < getWidth(maze); c++)     {
@@ -42,6 +41,9 @@ int printCorrectRoute(MazeMap maze,PathList list)   {
     return 1;
 }
 
+/*
+ * Console output of known correct route at point when called
+ */
 int printFullRoute(MazeMap maze)    {
     int r,c;
     for(r = 0; r < getHeight(maze); r++)    {
@@ -57,6 +59,9 @@ int printFullRoute(MazeMap maze)    {
     return 1;
 }
 
+/*
+ *Graphical Output of path coorindates stored in route list
+ */
 int graphicalPrintRightRoute(MazeMap maze,PathList list,SDL_Simplewin sw)   {
 
     int r,c,count;
@@ -94,6 +99,9 @@ int graphicalPrintRightRoute(MazeMap maze,PathList list,SDL_Simplewin sw)   {
     return 1;
 }
 
+/*
+ * graphical print of known current route when called
+ */
 int graphicalPrintFullRoute(MazeMap maze,SDL_Simplewin sw)  {
     int r,c;
 
@@ -127,9 +135,8 @@ int graphicalPrintFullRoute(MazeMap maze,SDL_Simplewin sw)  {
         }
     }
 
-    //Update Window
     SDL_RenderPresent(sw.renderer);
     SDL_UpdateWindowSurface(sw.win);
 
     return 1;
- }
+}

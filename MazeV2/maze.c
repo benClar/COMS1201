@@ -1,8 +1,8 @@
-//
-// maze.c
-// Created by bclarke on 2014/10/11
-// tags: 
-//
+//! Maze.c
+/*!
+ *	Main File.  Reads maze files and explores them for an exit
+ */
+
 /*---------- Standard Headers -----------*/
 
 #include <stdio.h>
@@ -17,6 +17,12 @@
 #include ".headers/coordListModule.h"
 #include ".headers/printingModule.h"
 #include ".headers/maze.h"
+
+//TODO:
+//	deal with no exit mazes
+//	look at graphic print : not very DRY
+//	Random Generate 
+//
 
 /*---------- Main -----------*/
 
@@ -49,9 +55,13 @@ int main(int argc, char *argv[]){
 }
 
 /*---------- Functions ----------*/
+/*!
+ * Explores the maze recursively, testing each non-wall element to detect if it is the exit
+ */
 int exploreMaze(MazeMap Maze, int row, int col,int gMode, SDL_Simplewin sw,PathList exitCoords,RouteMode rMode)	{
 	if (!mazeBoundaryCheck(Maze, row, col)) {  return 0;}	
 	if (getBlockType(Maze,row,col) == EXITROUTE) { return 0;}
+	//! Detecting if exit
 	if (detectExit(Maze,row,col)) {	
 		setBlockType(Maze,row,col,EXITROUTE);  
 		addNode(exitCoords,row,col);
@@ -82,7 +92,9 @@ int exploreMaze(MazeMap Maze, int row, int col,int gMode, SDL_Simplewin sw,PathL
 	return 0;	
 
 }
-
+/*!
+ * Manages interface to printing module if user wants correct decisions explore mode
+ */
 int printCorrect(MazeMap Maze, SDL_Simplewin sw, int gMode,RouteMode rMode,PathList exitCoords)	{
 
 	if (rMode ==CORRECT)	{
@@ -96,7 +108,9 @@ int printCorrect(MazeMap Maze, SDL_Simplewin sw, int gMode,RouteMode rMode,PathL
 
 	return 1;
 }
-
+/*!
+ *Manages interface to printing module if user wants to see only full exit path
+ */
 int printFull(MazeMap Maze, SDL_Simplewin sw, int gMode,RouteMode rMode)	{
 	if(rMode == STATIC)	{
 		if(gMode)	{
@@ -112,6 +126,9 @@ int printFull(MazeMap Maze, SDL_Simplewin sw, int gMode,RouteMode rMode)	{
 	return 1;
 }
 
+/*!
+ * Reads maze from file and sends each character to Maze Grid Module for processing
+ */
 MazeMap readMaze(char fileLocation[])	{
 	FILE *fp;
 	char letter;
@@ -119,13 +136,13 @@ MazeMap readMaze(char fileLocation[])	{
 	MazeMap Maze = NULL;
 	
 	if ((fp = fopen(fileLocation,"r")) != NULL) {
-		getFirstLine(fp,&rowDim,&colDim);
+		getFirstLine(fp,&rowDim,&colDim); //!Reading in Dimensions
 		Maze = createMap(rowDim,colDim);
 		while((letter = getc(fp)) != EOF && lineCount < rowDim)	{
 			if(letter == '\n')	{
 				lineCount++;
 			}
-			addToGrid(Maze,&row,&col,letter,'#');	
+			addToGrid(Maze,&row,&col,letter,'#');	//!adding to grid, defining what is a wall charactor
 		}
 	} else {
 		fprintf(stderr, "File does not exist\n");	
@@ -133,7 +150,9 @@ MazeMap readMaze(char fileLocation[])	{
 	}
 	return Maze;
 }
-
+/*!
+ *Reads first line as integer to get maze dimensions
+ */
 int getFirstLine(FILE *fp,int *row, int *col)	{
 
 	int count = 0, argCnt;
@@ -144,6 +163,9 @@ int getFirstLine(FILE *fp,int *row, int *col)	{
 	return argCnt;
 }
 
+/*!
+ *Safely Scans integers from keyboard
+ */
 void scanInt(int *toScan){
 
         while(!scanf("%d", toScan))       {
@@ -152,6 +174,9 @@ void scanInt(int *toScan){
         }
 }
 
+/*!
+ *Searches maze for Entrance cooridinates
+ */
 int findEntrance(MazeMap Maze,int *eRow, int *eCol) {
 
     int side,top;
@@ -161,7 +186,8 @@ int findEntrance(MazeMap Maze,int *eRow, int *eCol) {
             entranceFound = TRUE;
         }
     }
-
+	
+	//! testing if there is a close entrance on top of maze
     for(top = 0; top < getWidth(Maze); top++)  {
         if((getBlock(Maze,TOPSIDE,side)) == ' ')    {
             if(--side >= top)   {
@@ -176,6 +202,9 @@ int findEntrance(MazeMap Maze,int *eRow, int *eCol) {
         return(setBlockType(Maze,side,LEFTSIDE,ENTRANCE));
 }
 
+/*!
+ *Tests current position to determine if it is an exit
+ */
 int detectExit(MazeMap Maze, int row, int col)  {
     if((row == (getWidth(Maze) -1) || col == (getHeight(Maze) - 1) || row == 0 || col == 0)  && (getBlock(Maze,row,col) == ' ') && (getBlockType(Maze,row,col) != ENTRANCE) ) {
         return 1;
