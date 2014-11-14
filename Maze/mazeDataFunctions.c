@@ -44,28 +44,6 @@ struct pathList	{
 
 /*---------- Functions ----------*/
 
-//int main()	{
-//	int	r = 0,  c = 0, i,b;
-//	MazeMap test = createMap(10,10);
-//	for(i = 0; i < 100; i++)	{
-//			addToGrid(test,&r,&c,'c');
-//	}
-	//for( i = 0; i < 10; i++)	{
-//		for( b = 0; b < 10; b++)	{
-//			cprint(test->mazeGrid[i][b].block);
-//		}
-//	pNL();
-//	}
-//	printMap(test);	
-//	iprint(setEntrance(test));
-//	PathList newList = createList();
-//	addNode(newList,10,10);
-//	iprint(newList->current->row);
-//	addNode(newList,30,30);
-//	iprint(newList->current->row);
-//	return 0;
-//}
-
 PathList createList()	{
 
 	PathList NewList = (PathList) checkMalloc(malloc(sizeof(*NewList)));
@@ -91,8 +69,6 @@ void addNode(PathList list, int addRow, int addCol)	{
 void cleanList(MazeMap maze, PathList list)	{
 
 	list->current = list->start;
-//	iprint(list->current->row);
-//	iprint(list->current->col);
 	while(list->current->next != NULL)	{
 		if(getBlockType(maze, list->start->row, list->start->col) == DEADEND)	{
 			PathNode startTemp = list->start;
@@ -211,8 +187,7 @@ int getWidth(MazeMap maze)	{
 	return maze->width;
 }
 
-int printMap(MazeMap maze,PathList list)	{
-	printf("printing...\n");
+int printCorrectRoute(MazeMap maze,PathList list)	{
 	int	r,c,count;
 	list->current = list->start;
 		while(list->current != NULL){
@@ -254,8 +229,7 @@ int graphicalPrintRightRoute(MazeMap maze,PathList list,SDL_Simplewin sw)	{
         rectangle.w = RECTSIZE;
         rectangle.h = RECTSIZE;
 	list->current = list->start;
-
-	while(list->current != NULL){
+	while(list->current != NULL && (!sw.finished)){
 		for(r=0, count = 0; r < getHeight(maze); r++)	{
 			for(c = 0; c < getWidth(maze); c++)	{
 				if((list->current != NULL ) && (r == list->current->row) && (c == list->current->col) && (!count))      {
@@ -280,6 +254,7 @@ int graphicalPrintRightRoute(MazeMap maze,PathList list,SDL_Simplewin sw)	{
 		}
         SDL_RenderPresent(sw.renderer);
         SDL_UpdateWindowSurface(sw.win);
+		Neill_SDL_Events(&sw);
 	}
 	return 1;
 }
@@ -320,8 +295,6 @@ int graphicalPrintFullRoute(MazeMap maze,SDL_Simplewin sw)	{
 	SDL_RenderPresent(sw.renderer);
 	SDL_UpdateWindowSurface(sw.win);
 
-	//Check if User has quit
-	//Neill_SDL_Events(&sw);
 	return 1;
 }
 

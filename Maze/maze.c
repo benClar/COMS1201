@@ -20,24 +20,29 @@
 
 int main(int argc, char *argv[]){
 	SDL_Simplewin sw;
+	RouteMode rMode;
 	PathList exitCoords = createList();
+	printf("Which mode would you like? \n 1 : Show full route with decision making(non graphical only). \n 2 : Step by step movement through maze with no wrong turns .\n 3 : Static route of maze\n");
+	do { 
+		scanInt((int*) &rMode);
+	} while (rMode != DECISIONS && rMode != CORRECT && rMode != STATIC);
 	int eRow, eCol, gMode = 0;
 	argc--;
-	iprint(argc);
-	if(argc > 1){
+	if(argc > 1 && rMode != DECISIONS){
 		if(!strcmp(argv[2],"SDL")){
 			gMode = 1;
 			Neill_SDL_Init(&sw);
 		}
 	}
-	sprint(argv[2]);
 	MazeMap Maze = readMaze(argv[1]);
 	//printMap(Maze);
 	if(findEntrance(Maze, &eRow, &eCol))	{
-		exploreMaze(Maze, eRow, eCol,gMode,sw,exitCoords);
+		exploreMaze(Maze, eRow, eCol,gMode,sw,exitCoords,rMode);
 		cleanList(Maze,exitCoords);
-		graphicalPrintRightRoute(Maze,exitCoords,sw);
-		//printMap(Maze,exitCoords);
+		printFull(Maze,sw,gMode,rMode);
+		printCorrect(Maze,sw,gMode,rMode,exitCoords);
+		//graphicalPrintRightRoute(Maze,exitCoords,sw);
+		//printCorrectRoute(Maze,exitCoords);
 	}
 		
 	return 0;
@@ -45,13 +50,15 @@ int main(int argc, char *argv[]){
 }
 
 /*---------- Functions ----------*/
-int exploreMaze(MazeMap Maze, int row, int col,int gMode, SDL_Simplewin sw,PathList exitCoords)	{
+int exploreMaze(MazeMap Maze, int row, int col,int gMode, SDL_Simplewin sw,PathList exitCoords,RouteMode rMode)	{
 	if (!mazeBoundaryCheck(Maze, row, col)) {  return 0;}	
 	if (getBlockType(Maze,row,col) == EXITROUTE) { return 0;}
 	if (detectExit(Maze,row,col)) {	
 		setBlockType(Maze,row,col,EXITROUTE);  
 		addNode(exitCoords,row,col);
-		//printing(Maze,sw, gMode);
+		if(rMode == DECISIONS)	{
+			printFullRoute(Maze);
+		}
 		return 1;
 	}
 
@@ -61,27 +68,47 @@ int exploreMaze(MazeMap Maze, int row, int col,int gMode, SDL_Simplewin sw,PathL
 				break;
 		default:
 				setBlockType(Maze,row,col,EXITROUTE);
-				//printing(Maze,sw, gMode);
+				if(rMode == DECISIONS)	{
+					printFullRoute(Maze);
+				}	
 				addNode(exitCoords,row,col);
-				if(exploreMaze(Maze,row+UP,col,gMode,sw,exitCoords)) { return 1;}
-				if(exploreMaze(Maze,row+DOWN,col,gMode,sw,exitCoords)) { return 1;} 
-				if(exploreMaze(Maze,row,col+LEFT,gMode,sw,exitCoords)) { return 1; } 
-				if(exploreMaze(Maze,row,col+RIGHT,gMode,sw,exitCoords)) { return 1; }
+				if(exploreMaze(Maze,row+UP,col,gMode,sw,exitCoords,rMode)) { return 1;}
+				if(exploreMaze(Maze,row+DOWN,col,gMode,sw,exitCoords,rMode)) { return 1;} 
+				if(exploreMaze(Maze,row,col+LEFT,gMode,sw,exitCoords,rMode)) { return 1; } 
+				if(exploreMaze(Maze,row,col+RIGHT,gMode,sw,exitCoords,rMode)) { return 1; }
 				break;
 	}
 	
 	setBlockType(Maze,row,col,DEADEND);
-
 	return 0;	
 
 }
 
-int printing(MazeMap Maze, SDL_Simplewin sw, int gMode)	{
-	if(gMode)	{
-		graphicalPrintFullRoute(Maze,sw);	
-		return 2;
-	} else {
-		//printMap(Maze);
+int printCorrect(MazeMap Maze, SDL_Simplewin sw, int gMode,RouteMode rMode,PathList exitCoords)	{
+
+	if (rMode ==CORRECT)	{
+		if(gMode)	{
+			graphicalPrintRightRoute(Maze,exitCoords,sw);
+			return 2;
+		} else  {
+			printCorrectRoute(Maze,exitCoords);
+		}
+	}
+
+	return 1;
+}
+
+int printFull(MazeMap Maze, SDL_Simplewin sw, int gMode,RouteMode rMode)	{
+	if(rMode == STATIC)	{
+		if(gMode)	{
+		while(!sw.finished)	{
+			graphicalPrintFullRoute(Maze,sw);	
+			Neill_SDL_Events(&sw);
+		}
+			return 2;
+		} else {
+			printFullRoute(Maze);
+		}
 	}
 	return 1;
 }
@@ -116,4 +143,12 @@ int getFirstLine(FILE *fp,int *row, int *col)	{
 	} 
 	
 	return argCnt;
+}
+
+void scanInt(int *toScan){
+
+        while(!scanf("%d", toScan))       {
+               clearInputBuf
+               printf("please enter number\n");
+        }
 }

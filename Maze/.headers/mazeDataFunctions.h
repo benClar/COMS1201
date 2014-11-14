@@ -23,7 +23,7 @@ int **createIntArray(int height, int width);
 char getBlock(MazeMap maze, int row, int col); 
 int getWidth(MazeMap maze);
 int getHeight(MazeMap maze);
-int printMap(MazeMap maze, PathList list);
+int printCorrectRoute(MazeMap maze,PathList list);
 int setBlockType(MazeMap maze, int row, int col,blockType newBT);
 int getBlockType(MazeMap maze, int row, int col);
 int mazeBoundaryCheck(MazeMap maze, int row, int col);
