@@ -1,0 +1,116 @@
+/*---------- Standard Headers -----------*/
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+/*---------- Custom Headers	-----------*/
+
+//#include ".headers/neillsdl2.h"
+#include ".headers/debug.h"
+#include ".headers/mazeDataFunctions.h"
+
+/*---------- Data Structures ----------*/
+
+struct mazeBlock {
+
+	char block;
+	blockType bT;
+};
+
+struct mazeMap	{
+
+	struct mazeBlock **mazeGrid;
+	int height;
+	int width;
+};
+
+/*---------- Functions ----------*/
+
+//int detectExit(MazeMap maze, int row, int col)	{
+//	if((row == maze->width -1 || col == maze->height - 1 || row == 0 || col == 0)  && (getBlock(maze,row,col) == ' ') && (getBlockType(maze,row,col) != ENTRANCE) )	{
+//		return 1;
+//	}
+//	return 0;
+//}
+
+MazeMap createMap(int height, int width)	{
+
+	int i;
+	if((height > 0) && (width > 0))	{
+		MazeMap newMaze = (MazeMap) checkMalloc(malloc(sizeof(*newMaze)));
+		newMaze->mazeGrid = (struct mazeBlock**) checkMalloc(malloc(height * sizeof(struct mazeBlock*)));
+		for(i = 0; i < width; i++)	{
+			newMaze->mazeGrid[i] = (struct mazeBlock*) checkMalloc(malloc(width * sizeof(struct mazeBlock)));	
+		}
+		newMaze->height = height;
+		newMaze->width = width;
+		return newMaze;
+	} else {
+		fprintf(stderr, "No dimensions given for map size in first line of input file\n");	
+		exit(1);
+	}
+}
+
+void *checkMalloc(void *malP)	{
+
+	if (malP == NULL)	{
+		fprintf(stderr, "null address generated\n");
+		exit(1);
+	}
+	return malP;		
+}
+
+int addToGrid(MazeMap maze, int *row, int *col, char value, char wallCharacter)	{
+	if (value != '\n')	{
+		if(*col == maze->width )	{
+			*row = *row +1;
+			*col = 0;
+		}
+		maze->mazeGrid[(*row)][(*col)].block = value;
+		
+		if(maze->mazeGrid[(*row)][(*col)].block == wallCharacter)	{
+			setBlockType(maze, *row, *col, WALL);
+		} else {
+			setBlockType(maze, *row, *col, MISC);	
+		}
+		*col = *col + 1;	
+	}
+	return value;
+}
+
+char getBlock(MazeMap maze, int row, int col)	{
+
+	return maze->mazeGrid[row][col].block;
+}
+
+int getHeight(MazeMap maze)	{
+
+	return maze->height;
+}
+
+int getWidth(MazeMap maze)	{
+
+	return maze->width;
+}
+
+int setBlockType(MazeMap maze, int row, int col, blockType newBT)	{
+	maze->mazeGrid[row][col].bT = newBT;
+	
+	return 1;
+
+}
+
+int getBlockType(MazeMap maze, int row, int col)	{
+
+	return maze->mazeGrid[row][col].bT;
+
+}
+
+int mazeBoundaryCheck(MazeMap maze, int row, int col) {
+
+	if((row < maze->height && row >= 0) && (col < maze->width && col >= 0))	{
+		return 1;
+	}
+		return 0;
+}
