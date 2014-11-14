@@ -57,11 +57,7 @@ int exploreMaze(MazeMap Maze, int row, int col,int gMode, SDL_Simplewin sw)	{
 				return 0;
 				break;
 		default:
-				if(gMode)	{
-					graphicalPrint(Maze,sw);	
-				} else {
-					printMap(Maze);
-				}
+				printing(Maze,sw, gMode);
 				setBlockType(Maze,row,col,EXITROUTE);
 				printing(Maze,sw, gMode);
 				if(exploreMaze(Maze,row+UP,col,gMode,sw)) { return 1;}

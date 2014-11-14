@@ -29,7 +29,7 @@ int getBlockType(MazeMap maze, int row, int col);
 int mazeBoundaryCheck(MazeMap maze, int row, int col);
 int findEntrance(MazeMap maze,int *eRow, int *eCol);
 int detectExit(MazeMap maze, int row, int col);
-//int graphicalPrint(MazeMap maze,SDL_Simplewin sw);
+int graphicalPrint(MazeMap maze,SDL_Simplewin sw);
 PathList createList();
 void addNode(PathList list, int addRow, int addCol);
 void cleanList(MazeMap maze, PathList list);
