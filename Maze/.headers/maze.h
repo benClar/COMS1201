@@ -14,6 +14,6 @@ MazeMap readMaze(char fileLocation[]);
 int toInt(char *string);
 int gettingDimensions(char **dimensions, char letter,int charCount, int *rowLngth, int *colLngth);
 int getFirstLine(FILE *fp,int *row, int *col);
-int exploreMaze(MazeMap Maze, int row, int col,int gMode, SDL_Simplewin sw);
+int exploreMaze(MazeMap Maze, int row, int col,int gMode, SDL_Simplewin sw,PathList exitCoords);
 int printing(MazeMap Maze, SDL_Simplewin sw, int gMode);
 int **getCorrectPath(MazeMap Maze);

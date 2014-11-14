@@ -20,6 +20,7 @@
 
 int main(int argc, char *argv[]){
 	SDL_Simplewin sw;
+	PathList exitCoords = createList();
 	int eRow, eCol, gMode = 0;
 	argc--;
 	iprint(argc);
@@ -31,9 +32,12 @@ int main(int argc, char *argv[]){
 	}
 	sprint(argv[2]);
 	MazeMap Maze = readMaze(argv[1]);
-	printMap(Maze);
+	//printMap(Maze);
 	if(findEntrance(Maze, &eRow, &eCol))	{
-		exploreMaze(Maze, eRow, eCol,gMode,sw);
+		exploreMaze(Maze, eRow, eCol,gMode,sw,exitCoords);
+		cleanList(Maze,exitCoords);
+		graphicalPrintRightRoute(Maze,exitCoords,sw);
+		//printMap(Maze,exitCoords);
 	}
 		
 	return 0;
@@ -41,14 +45,13 @@ int main(int argc, char *argv[]){
 }
 
 /*---------- Functions ----------*/
-//int exploreMaze(MazeMap Maze, int row, int col, SDL_Simplewin sw, int gMode)	{
-int exploreMaze(MazeMap Maze, int row, int col,int gMode, SDL_Simplewin sw)	{
+int exploreMaze(MazeMap Maze, int row, int col,int gMode, SDL_Simplewin sw,PathList exitCoords)	{
 	if (!mazeBoundaryCheck(Maze, row, col)) {  return 0;}	
 	if (getBlockType(Maze,row,col) == EXITROUTE) { return 0;}
 	if (detectExit(Maze,row,col)) {	
 		setBlockType(Maze,row,col,EXITROUTE);  
-		//printMap(Maze); 
-		printing(Maze,sw, gMode);
+		addNode(exitCoords,row,col);
+		//printing(Maze,sw, gMode);
 		return 1;
 	}
 
@@ -57,13 +60,13 @@ int exploreMaze(MazeMap Maze, int row, int col,int gMode, SDL_Simplewin sw)	{
 				return 0;
 				break;
 		default:
-				printing(Maze,sw, gMode);
 				setBlockType(Maze,row,col,EXITROUTE);
-				printing(Maze,sw, gMode);
-				if(exploreMaze(Maze,row+UP,col,gMode,sw)) { return 1;}
-				if(exploreMaze(Maze,row+DOWN,col,gMode,sw)) { return 1;} 
-				if(exploreMaze(Maze,row,col+LEFT,gMode,sw)) { return 1; } 
-				if(exploreMaze(Maze,row,col+RIGHT,gMode,sw)) { return 1; }
+				//printing(Maze,sw, gMode);
+				addNode(exitCoords,row,col);
+				if(exploreMaze(Maze,row+UP,col,gMode,sw,exitCoords)) { return 1;}
+				if(exploreMaze(Maze,row+DOWN,col,gMode,sw,exitCoords)) { return 1;} 
+				if(exploreMaze(Maze,row,col+LEFT,gMode,sw,exitCoords)) { return 1; } 
+				if(exploreMaze(Maze,row,col+RIGHT,gMode,sw,exitCoords)) { return 1; }
 				break;
 	}
 	
@@ -75,10 +78,10 @@ int exploreMaze(MazeMap Maze, int row, int col,int gMode, SDL_Simplewin sw)	{
 
 int printing(MazeMap Maze, SDL_Simplewin sw, int gMode)	{
 	if(gMode)	{
-		graphicalPrint(Maze,sw);	
+		graphicalPrintFullRoute(Maze,sw);	
 		return 2;
 	} else {
-		printMap(Maze);
+		//printMap(Maze);
 	}
 	return 1;
 }

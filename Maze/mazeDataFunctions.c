@@ -87,20 +87,26 @@ void addNode(PathList list, int addRow, int addCol)	{
 	list->current->next = NULL;
 	list->nItems++;
 }
-//TEST!
+
 void cleanList(MazeMap maze, PathList list)	{
 
 	list->current = list->start;
+//	iprint(list->current->row);
+//	iprint(list->current->col);
 	while(list->current->next != NULL)	{
 		if(getBlockType(maze, list->start->row, list->start->col) == DEADEND)	{
 			PathNode startTemp = list->start;
-			list->start = list->start->next;
+			list->current = list->start = list->start->next;
 			free(startTemp);
-		}	
+		} if(getBlockType(maze,list->current->next->row, list->current->next->col) == DEADEND)	{
+				PathNode nextTemp = list->current->next->next;
+				free(list->current->next);
+				list->current->next = nextTemp;
+				
+		} else {
+			list->current = list->current->next; 	
+		}
 	}
-
-
-
 }
 
 int findEntrance(MazeMap maze,int *eRow, int *eCol)	{
@@ -144,7 +150,6 @@ MazeMap createMap(int height, int width)	{
 		for(i = 0; i < width; i++)	{
 			newMaze->mazeGrid[i] = (struct mazeBlock*) checkMalloc(malloc(width * sizeof(struct mazeBlock)));	
 		}
-		iprint(height);
 		newMaze->height = height;
 		newMaze->width = width;
 		return newMaze;
@@ -206,23 +211,80 @@ int getWidth(MazeMap maze)	{
 	return maze->width;
 }
 
-int printMap(MazeMap maze)	{
+int printMap(MazeMap maze,PathList list)	{
+	printf("printing...\n");
+	int	r,c,count;
+	list->current = list->start;
+		while(list->current != NULL){
+			for(r = 0,count = 0; r < getHeight(maze); r++)    {
+				for(c = 0; c < getWidth(maze); c++)     {
+					if((list->current != NULL ) && (r == list->current->row) && (c == list->current->col) && (!count))	{
+						printf(" .");
+						list->current = list->current->next;		
+						count++;
+					} else{  
+						printf(" %c",getBlock(maze,r,c));
+					}
+				}
+				pNL();
+			}
+		}
+	return 1;
+}
 
-	int	r,c;
+int printFullRoute(MazeMap maze)	{
+	int r,c;
 	for(r = 0; r < getHeight(maze); r++)	{
 		for(c = 0; c < getWidth(maze); c++)	{
 			if(getBlockType(maze,r,c)==EXITROUTE)	{
 				printf(" .");
 			} else{
-					printf(" %c",getBlock(maze,r,c));
+				printf(" %c",getBlock(maze,r,c));
 			}
 		}
 		pNL();
 	}
+	return 1;	
+}
+
+int graphicalPrintRightRoute(MazeMap maze,PathList list,SDL_Simplewin sw)	{
+
+	int r,c,count;
+	SDL_Rect rectangle;
+        rectangle.w = RECTSIZE;
+        rectangle.h = RECTSIZE;
+	list->current = list->start;
+
+	while(list->current != NULL){
+		for(r=0, count = 0; r < getHeight(maze); r++)	{
+			for(c = 0; c < getWidth(maze); c++)	{
+				if((list->current != NULL ) && (r == list->current->row) && (c == list->current->col) && (!count))      {
+					Neill_SDL_SetDrawColour(&sw,255,165,0);
+                               		rectangle.x = (c*RECTSIZE);
+                                	rectangle.y = (r*RECTSIZE);
+                                	SDL_RenderFillRect(sw.renderer, &rectangle);
+					list->current = list->current->next;
+                                	count++;	
+				} else if(getBlockType(maze,r,c)==WALL) {
+                                	Neill_SDL_SetDrawColour(&sw,128,0,0);
+                                	rectangle.x = (c*RECTSIZE);
+                                	rectangle.y = (r*RECTSIZE);
+                                	SDL_RenderFillRect(sw.renderer, &rectangle);
+				} else {
+                                	Neill_SDL_SetDrawColour(&sw,0,0,0);
+                                	rectangle.x = (c*RECTSIZE);
+					rectangle.y = (r*RECTSIZE);
+					SDL_RenderFillRect(sw.renderer, &rectangle);
+				}
+			}
+		}
+        SDL_RenderPresent(sw.renderer);
+        SDL_UpdateWindowSurface(sw.win);
+	}
 	return 1;
 }
 
-int graphicalPrint(MazeMap maze,SDL_Simplewin sw)	{
+int graphicalPrintFullRoute(MazeMap maze,SDL_Simplewin sw)	{
 	int	r,c;
 
 	SDL_Rect rectangle;
