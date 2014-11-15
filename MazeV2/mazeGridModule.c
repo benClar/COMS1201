@@ -69,24 +69,37 @@ void *checkMalloc(void *malP)	{
  *Accepts characters to be added to maze
  *		Labels specified characters as walls
  */
-int addToGrid(MazeMap maze, int *row, int *col, char value, char wallCharacter)	{
-	if (value != '\n')	{
-		if(*col == maze->width )	{
-			*row = *row +1;
-			*col = 0;
-		}
-		maze->mazeGrid[(*row)][(*col)].block = value;
-		
-		if(maze->mazeGrid[(*row)][(*col)].block == wallCharacter)	{
-			setBlockType(maze, *row, *col, WALL);
-		} else {
-			setBlockType(maze, *row, *col, MISC);	
-		}
-		*col = *col + 1;	
+int addToGrid(MazeMap maze, int row, int col, char value, char wallCharacter)	{
+	if (value == '\n')	{
+			return 0;
 	}
+	maze->mazeGrid[(row)][(col)].block = value;
+		
+	if(maze->mazeGrid[(row)][(col)].block == wallCharacter)	{
+			setBlockType(maze, row, col, WALL);
+		} else {
+			setBlockType(maze, row, col, MISC);	
+		}
 	return value;
 }
-
+//V1
+//int addToGrid(MazeMap maze, int *row, int *col, char value, char wallCharacter)	{
+//	if (value != '\n')	{
+//		if(*col == maze->width )	{
+//			*row = *row +1;
+//			*col = 0;
+//		}
+//		maze->mazeGrid[(*row)][(*col)].block = value;
+//		
+//		if(maze->mazeGrid[(*row)][(*col)].block == wallCharacter)	{
+//			setBlockType(maze, *row, *col, WALL);
+//		} else {
+//			setBlockType(maze, *row, *col, MISC);	
+//		}
+//		*col = *col + 1;	
+//	}
+//	return value;
+//}
 /*
  * Accessor for specified block character
  */

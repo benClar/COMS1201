@@ -14,7 +14,8 @@ typedef struct mazeMap *MazeMap;
 /*----------Function Prototypes-----------*/
 MazeMap createMap(int height, int width);
 void *checkMalloc(void *malP);
-int addToGrid(MazeMap maze, int *row, int *col, char value, char wallCharacter);
+//int addToGrid(MazeMap maze, int *row, int *col, char value, char wallCharacter);
+int addToGrid(MazeMap maze, int row, int col, char value, char wallCharacter);
 int **createIntArray(int height, int width);
 char getBlock(MazeMap maze, int row, int col); 
 int getWidth(MazeMap maze);

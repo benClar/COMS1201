@@ -16,6 +16,7 @@
 #include ".headers/mazeDataFunctions.h"
 #include ".headers/coordListModule.h"
 #include ".headers/printingModule.h"
+#include ".headers/mazeGeneratorModule.h"
 #include ".headers/maze.h"
 
 //TODO:
@@ -27,6 +28,7 @@
 /*---------- Main -----------*/
 
 int main(int argc, char *argv[]){
+ 	//srand(time(NULL));
 	SDL_Simplewin sw;
 	RouteMode rMode;
 	PathList exitCoords = createList();
@@ -49,7 +51,6 @@ int main(int argc, char *argv[]){
 		printFull(Maze,sw,gMode,rMode);
 		printCorrect(Maze,sw,gMode,rMode,exitCoords);
 	}
-		
 	return 0;
 
 }
@@ -132,7 +133,7 @@ int printFull(MazeMap Maze, SDL_Simplewin sw, int gMode,RouteMode rMode)	{
 MazeMap readMaze(char fileLocation[])	{
 	FILE *fp;
 	char letter;
-	int lineCount = 0, rowDim = 0, colDim = 0,row = 0, col = 0;
+	int lineCount = 0, rowDim = 0, colDim = 0, col = 0;
 	MazeMap Maze = NULL;
 	
 	if ((fp = fopen(fileLocation,"r")) != NULL) {
@@ -141,8 +142,11 @@ MazeMap readMaze(char fileLocation[])	{
 		while((letter = getc(fp)) != EOF && lineCount < rowDim)	{
 			if(letter == '\n')	{
 				lineCount++;
+				col = 0;
+			}  else {
+				addToGrid(Maze,lineCount,col,letter,'#');	//!adding to grid,defines wall char
+				col++;
 			}
-			addToGrid(Maze,&row,&col,letter,'#');	//!adding to grid, defining what is a wall charactor
 		}
 	} else {
 		fprintf(stderr, "File does not exist\n");	
@@ -150,6 +154,29 @@ MazeMap readMaze(char fileLocation[])	{
 	}
 	return Maze;
 }
+
+//MazeMap readMaze(char fileLocation[])	{
+//	FILE *fp;
+//	char letter;
+//	int lineCount = 0, rowDim = 0, colDim = 0,row = 0, col = 0;
+//	MazeMap Maze = NULL;
+//	
+//	if ((fp = fopen(fileLocation,"r")) != NULL) {
+//		getFirstLine(fp,&rowDim,&colDim); //!Reading in Dimensions
+//		Maze = createMap(rowDim,colDim);
+//		while((letter = getc(fp)) != EOF && lineCount < rowDim)	{
+//			if(letter == '\n')	{
+//				lineCount++;
+//			} 
+//			addToGrid(Maze,&row,&col,letter,'#');	//!adding to grid, defining what is a wall charactor
+//		}
+//	} else {
+//		fprintf(stderr, "File does not exist\n");	
+//		exit(1);
+//	}
+//	return Maze;
+//}
+
 /*!
  *Reads first line as integer to get maze dimensions
  */
