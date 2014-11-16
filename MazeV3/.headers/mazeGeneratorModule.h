@@ -3,8 +3,10 @@
 
 /*----------Symbolic Constants-----------*/
 
-
-
+#define EXITCHNCE	2	
+#define NOEXITS		3
+#define EXITDEC		3	
+#define CHAMBERSIZE	5
 /*----------Structures----------*/
 
 /*----------Function Prototypes-----------*/

@@ -16,12 +16,19 @@
 
 /*---------- Symbolic Constants  -----------*/
 
+
+struct chCoords	{
+
+	int row;
+	int col;
+
+};
 struct chamber {
 
-    int top;
-    int left;
-    int bottom;
-    int right;
+    ChCoords topLeft;
+    ChCoords topRight;
+    ChCoords botLeft;
+    ChCoords botRight;
 	Chamber prev;
 
 };
@@ -45,42 +52,63 @@ ChStack createChamberStack()	{
 
 void addChamber(ChStack chamberStack)	{
 		Chamber nextChamber = (Chamber) malloc(sizeof(*nextChamber));
+		nextChamber->topLeft = (ChCoords) malloc(sizeof(*(nextChamber->topLeft)));
+		nextChamber->topRight = (ChCoords) malloc(sizeof(*(nextChamber->topRight)));
+		nextChamber->botLeft = (ChCoords) malloc(sizeof(*(nextChamber->botLeft)));
+		nextChamber->botRight = (ChCoords) malloc(sizeof(*(nextChamber->botRight)));
+
 		nextChamber->prev = chamberStack->stackTop;
 		chamberStack->stackTop = nextChamber;	
 		chamberStack->nChamber++;
 }
 
-void popChamber(ChStack chamberStack, int *top, int *bottom, int *left, int *right)	{
+void popChamber(ChStack chamberStack, 
+	int *topLeftX, int *topLeftY, 
+	int *topRightX, int *topRightY, 
+	int *botLeftX, int *botLeftY, 
+	int *botRightX,	int *botRightY)	{
 
-	*top = chamberStack->stackTop->top;
-	*bottom = chamberStack->stackTop->left;
-	*left = chamberStack->stackTop->bottom;
-	*right = chamberStack->stackTop->right;
+	*topLeftX = chamberStack->stackTop->topLeft->col;
+	*topLeftY = chamberStack->stackTop->topLeft->row;
+
+	*topRightX = chamberStack->stackTop->topRight->col;
+	*topRightY = chamberStack->stackTop->topRight->row;
+
+	*botLeftX = chamberStack->stackTop->botLeft->col;
+	*botLeftY = chamberStack->stackTop->botLeft->row;
+
+	*botRightX = chamberStack->stackTop->botRight->col;
+	*botRightY = chamberStack->stackTop->botRight->row;
+
 	Chamber temp = chamberStack->stackTop;
 	chamberStack->stackTop = chamberStack->stackTop->prev;
 	free(temp);
 }
 
-void setTop(ChStack chamberStack, int top)	{
+void setTopLeft(ChStack chamberStack, int row, int col)	{
 
-	chamberStack->stackTop->top =  top;
+	chamberStack->stackTop->topLeft->row =  row;
+	chamberStack->stackTop->topLeft->col = col;
 }
 
-void setLeft(ChStack chamberStack, int left)	{
+void setBotLeft(ChStack chamberStack, int row, int col) {
 
-	chamberStack->stackTop->left = left;
-
-}
-
-void setBottom(ChStack chamberStack, int bottom)	{
-
-	chamberStack->stackTop->bottom = bottom;
+	chamberStack->stackTop->botLeft->row = row;
+	chamberStack->stackTop->botLeft->col = col;
 
 }
 
-void setRight(ChStack chamberStack, int right)	{
+void setBotRight(ChStack chamberStack, int row, int col){
 
-	chamberStack->stackTop->right =  right;
+	chamberStack->stackTop->botRight->row = row;
+	chamberStack->stackTop->botRight->col = col;
+
+}
+
+void setTopRight(ChStack chamberStack, int row, int col){
+
+	chamberStack->stackTop->topRight->row =  row;
+	chamberStack->stackTop->topRight->col = col;
 
 }
 

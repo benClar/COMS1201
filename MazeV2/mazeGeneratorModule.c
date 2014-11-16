@@ -17,67 +17,51 @@
 #include ".headers/mazeDataFunctions.h"
 #include ".headers/coordListModule.h"
 #include ".headers/printingModule.h"
-#include ".headers/chamberStack.h"
 #include ".headers/mazeGeneratorModule.h"
 /*---------- Symbolic Constants  -----------*/
 
 /*---------- Data Structures ----------*/
 
-struct chamber {
-
-	int top;
-	int left;
-	int bottom;
-	int right;
-
-};
-
-struct chStack {
-
-	Chamber first;
-	Chamber last;
-	int nChamber;
-
-};
-
 /*---------- Functions ----------*/
 
-void partionMaze(MazeMap RndmMaze, int row, int col)	{
-	int cWallCount=0, rWallCount =0;
-	int colSet, rowSet;
-	int rndmRowSp = rand()%getWidth(RndmMaze);
-	//int rndmColSp = rand()%getWidth(RndmMaze);
+int partionMaze(MazeMap RndmMaze, int leftBound, int width, int stRow, int lowerBound)	{
+//	if(lowerBound - stRow < 4)	{ return 0; }
 
-	//!add random col with space
-	for(rowSet = 0;rowSet < getHeight(RndmMaze) && cWallCount < 2 ;rowSet++)   {
-		if(getBlockType(RndmMaze,rowSet,col) == WALL)  {
-			cWallCount++;	
-		}
-    	addToGrid(RndmMaze,rowSet,col,'#','#');
-    }
+//	int colStart,  //!! Randomised x pos for new col start
+//		newRowStart,	//! randomised y pos for new row start
+//		rowPos, //! y pos for new col start
+//		colPos; //! x pos for new row
+//	do {
+//		colStart = rand()%(width-1); //!setting x pos for col
+//	} while (colStart < (leftBound-1));   	
+//
+//	//!Drawing column
+//	for(rowPos = stRow; getBlockType(RndmMaze,rowPos,colStart) != WALL; rowPos++)	{
+//		setBlockType(RndmMaze,rowPos,colStart,WALL);		
+//		printFullRoute(RndmMaze);
+//	}
+//	
+//	do	{
+//		newRowStart = rand()%(stRow - 1); //!setting y pos for row
+//	} while ( (newRowStart > (rowPos - 1)));
+//
+//	//!drawing row
+//	for(colPos = leftBound; getBlockType(RndmMaze,newRowStart,colPos) != WALL; colPos++)	{
+//		setBlockType(RndmMaze,newRowStart,colPos,WALL);
+//	} 
 
-	//!add random row with space
-	for(colSet = 0; colSet < getWidth(RndmMaze) && rWallCount < 3 ;colSet++)	{
-		if(getBlockType(RndmMaze,row,colSet) == WALL)	{
-			rWallCount++;
-			if(rWallCount == 2)	{
-				
-			}
-		}
-		if(colSet == rndmRowSp)	{
-			addToGrid(RndmMaze,row,colSet,' ','#');
-		} else { 		
-			addToGrid(RndmMaze,row,colSet,'#','#'); 
-		}
-	}
+	//partionMaze(RndmMaze,newRowStart,colStart,stRow,newRowStart);	
+
+	return 1;
+			
 }
 
 void wallMaze(MazeMap RndmMaze)	{
 
 	int topRow = 0,
 		bottomRow = (getHeight(RndmMaze)-1),
-		leftSide = 0,
-		rightSide = (getWidth(RndmMaze)-1),
+		leftCol = 0,
+		rightCol = (getWidth(RndmMaze)-1),
 		i,r,c;
 		//!Setting Default Space
 		for(r = 0; r < getWidth(RndmMaze); r++)	{
@@ -85,7 +69,6 @@ void wallMaze(MazeMap RndmMaze)	{
 				addToGrid(RndmMaze,r,c,' ','#');	
 			}
 		}
-		iprint(rightSide);
 		//!Adding top wall
 		for(i = 0; i < getWidth(RndmMaze); i++)	{
 			addToGrid(RndmMaze,topRow,i,'#','#');	
@@ -96,11 +79,11 @@ void wallMaze(MazeMap RndmMaze)	{
         }
 		//!Adding Left Wall
 		for(i = 0; i < getHeight(RndmMaze); i++) {
-            addToGrid(RndmMaze,i,leftSide,'#','#');
+            addToGrid(RndmMaze,i,leftCol,'#','#');
         }
 		//!Adding Right Wall
 		for(i = 0; i < getHeight(RndmMaze); i++) {
-            addToGrid(RndmMaze,i,rightSide,'#','#');
+            addToGrid(RndmMaze,i,rightCol,'#','#');
         }
 		
 }
