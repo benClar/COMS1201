@@ -23,7 +23,7 @@
 
 int partionMaze(MazeMap RndmMaze, 
 	int leftBound,  //! Lefthand Boundary of current chamber
-	int width,		//! RIght hand bounder of current chamber 
+	int width,		//! RIght hand boundary of current chamber 
 	int stRow,		//! top boundary of current chamber 
 	int lowerBound)	{ //!Lower boundary of current chamber
 	if(lowerBound - stRow < CHAMBERSIZE)	{ return 0; }

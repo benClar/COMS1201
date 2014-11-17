@@ -2,6 +2,10 @@
 /*!
  *	Main File.  Reads maze files and explores them for an exit
  *	For this assignment I have completed the recursive exit route and the SDL output.  I have attempted the random maze generation, however have not implemented full functionality.
+ *	To run: 1) make all
+ *			2) .compiled/maze .text/maze[N].txt
+ *			3) .compiled/maze .text/maze[N].txt SDL
+ *			4) .compiled/maze RANDOM
  */
 
 /*---------- Standard Headers -----------*/
@@ -171,6 +175,10 @@ MazeMap readMaze(char fileLocation[])	{
 	
 	if ((fp = fopen(fileLocation,"r")) != NULL) {
 		getFirstLine(fp,&rowDim,&colDim); //!Reading in Dimensions
+		if (rowDim > FMAXWIDTH || colDim > FMAXHEIGHT)	{
+			fprintf(stderr,"Dimensions too big: %d %d\n",rowDim,colDim);
+			exit(1);
+		}
 		Maze = createMap(rowDim,colDim);
 		while((letter = getc(fp)) != EOF && lineCount < rowDim)	{
 			if(letter == '\n')	{

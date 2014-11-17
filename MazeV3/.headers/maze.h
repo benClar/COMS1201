@@ -7,9 +7,11 @@
 #define LEFTSIDE    0   //Far lefthand side of maze
 #define TOPSIDE     0
 #define	MINHEIGHT	0	//Minimum height of random maze
-#define MAXHEIGHT 	50 	//Maximum height of random maze
+#define MAXHEIGHT 	40 	//Maximum height of random maze
 #define	MINWIDTH	0	//Minimum width of random maze
-#define MAXWIDTH 	50 	//Maximum height of random maze
+#define MAXWIDTH 	40 	//Maximum height of random maze
+#define FMAXWIDTH	20	// Maximum width of read maze
+#define FMAXHEIGHT	20	//Maximum height of read maze
 /*----------Typedefs----------*/
 
 typedef enum { UP = -1, DOWN = 1, RIGHT = 1, LEFT = -1} Directions; 
