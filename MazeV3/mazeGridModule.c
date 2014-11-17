@@ -59,11 +59,9 @@ MazeMap createMap(int height, int width)	{
 
 void freeMazeBlocks(MazeMap maze)	{
 
-	int r, c;
+	int r;
 	for(r =0; r < getHeight(maze); r++)	{
-		for(c = 0; c < getWidth(maze); c++)	{
 			free(maze->mazeGrid[r]);
-		}
 	}
 }
 

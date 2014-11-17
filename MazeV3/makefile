@@ -1,3 +1,11 @@
+#	maze.c is main().
+#	I have implemented the basic and SDL options fully, with extra functionality around storing the correct exit routecoordinates in a linked list.  I have attempted the random maze generator, but have not achieved full functionality. 
+# 	To run: 1) make all
+#  			2) .compiled/maze .text/maze[N].txt
+#  			3) .compiled/maze .text/maze[N].txt SDL
+#  			4) .compiled/maze RANDOM
+
+
 CFLAGS = `sdl2-config --cflags` -O4 -Wall -pedantic -std=c99 -lm
 INCS = .headers/neillsdl2.h
 TARGET =  mazeGridModule
