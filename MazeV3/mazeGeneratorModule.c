@@ -12,12 +12,12 @@
 
 /*---------- Custom Headers	-----------*/
 
-#include ".headers/neillsdl2.h"
-#include ".headers/debug.h"
-#include ".headers/mazeDataFunctions.h"
-#include ".headers/coordListModule.h"
-#include ".headers/printingModule.h"
-#include ".headers/mazeGeneratorModule.h"
+#include "neillsdl2.h"
+#include "debug.h"
+#include "mazeDataFunctions.h"
+#include "coordListModule.h"
+#include "printingModule.h"
+#include "mazeGeneratorModule.h"
 
 /*---------- Functions ----------*/
 

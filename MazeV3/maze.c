@@ -1,11 +1,12 @@
 //! Maze.c
 /*!
  *	Main File.  Reads maze files and explores them for an exit
- *	For this assignment I have fully implemeted the recursive exit route and the SDL output.  I have attempted the random maze generation, however have not implemented full functionality - it may seg fault.
+ *	For this assignment I have fully implemeted the recursive exit route and the SDL output.  I have attempted the random maze generation, however it is not fully correct.
  *	To run: 1) make all
- *			2) .compiled/maze .text/maze[N].txt
- *			3) .compiled/maze .text/maze[N].txt SDL
+ *			2) .compiled/maze /FILEPATH
+ *			3) .compiled/maze /FILEPATH SDL
  *			4) .compiled/maze RANDOM
+ *			5) .compiled/maze RANDOM SDL
  */
 
 /*---------- Standard Headers -----------*/
@@ -17,13 +18,13 @@
 #include <time.h>
 /*---------- Custom Headers	-----------*/
 
-#include ".headers/neillsdl2.h"
-#include ".headers/debug.h"
-#include ".headers/mazeDataFunctions.h"
-#include ".headers/coordListModule.h"
-#include ".headers/printingModule.h"
-#include ".headers/mazeGeneratorModule.h"
-#include ".headers/maze.h"
+#include "neillsdl2.h"
+#include "debug.h"
+#include "mazeDataFunctions.h"
+#include "coordListModule.h"
+#include "printingModule.h"
+#include "mazeGeneratorModule.h"
+#include "maze.h"
 
 /*---------- Main -----------*/
 

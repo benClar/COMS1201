@@ -1,4 +1,4 @@
-#include ".headers/neillsdl2.h"
+#include "neillsdl2.h"
 
 // Set up a simple (WIDTH, HEIGHT) window.
 // Attempt to hide the renderer etc. from user.

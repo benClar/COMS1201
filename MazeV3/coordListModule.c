@@ -14,9 +14,9 @@
 
 /*---------- Custom Headers	-----------*/
 
-#include ".headers/debug.h"
-#include ".headers/mazeDataFunctions.h"
-#include ".headers/coordListModule.h"
+#include "debug.h"
+#include "mazeDataFunctions.h"
+#include "coordListModule.h"
 
 /*---------- Data Structures ----------*/
 

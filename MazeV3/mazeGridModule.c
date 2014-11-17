@@ -11,8 +11,8 @@
 
 /*---------- Custom Headers	-----------*/
 
-#include ".headers/debug.h"
-#include ".headers/mazeDataFunctions.h"
+#include "debug.h"
+#include "mazeDataFunctions.h"
 
 /*---------- Data Structures ----------*/
 

@@ -11,11 +11,11 @@
 
 /*---------- Custom Headers	-----------*/
 
-#include ".headers/debug.h"
-#include ".headers/neillsdl2.h"
-#include ".headers/mazeDataFunctions.h"
-#include ".headers/coordListModule.h"
-#include ".headers/printingModule.h"
+#include "debug.h"
+#include "neillsdl2.h"
+#include "mazeDataFunctions.h"
+#include "coordListModule.h"
+#include "printingModule.h"
 
 /*---------- Functions ----------*/
 
