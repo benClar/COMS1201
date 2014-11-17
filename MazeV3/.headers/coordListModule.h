@@ -19,3 +19,4 @@ int getCurrCol(PathList list);
 int getCurrRow(PathList list);
 PathNode getCurr(PathList list);
 PathNode getStart(PathList list);
+void freeListNodes(PathList list);

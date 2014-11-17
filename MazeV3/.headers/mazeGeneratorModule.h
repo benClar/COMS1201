@@ -3,10 +3,10 @@
 
 /*----------Symbolic Constants-----------*/
 
-#define EXITCHNCE	2	
-#define NOEXITS		3
-#define EXITDEC		3	
-#define CHAMBERSIZE	5
+#define EXITCHNCE	2	//chance t	
+#define NOEXITS		3	//number of exits to be created in maze
+#define EXITDEC		3	//
+#define CHAMBERSIZE	5	//minimum width/ height of a chamber 
 /*----------Structures----------*/
 
 /*----------Function Prototypes-----------*/

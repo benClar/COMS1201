@@ -68,9 +68,12 @@ int main(int argc, char *argv[]){
 	    fprintf(stderr, "Maze has no Entrance\n");
         exit(1);
 	}
-	free(Maze);
+	
+	freeListNodes(exitCoords);
 	free(exitCoords);
 	freeMazeBlocks(Maze);
+	free(Maze);
+
 	return 0;
 
 }

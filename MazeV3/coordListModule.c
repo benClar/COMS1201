@@ -1,6 +1,9 @@
 //! CoordListModule.c
 /*! 
  *	Path Node Data Structure.  Holds and manages list of grid coorindates that make up exit route
+ *		This is an extra piece of functionality that allows a step by step journey of only 
+ *		correct exit route to be displayed, demonstrating the use and management of a 
+ *		linked list.
  */
 
 /*---------- Standard Headers -----------*/
@@ -68,6 +71,20 @@ void addNode(PathList list, int addRow, int addCol) {
     list->current->next = NULL;
     list->nItems++;
 }
+/*
+ * Frees all nodes held in list
+ */
+void freeListNodes(PathList list)	{
+	
+	list->current = list ->start;
+	PathNode temp;	
+	while(list->current!= NULL)	{
+		temp = list->current;
+		free(temp);
+		list->current = list->current->next;
+	}
+
+}
 
 /*
  * Accessor for start of list
@@ -114,7 +131,7 @@ void setCurr(PathList list, PathNode node)	{
 }
 
 /*
- * Move to next node in list !!Can this be guarded!!
+ * Move to next node in list
  */ 
 void nextNode(PathList list)	{
 		list->current = list->current->next;

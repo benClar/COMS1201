@@ -1,3 +1,7 @@
+/*
+ * Creates, accesses and modifies maze grid
+ */
+
 /*---------- Standard Headers -----------*/
 
 #include <stdio.h>
