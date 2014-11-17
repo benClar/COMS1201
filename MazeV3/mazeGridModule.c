@@ -1,3 +1,4 @@
+//! mazeGridModule.c
 /*
  * Creates, accesses and modifies maze grid
  */
@@ -57,6 +58,9 @@ MazeMap createMap(int height, int width)	{
 	}
 }
 
+/*
+ *Frees mazeblocks held by maze structure 
+ */
 void freeMazeBlocks(MazeMap maze)	{
 
 	int r;

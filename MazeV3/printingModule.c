@@ -73,19 +73,19 @@ int graphicalPrintRightRoute(MazeMap maze,PathList list,SDL_Simplewin sw)   {
         for(r=0, count = 0; r < getHeight(maze); r++)   {
             for(c = 0; c < getWidth(maze); c++) {
                 if((getCurr(list) != NULL ) && (r == getCurrRow(list)) && (c == getCurrCol(list)) && (!count))      {
-                    Neill_SDL_SetDrawColour(&sw,255,165,0);
+                    Neill_SDL_SetDrawColour(&sw,255,165,0); //!yellow
                     rectangle.x = (c*RECTSIZE);
                     rectangle.y = (r*RECTSIZE);
                     SDL_RenderFillRect(sw.renderer, &rectangle);
 					nextNode(list);
                                     count++;
                 } else if(getBlockType(maze,r,c)==WALL) {
-                    Neill_SDL_SetDrawColour(&sw,128,0,0);
+                    Neill_SDL_SetDrawColour(&sw,128,0,0); //!red 
                     rectangle.x = (c*RECTSIZE);
                     rectangle.y = (r*RECTSIZE);
                     SDL_RenderFillRect(sw.renderer, &rectangle);
                 } else {
-                    Neill_SDL_SetDrawColour(&sw,0,0,0);
+                    Neill_SDL_SetDrawColour(&sw,0,0,0); //!black
                     rectangle.x = (c*RECTSIZE);
                     rectangle.y = (r*RECTSIZE);
                     SDL_RenderFillRect(sw.renderer, &rectangle);

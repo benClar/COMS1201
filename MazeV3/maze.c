@@ -1,7 +1,7 @@
 //! Maze.c
 /*!
  *	Main File.  Reads maze files and explores them for an exit
- *	For this assignment I have completed the recursive exit route and the SDL output.  I have attempted the random maze generation, however have not implemented full functionality.
+ *	For this assignment I have fully implemeted the recursive exit route and the SDL output.  I have attempted the random maze generation, however have not implemented full functionality.
  *	To run: 1) make all
  *			2) .compiled/maze .text/maze[N].txt
  *			3) .compiled/maze .text/maze[N].txt SDL
@@ -33,13 +33,13 @@ int main(int argc, char *argv[]){
 	SDL_Simplewin sw;
 	RouteMode rMode;
 	PathList exitCoords = createList();
-	printf("Which mode would you like? \n 1 : Show full route with decision making(non graphical only).\n 2 : Step by step movement through maze with no wrong turns.\n 3 : Static route of maze.\n");
+	printf("Which mode would you like? \n 1 : Show full route with decision making.\n 2 : Step by step movement through maze with no wrong turns.\n 3 : Static route of maze.\n");
 	do { 
 		scanInt((int*) &rMode);
 	} while (rMode != DECISIONS && rMode != CORRECT && rMode != STATIC);
 	int eRow, eCol, gMode = 0,randomW,randomH;
 	argc--;
-	if(argc > 1 && rMode != DECISIONS){
+	if(argc > 1){
 		if(!strcmp(argv[2],"SDL")){
 			gMode = 1;
 			Neill_SDL_Init(&sw);
@@ -60,10 +60,20 @@ int main(int argc, char *argv[]){
 	if(findEntrance(Maze, &eRow, &eCol))	{
 		if(exploreMaze(Maze, eRow, eCol,gMode,sw,exitCoords,rMode)) {
 			cleanList(Maze,exitCoords);
-			printFull(Maze,sw,gMode,rMode);
+			if(rMode==STATIC)   {
+				while(!sw.finished)   {
+					printFull(Maze,sw,gMode,rMode);
+					Neill_SDL_Events(&sw);	
+				}
+			}
 			printCorrect(Maze,sw,gMode,rMode,exitCoords);
 		} else {
-			printFull(Maze,sw,gMode,rMode);
+			if(rMode==STATIC)	{
+				while(!sw.finished)   {
+					printFull(Maze,sw,gMode,rMode);
+					Neill_SDL_Events(&sw);	
+				}
+			}
             printCorrect(Maze,sw,gMode,rMode,exitCoords);
 		    fprintf(stderr, "Maze cannot be escaped\n");
        		exit(1);
@@ -97,6 +107,8 @@ void rParam(int *randomD, int compMin, int compMax)	{
  * Explores the maze recursively, testing each non-wall element to detect if it is the exit
  */
 int exploreMaze(MazeMap Maze, int row, int col,int gMode, SDL_Simplewin sw,PathList exitCoords,RouteMode rMode)	{
+	Neill_SDL_Events(&sw);
+	if(sw.finished) { return 1; }
 	if (!mazeBoundaryCheck(Maze, row, col)) {  return 0;}	
 	if (getBlockType(Maze,row,col) == EXITROUTE) { return 0;}
 	//! Detecting if exit
@@ -104,7 +116,7 @@ int exploreMaze(MazeMap Maze, int row, int col,int gMode, SDL_Simplewin sw,PathL
 		setBlockType(Maze,row,col,EXITROUTE);  
 		addNode(exitCoords,row,col);
 		if(rMode == DECISIONS)	{
-			printFullRoute(Maze);
+			printFull(Maze,sw,gMode,rMode);
 		}
 		return 1;
 	}
@@ -116,7 +128,7 @@ int exploreMaze(MazeMap Maze, int row, int col,int gMode, SDL_Simplewin sw,PathL
 		default:
 				setBlockType(Maze,row,col,EXITROUTE);
 				if(rMode == DECISIONS)	{
-					printFullRoute(Maze);
+					printFull(Maze,sw,gMode,rMode);
 				}	
 				addNode(exitCoords,row,col);
 				if(exploreMaze(Maze,row+UP,col,gMode,sw,exitCoords,rMode)) { return 1;}
@@ -150,12 +162,9 @@ int printCorrect(MazeMap Maze, SDL_Simplewin sw, int gMode,RouteMode rMode,PathL
  *Manages interface to printing module if user wants to see only full exit path
  */
 int printFull(MazeMap Maze, SDL_Simplewin sw, int gMode,RouteMode rMode)	{
-	if(rMode == STATIC)	{
+	if(rMode == STATIC || rMode == DECISIONS)	{
 		if(gMode)	{
-		while(!sw.finished)	{
 			graphicalPrintFullRoute(Maze,sw);	
-			Neill_SDL_Events(&sw);
-		}
 			return 2;
 		} else {
 			printFullRoute(Maze);
@@ -233,7 +242,7 @@ int findEntrance(MazeMap Maze,int *eRow, int *eCol) {
         }
     }
 	
-	//! testing if there is a close entrance on top of maze
+	//! testing if there is a closer entrance on top of maze
     for(top = 0; top < getWidth(Maze); top++)  {
         if((getBlock(Maze,TOPSIDE,side)) == ' ')    {
             if(--side >= top)   {

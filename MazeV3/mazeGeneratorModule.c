@@ -1,8 +1,8 @@
-//
-// mazeGeneratorModule.c
-// Created by bc14627 on 2014/15/11
-// tags: 
-//
+//! mazeGeneratorModule.c
+/*
+ * Partial implementation of maze generator.  May segfault (give it another go!). SDL compatible. 
+ */
+
 /*---------- Standard Headers -----------*/
 
 #include <stdio.h>
@@ -68,8 +68,6 @@ int partionMaze(MazeMap RndmMaze,
 	//!bottom right chamber	
 	partionMaze(RndmMaze,colStart,colPos,newRowStart,rowPos);
 
-	printFullRoute(RndmMaze);
-	pNL();
 	return 1;
 			
 }
