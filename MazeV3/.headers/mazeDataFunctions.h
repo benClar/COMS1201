@@ -1,6 +1,6 @@
 /*----------Enumerated Types-----------*/
 //change to capital?
-typedef enum { MISC, ENTRANCE, EXIT, WALL, EXITROUTE, DEADEND } blockType;
+typedef enum { MISC, ENTRANCE, EXIT, WALL, EXITROUTE, DEADEND, ROW, COL } blockType;
 typedef enum {FALSE, TRUE} BOOL;
 /*----------Symbolic Constants-----------*/
 #define RECTSIZE	20	//rectangle size

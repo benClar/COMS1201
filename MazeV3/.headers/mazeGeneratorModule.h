@@ -12,3 +12,5 @@
 /*----------Function Prototypes-----------*/
 void wallMaze(MazeMap RndmMaze);
 int partionMaze(MazeMap RndmMaze, int leftBound, int width, int stRow, int lowerBound);
+int boundCheck(int bound, int val);
+void setEnt(MazeMap maze, int start, int end, int axis, blockType block);

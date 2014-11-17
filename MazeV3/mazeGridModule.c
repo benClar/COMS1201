@@ -40,13 +40,12 @@ struct mazeMap	{
 /*
  *creates structure for required size to hold maze blocks
  */
-MazeMap createMap(int height, int width)	{
-
+MazeMap createMap(int width, int height)	{
 	int i;
 	if((height > 0) && (width > 0))	{
 		MazeMap newMaze = (MazeMap) checkMalloc(malloc(sizeof(*newMaze)));
 		newMaze->mazeGrid = (struct mazeBlock**) checkMalloc(malloc(height * sizeof(struct mazeBlock*)));
-		for(i = 0; i < width; i++)	{
+		for(i = 0; i <height; i++)	{
 			newMaze->mazeGrid[i] = (struct mazeBlock*) checkMalloc(malloc(width * sizeof(struct mazeBlock)));	
 		}
 		newMaze->height = height;

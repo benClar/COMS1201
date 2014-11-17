@@ -1,7 +1,7 @@
 //! Maze.c
 /*!
  *	Main File.  Reads maze files and explores them for an exit
- *	For this assignment I have fully implemeted the recursive exit route and the SDL output.  I have attempted the random maze generation, however have not implemented full functionality.
+ *	For this assignment I have fully implemeted the recursive exit route and the SDL output.  I have attempted the random maze generation, however have not implemented full functionality - it may seg fault.
  *	To run: 1) make all
  *			2) .compiled/maze .text/maze[N].txt
  *			3) .compiled/maze .text/maze[N].txt SDL
@@ -28,52 +28,43 @@
 /*---------- Main -----------*/
 
 int main(int argc, char *argv[]){
-	MazeMap Maze;
  	srand(time(NULL));
+	MazeMap Maze;
 	SDL_Simplewin sw;
 	RouteMode rMode;
+	int eRow, eCol, gMode = 0;
+
 	PathList exitCoords = createList();
+
 	printf("Which mode would you like? \n 1 : Show full route with decision making.\n 2 : Step by step movement through maze with no wrong turns.\n 3 : Static route of maze.\n");
 	do { 
 		scanInt((int*) &rMode);
 	} while (rMode != DECISIONS && rMode != CORRECT && rMode != STATIC);
-	int eRow, eCol, gMode = 0,randomW,randomH;
+
 	argc--;
+	//! check is user wants to use SDL
 	if(argc > 1){
 		if(!strcmp(argv[2],"SDL")){
 			gMode = 1;
 			Neill_SDL_Init(&sw);
 		}
-	} 
+	}
+	
 	if(!strcmp(argv[1],"RANDOM"))	{
-		printf("Enter height for maze:	\n");	
-		rParam(&randomH,MINHEIGHT,MAXHEIGHT);
-		printf("Enter Width for maze:	\n");	
-		rParam(&randomW,MINWIDTH,MAXWIDTH);
-		Maze = createMap(randomH,randomW);
-		wallMaze(Maze);
-		partionMaze(Maze,0,randomH,0,randomW); 
+		Maze = createRandomMaze();
 	} else	{
 		Maze = readMaze(argv[1]);
 	}
 
 	if(findEntrance(Maze, &eRow, &eCol))	{
+		//! Entrance Found
 		if(exploreMaze(Maze, eRow, eCol,gMode,sw,exitCoords,rMode)) {
-			cleanList(Maze,exitCoords);
-			if(rMode==STATIC)   {
-				while(!sw.finished)   {
-					printFull(Maze,sw,gMode,rMode);
-					Neill_SDL_Events(&sw);	
-				}
-			}
+			//!escape found
+			cleanList(Maze,exitCoords); //!removes DEADENDS from linked list of exit path
+			printFull(Maze,sw,gMode,rMode);
 			printCorrect(Maze,sw,gMode,rMode,exitCoords);
-		} else {
-			if(rMode==STATIC)	{
-				while(!sw.finished)   {
-					printFull(Maze,sw,gMode,rMode);
-					Neill_SDL_Events(&sw);	
-				}
-			}
+		 } else {
+			printFull(Maze,sw,gMode,rMode);
             printCorrect(Maze,sw,gMode,rMode,exitCoords);
 		    fprintf(stderr, "Maze cannot be escaped\n");
        		exit(1);
@@ -94,6 +85,22 @@ int main(int argc, char *argv[]){
 
 /*---------- Functions ----------*/
 
+/*
+ * Creates Randomised Map
+ */
+
+MazeMap createRandomMaze()	{
+	int randomW,randomH;
+	printf("Enter height for maze:	\n");	
+	rParam(&randomH,MINHEIGHT,MAXHEIGHT);
+	printf("Enter Width for maze:	\n");	
+	rParam(&randomW,MINWIDTH,MAXWIDTH);
+	MazeMap Maze = createMap(randomW,randomH);
+	wallMaze(Maze);
+	partionMaze(Maze,0,randomH,0,randomW); 
+	return Maze;
+}
+
 /*!
  *Validates user input for random maze generation
  */
@@ -111,6 +118,7 @@ int exploreMaze(MazeMap Maze, int row, int col,int gMode, SDL_Simplewin sw,PathL
 	if(sw.finished) { return 1; }
 	if (!mazeBoundaryCheck(Maze, row, col)) {  return 0;}	
 	if (getBlockType(Maze,row,col) == EXITROUTE) { return 0;}
+	if(getBlockType(Maze,row,col) == DEADEND) { return 0;}
 	//! Detecting if exit
 	if (detectExit(Maze,row,col)) {	
 		setBlockType(Maze,row,col,EXITROUTE);  
@@ -142,11 +150,11 @@ int exploreMaze(MazeMap Maze, int row, int col,int gMode, SDL_Simplewin sw,PathL
 	return 0;	
 
 }
+
 /*!
  * Manages interface to printing module if user wants correct decisions explore mode
  */
 int printCorrect(MazeMap Maze, SDL_Simplewin sw, int gMode,RouteMode rMode,PathList exitCoords)	{
-
 	if (rMode ==CORRECT)	{
 		if(gMode)	{
 			graphicalPrintRightRoute(Maze,exitCoords,sw);
@@ -158,19 +166,22 @@ int printCorrect(MazeMap Maze, SDL_Simplewin sw, int gMode,RouteMode rMode,PathL
 
 	return 1;
 }
+
 /*!
  *Manages interface to printing module if user wants to see only full exit path
  */
-int printFull(MazeMap Maze, SDL_Simplewin sw, int gMode,RouteMode rMode)	{
-	if(rMode == STATIC || rMode == DECISIONS)	{
-		if(gMode)	{
+void printFull(MazeMap Maze, SDL_Simplewin sw, int gMode,RouteMode rMode)	{
+	delay(DELAY);
+	if(rMode == STATIC && (gMode))	{
+        while(!sw.finished)   {
+			graphicalPrintFullRoute(Maze,sw);
+            Neill_SDL_Events(&sw);
+        }
+	} else if (rMode == DECISIONS && gMode)	{
 			graphicalPrintFullRoute(Maze,sw);	
-			return 2;
-		} else {
+	} else if ((rMode == DECISIONS || rMode == STATIC) && (!gMode)) {
 			printFullRoute(Maze);
-		}
 	}
-	return 1;
 }
 
 /*!
@@ -179,22 +190,28 @@ int printFull(MazeMap Maze, SDL_Simplewin sw, int gMode,RouteMode rMode)	{
 MazeMap readMaze(char fileLocation[])	{
 	FILE *fp;
 	char letter;
-	int lineCount = 0, rowDim = 0, colDim = 0, col = 0;
+	int lineCount = 0, width = 0, height = 0, col = 0;
 	MazeMap Maze = NULL;
 	
 	if ((fp = fopen(fileLocation,"r")) != NULL) {
-		getFirstLine(fp,&rowDim,&colDim); //!Reading in Dimensions
-		if (rowDim > FMAXWIDTH || colDim > FMAXHEIGHT)	{
-			fprintf(stderr,"Dimensions too big: %d %d\n",rowDim,colDim);
+		getFirstLine(fp,&width,&height); //!Reading in Dimensions
+		if (width > FMAXWIDTH || height > FMAXHEIGHT)	{
+			fprintf(stderr,"Dimensions too big: %d %d\n",width,height);
 			exit(1);
 		}
-		Maze = createMap(rowDim,colDim);
-		while((letter = getc(fp)) != EOF && lineCount < rowDim)	{
+		iprint(height);
+		iprint(width);
+		Maze = createMap(width,height);
+		while((letter = getc(fp)) != EOF && lineCount < height)	{
 			if(letter == '\n')	{
+				if(!checkDim(col,width))	{
+					fprintf(stderr, "row %d is %d long, when dimensions state it should be %d\n",lineCount+1,col,width);
+					exit(1);
+				}
 				lineCount++;
 				col = 0;
 			}  else {
-				addToGrid(Maze,lineCount,col,letter,'#');	//!adding to grid,defines wall char
+				addToGrid(Maze,lineCount,col,letter,'#');	//!	adding to grid,defines wall char
 				col++;
 			}
 		}
@@ -202,16 +219,32 @@ MazeMap readMaze(char fileLocation[])	{
 		fprintf(stderr, "File does not exist\n");	
 		exit(1);
 	}
+	if((!checkDim(lineCount,height)))	{
+		fprintf(stderr, "Height of maze (%d)  does not match given size (%d)\n",lineCount,height);
+        exit(1);
+	}
 	return Maze;
+}
+
+/*!
+ * Validates dimensions given in file
+ */
+int checkDim(int count, int dim)	{
+
+	if( count == dim)	{
+		return 1;
+	}
+
+	return 0;	
 }
 
 /*!
  *Reads first line as integer to get maze dimensions
  */
-int getFirstLine(FILE *fp,int *row, int *col)	{
+int getFirstLine(FILE *fp,int *width, int *height)	{
 
 	int count = 0, argCnt;
-	while((argCnt = (fscanf(fp,"%d %d",row,col))) != EOF && count < 1)	{
+	while((argCnt = (fscanf(fp,"%d %d",width,height))) != EOF && count < 1)	{
 		count++;	
 	} 
 	
@@ -241,10 +274,10 @@ int findEntrance(MazeMap Maze,int *eRow, int *eCol) {
             entranceFound = TRUE;
         }
     }
-	
+
 	//! testing if there is a closer entrance on top of maze
     for(top = 0; top < getWidth(Maze); top++)  {
-        if((getBlock(Maze,TOPSIDE,side)) == ' ')    {
+        if((getBlock(Maze,TOPSIDE,top)) == ' ')    {
             if(--side >= top)   {
                 *eRow = TOPSIDE;
                 *eCol = top;
@@ -261,7 +294,7 @@ int findEntrance(MazeMap Maze,int *eRow, int *eCol) {
  *Tests current position to determine if it is an exit
  */
 int detectExit(MazeMap Maze, int row, int col)  {
-    if((row == (getWidth(Maze) -1) || col == (getHeight(Maze) - 1) || row == 0 || col == 0)  && (getBlock(Maze,row,col) == ' ') && (getBlockType(Maze,row,col) != ENTRANCE) ) {
+    if((row == (getHeight(Maze) -1) || col == (getWidth(Maze) - 1) || row == 0 || col == 0)  && (getBlock(Maze,row,col) == ' ') && (getBlockType(Maze,row,col) != ENTRANCE) ) {
         return 1;
     }
     return 0;

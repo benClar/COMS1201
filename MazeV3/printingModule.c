@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <time.h>
 
 /*---------- Custom Headers	-----------*/
 
@@ -37,6 +38,7 @@ int printCorrectRoute(MazeMap maze,PathList list)   {
                 }
                 pNL();
             }
+				delay(DELAY);
         }
     return 1;
 }
@@ -95,6 +97,7 @@ int graphicalPrintRightRoute(MazeMap maze,PathList list,SDL_Simplewin sw)   {
         SDL_RenderPresent(sw.renderer);
         SDL_UpdateWindowSurface(sw.win);
         Neill_SDL_Events(&sw);
+		delay(DELAY);
     }
     return 1;
 }
@@ -140,3 +143,17 @@ int graphicalPrintFullRoute(MazeMap maze,SDL_Simplewin sw)  {
 
     return 1;
 }
+
+//creating delay.  Adapted from http://c-for-dummies.com/blog/?p=69
+void delay(int milliseconds)
+{
+    double interval;
+    clock_t a,b;
+
+    interval = milliseconds*(CLOCKS_PER_SEC/1000);
+    a = b = clock();
+    while( (a-b) < interval )   {
+        a = clock();
+    }
+}
+

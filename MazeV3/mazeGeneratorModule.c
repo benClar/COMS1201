@@ -1,6 +1,6 @@
 //! mazeGeneratorModule.c
 /*
- * Partial implementation of maze generator.  May segfault (give it another go!). SDL compatible. 
+ * Partial implementation of maze generator. SDL compatible. 
  */
 
 /*---------- Standard Headers -----------*/
@@ -28,7 +28,6 @@ int partionMaze(MazeMap RndmMaze,
 	int lowerBound)	{ //!Lower boundary of current chamber
 	if(lowerBound - stRow < CHAMBERSIZE)	{ return 0; }
 	if(width - leftBound < CHAMBERSIZE) { return 0; }
-
 	int colStart,  //! Randomised x pos for new col start
 		newRowStart,	//! randomised y pos for new row start
 		rowPos, //! y pos for new col start
@@ -37,21 +36,19 @@ int partionMaze(MazeMap RndmMaze,
 	do {
 		colStart = rand()%(width-2); //!setting x pos for col
 	} while (colStart <= (leftBound+1));   	
-
 	//!Drawing column
-	for(rowPos = stRow+1; getBlockType(RndmMaze,rowPos,colStart) != WALL && (lowerBound - stRow > CHAMBERSIZE); rowPos++)	{
+	for(rowPos = stRow+1; (boundCheck(getHeight(RndmMaze),rowPos)) && getBlockType(RndmMaze,rowPos,colStart) != WALL && (lowerBound - stRow > CHAMBERSIZE); rowPos++)	{
 		addToGrid(RndmMaze,rowPos,colStart,'#','#');
 	}
-
 	do	{
 		newRowStart = rand()%(lowerBound - 2); //!setting y pos for row
 	} while ( newRowStart <= (stRow + 1));
-
+	setEnt(RndmMaze,stRow,rowPos,colStart,COL);
 	//!drawing row of first half
-	for(colPos = leftBound+1; getBlockType(RndmMaze,newRowStart,colPos) != WALL && (width - leftBound > CHAMBERSIZE); colPos++)	{
+	for(colPos = leftBound+1;(boundCheck(getWidth(RndmMaze),colPos)) && getBlockType(RndmMaze,newRowStart,colPos) != WALL && (width - leftBound > CHAMBERSIZE); colPos++)	{
 		addToGrid(RndmMaze,newRowStart,colPos,'#','#');
 	}
-
+	setEnt(RndmMaze,leftBound,colPos,newRowStart,ROW);
 	//! top left chamber
 	partionMaze(RndmMaze,leftBound, colStart, stRow, newRowStart);	
 
@@ -59,9 +56,10 @@ int partionMaze(MazeMap RndmMaze,
 	partionMaze(RndmMaze,leftBound,colStart,newRowStart,rowPos);
 
 	//!drawing row of second half
-	for(colPos = colPos+1; getBlockType(RndmMaze,newRowStart,colPos) != WALL && (width - leftBound > CHAMBERSIZE); colPos++)  {
+	for(colPos = colPos+1;(boundCheck(getWidth(RndmMaze),colPos)) &&  getBlockType(RndmMaze,newRowStart,colPos) != WALL && (width - leftBound > CHAMBERSIZE); colPos++)  {
         addToGrid(RndmMaze,newRowStart,colPos,'#','#');
     }
+	setEnt(RndmMaze,leftBound,colPos,newRowStart,ROW);
 	//!top right chamber
 	partionMaze(RndmMaze,colStart,colPos,stRow,newRowStart);
 
@@ -70,6 +68,26 @@ int partionMaze(MazeMap RndmMaze,
 
 	return 1;
 			
+}
+
+void setEnt(MazeMap maze, int start, int end, int axis, blockType block)	{
+	int entry;
+	do {
+		entry = rand()%end;
+	} while ( entry < start);
+	if(block == ROW)	{
+		addToGrid(maze,axis,entry,' ','#');
+	} else if (block == COL) {
+		addToGrid(maze,entry,axis,' ','#');
+	}
+}
+
+int boundCheck(int bound, int val)	{
+
+	if(val < bound)	{
+		return 1;
+	}
+	return 0;	
 }
 
 void wallMaze(MazeMap RndmMaze)	{
