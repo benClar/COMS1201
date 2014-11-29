@@ -11,9 +11,9 @@
 
 /*---------- Custom Headers	-----------*/
 
-#include ".headers/boardModule.h"
-#include ".headers/debug.h"
-#include ".headers/main.h"
+#include "boardModule.h"
+#include "debug.h"
+#include "main.h"
 
 /*---------- Main -----------*/
 
@@ -62,6 +62,17 @@ void scanInt(int *toScan, int max, int min) {
 
 void readDefaultMap()	{
 
-
-
+	FILE *fp;
+	int button, col, row;
+	if((fp = fopen("defaultBoard.txt","r")) != NULL) {
+		for(col = 0, row = 0; (button = getc(fp)) != EOF ; col++)	{
+			if(col == MAXCOL)	{
+				col = 0;
+				row++;
+			}
+			if(button == 1 || button == 0)	{
+				addButtonToBoard(firstBoard, button, row, col);
+			}
+		}
+	}
 }

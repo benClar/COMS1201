@@ -110,7 +110,6 @@ void populateBoard(BoardNode newBoard, int PID, Button **boardToCopy )	{
 int incrementID()	{
 
 	return ++getQueue(NULL)->currID;
-
 }
 
 
@@ -171,5 +170,13 @@ void *checkMalloc(void *malP)   {
         exit(1);
     }
     return malP;
+}
+
+void addButtonToBoard(Button **board, int button, int row, int col)	{
+
+
+
+
+
 }
 
