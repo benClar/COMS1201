@@ -38,7 +38,7 @@ int exploreMaze(MazeMap Maze, int row, int col)	{
 		setBlockType(Maze,row,col,EXITROUTE);  printMap(Maze); 
 		return 1;
 	}
-
+		printMap(Maze);
 		switch(getBlockType(Maze,row,col))	{
 		case WALL:
 				return 0;
