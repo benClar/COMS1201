@@ -1,6 +1,6 @@
 //! mazeGeneratorModule.c
 /*
- * Partial implementation of maze generator. SDL compatible. 
+ * Maze generator: some issues remain.  SDL compatible. 
  */
 
 /*---------- Standard Headers -----------*/
@@ -26,6 +26,7 @@ int partionMaze(MazeMap RndmMaze,
 	int width,		//! RIght hand boundary of current chamber 
 	int stRow,		//! top boundary of current chamber 
 	int lowerBound)	{ //!Lower boundary of current chamber
+
 	if(lowerBound - stRow < CHAMBERSIZE)	{ return 0; }
 	if(width - leftBound < CHAMBERSIZE) { return 0; }
 	int colStart,  //! Randomised x pos for new col start
@@ -70,6 +71,9 @@ int partionMaze(MazeMap RndmMaze,
 			
 }
 
+/*
+ *Sets entry along specified axis randomly
+ */
 void setEnt(MazeMap maze, int start, int end, int axis, blockType block)	{
 	int entry;
 	do {
@@ -82,6 +86,9 @@ void setEnt(MazeMap maze, int start, int end, int axis, blockType block)	{
 	}
 }
 
+/*
+ *Checks values are in specified boundary
+ */
 int boundCheck(int bound, int val)	{
 
 	if(val < bound)	{
@@ -90,6 +97,10 @@ int boundCheck(int bound, int val)	{
 	return 0;	
 }
 
+
+/*
+ *Setting up wall around basic chamber.  Adds entrances and exits.
+ */
 void wallMaze(MazeMap RndmMaze)	{
 
 	int topRow = 0,

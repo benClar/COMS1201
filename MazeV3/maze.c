@@ -200,8 +200,6 @@ MazeMap readMaze(char fileLocation[])	{
 			fprintf(stderr,"Dimensions too big: %d %d\n",width,height);
 			exit(1);
 		}
-		iprint(height);
-		iprint(width);
 		Maze = createMap(width,height);
 		while((letter = getc(fp)) != EOF && lineCount < height)	{
 			if(letter == '\n')	{
