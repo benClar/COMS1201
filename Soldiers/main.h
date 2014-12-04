@@ -17,8 +17,14 @@ typedef enum moveStage {JUMP, DELETE, DONE} moveStage;
 #define NEIGHDIS	1		//!Check Neighbour in adjacent cell
 #define MAXDISTOCHECK	2	//!Positions distance of 2 away from current position need to be checked to move
 #define ARGCNT		2		//! Number of arguments that should be passed into program
+#define MOVETYPECOL	2		//! this element of test move array is a move, not a coordinate
+#define TESTDATACOL	3		//! Number of columns in test data file
+#define CURRROW		0		//! Column that stores test row
+#define CURRCOL		1		//! Columns that stores test col
+#define	MOVETYPE	2		//! Column that stores move type
 /*----------Typedefs----------*/
 
+typedef struct testData *TestData;
 
 
 /*----------Function Prototypes-----------*/
@@ -33,6 +39,11 @@ BoardNode getFinalBoard();
 void userEnterTargetDestination(char *x, char *y);
 void checkArg(int *argc);
 char *checkEnteredString(char *toCheck);
+void readMoveList(TestData tData);
+void growMoveDataArray(TestData testStr, int row);
+void parsingMoveType(char type, int *moveRow, int *movecol);
+TestData createTestDataStr();
 /*----------Testing Function Prototypes-----------*/
 void testing();
 void testVal(int testResult, int expected, char *description);
+int testMakeMove(BoardNode testBoard);

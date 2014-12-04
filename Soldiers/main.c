@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 /*---------- Custom Headers	-----------*/
 
@@ -15,6 +16,10 @@
 #include "debug.h"
 #include "main.h"
 
+struct testData	{
+	int nMoves; 	//!Number of moves
+	int **dataArray;	//!array holding moves
+};
 /*---------- Main -----------*/
 
 int main(int argc, char *argv[]){
@@ -23,14 +28,12 @@ int main(int argc, char *argv[]){
 	createQueue();
 	userEnterTargetDestination(argv[1],argv[2]);	
 	readDefaultMap();
-	printQueue();
 	
-	//testing();
+//	testing();
 	for(currentBoard = getStartBoard(); getFinalBoard() == NULL; currentBoard=nextInList(currentBoard))	{
 		generatePossibleMove(currentBoard);
 	}
-	printQueue();
-	printSuccessSeries();
+	recursiveSuccess(getFinalBoard());
 	return 0;
 
 }
@@ -38,7 +41,28 @@ int main(int argc, char *argv[]){
 /*---------- Functions ----------*/
 
 /*
- *
+ * Create Test Data Structure
+ */
+TestData createTestDataStr()	{
+
+	TestData newTestData = (TestData) malloc(sizeof(*newTestData));
+	newTestData->dataArray = NULL;
+	newTestData->nMoves = 0;	
+	return newTestData;
+}
+
+
+/*
+ *Increases the size of the array holding test data 
+ */
+void growMoveDataArray(TestData testStr, int row)	{
+	testStr->dataArray = (int**) realloc(testStr->dataArray,(row + 1) * sizeof(int*));
+	testStr->dataArray[row] = (int*) malloc(3*sizeof(int));	
+	testStr->nMoves++;
+}	
+
+/*
+ * Ensures two arguments have been supplied
  */
 void checkArg(int *argc){
 	(*argc)--;
@@ -60,6 +84,7 @@ void testing()	{
 	testVal(validateMove(getStartBoard(),MVUP,DONTMV,5,4,NEIGHDIS),TRUE, "5,4 to 3,4 is a valid move");
 	testVal(validateMove(getStartBoard(),MVDOWN,DONTMV,5,4,NEIGHDIS),FALSE, "5,4 to 7,4 is not a valid move");
 	testVal(testCopyParentToChild(getStartBoard(),copyParentToChild(getStartBoard(),addToQueue(createBoard(getStartBoard())))),TRUE, "Copying parent board to child board");
+	testVal(testMakeMove(getStartBoard()),TRUE, "Test movement data on default board");
 	printf("*** Testing finished ***\n");
 }
 
@@ -112,8 +137,11 @@ void generateUniqueBoardWithMove(BoardNode currentBoard, int rowMove, int colMov
 	}
 
 
-	}
+}
 
+/*
+ *Makes specified move in a recursive way
+ */
 BoardNode makeMove(BoardNode newBoard, int moveRow, int moveCol, int currRow, int currCol, moveStage currStep) {
 	if(currStep == DONE)	{ return newBoard; }
 	switch(currStep)	{
@@ -133,6 +161,95 @@ BoardNode makeMove(BoardNode newBoard, int moveRow, int moveCol, int currRow, in
 	}
 
 	return(makeMove(newBoard,moveRow,moveCol,currRow+moveRow,currCol+moveCol,currStep));
+}
+
+/*
+ *Parsing third column of test data file input
+ */
+void parsingMoveType(char type, int *moveRow, int *moveCol)	{
+
+   switch (type)    {
+        case 'u':
+            *moveRow = MVUP;
+            *moveCol = DONTMV;
+            break;
+		case 'd':
+			*moveRow = MVDOWN;
+            *moveCol = DONTMV;
+            break;
+		case 'l':
+            *moveRow = DONTMV;
+            *moveCol = MVLEFT;
+            break;
+		case 'r':
+            *moveRow = DONTMV;
+            *moveCol = MVRIGHT;
+            break;
+        default:
+            fprintf(stderr,"Unrecognised move direction\n");
+            exit(1);
+	}
+}
+
+/*
+ *Makes moves on one board and checks grid elements after to ensure correct state
+ */
+int testMakeMove(BoardNode testBoard)	{
+
+	TestData tData = createTestDataStr();
+	readMoveList(tData);
+	int row,
+	moveRow, moveCol,			//Set to desired row and col movement
+	prevPosRow, prevPosCol,		//Saving old button position
+	delButtonRow, delButtonCol,	//Button to delete
+	newPosRow, newPosCol;		//new Button
+	for(row = 0; row < tData->nMoves; row++)	{
+		parsingMoveType(tData->dataArray[row][MOVETYPE],&moveRow,&moveCol);
+
+		prevPosRow = tData->dataArray[row][CURRROW];
+		prevPosCol = tData->dataArray[row][CURRCOL];
+
+		delButtonRow = tData->dataArray[row][CURRROW] + moveRow;
+		delButtonCol = tData->dataArray[row][CURRCOL] + moveCol;
+
+		newPosRow = tData->dataArray[row][CURRROW] + moveRow + moveRow;
+		newPosCol = tData->dataArray[row][CURRCOL] + moveCol + moveCol;
+
+		//! testing preconditions
+		if(getButtonStatus(testBoard,delButtonRow,delButtonCol) != ALIVE)	{
+			fprintf(stderr,"attempting to jump a non existent button\n");
+			return 0;
+		}
+		
+		if(getButtonStatus(testBoard,newPosRow,newPosCol) != DEAD) {
+			fprintf(stderr,"attempting to jump to a non empty square\n");
+			return 0;
+		}
+	
+		if(getButtonStatus(testBoard,prevPosRow,prevPosCol) != ALIVE)	{
+			fprintf(stderr,"No button to move\n");
+			return 0;
+		}
+	
+		makeMove(testBoard,moveRow,moveCol,tData->dataArray[row][CURRROW],tData->dataArray[row][CURRCOL],DELETE);
+		
+		//! testing post conditions
+		if(getButtonStatus(testBoard,delButtonRow,delButtonCol) != DEAD)	{
+			fprintf(stderr,"Button to be jumped has not been removed\n");
+			return 0;
+		}
+	
+		if(getButtonStatus(testBoard,newPosRow,newPosCol) != ALIVE)	{
+			fprintf(stderr,"Button has not been moved to correct place\n");
+			return 0;
+		}
+		
+		if(getButtonStatus(testBoard,prevPosRow,prevPosCol) != DEAD)	{
+			fprintf(stderr,"Previous Position has not been removed\n");
+			return 0;
+		}
+	}
+	return 1;
 }
 
 /*
@@ -167,10 +284,10 @@ int validateMove(BoardNode currentBoard, int moveRow, int moveCol, int currRow, 
 /*
  *	User enters target destination for counter
  */
-void userEnterTargetDestination(char *x, char *y)	{
+void userEnterTargetDestination(char *sRow, char *sCol)	{
 	int row, col;
-	row = checkInt(atoi(checkEnteredString(y)),MAXROW,MINCOORD);
-	col = checkInt(atoi(checkEnteredString(x)),MAXCOL,MINCOORD) - 1;
+	row = checkInt(atoi(checkEnteredString(sRow)),MAXROW,MINCOORD);
+	col = checkInt(atoi(checkEnteredString(sCol)),MAXCOL,MINCOORD);
 	iprint(row);
 	iprint(col);
 	setTargetMove(row,col);
@@ -181,7 +298,7 @@ void userEnterTargetDestination(char *x, char *y)	{
  */
 int checkInt(int toCheck, int max, int min) {
 
-		if(toCheck > max)	{
+		if(toCheck >= max)	{
 			printf("Please ensure integer entered is less than %d\n",max);
 			exit(1);
 		} else if (toCheck < min)	{
@@ -211,7 +328,7 @@ void readDefaultMap()	{
 	if((fp = fopen("defaultBoard.txt","r")) != NULL) {
 		for(col = 0, row = 0; (button = getc(fp)) != EOF ;)	{
 			if(col == MAXCOL)	{
-				col = 0;
+				col = 0; //resetting column
 				row++;
 			}
 			if(button == '1' || button == '0')	{
@@ -220,5 +337,37 @@ void readDefaultMap()	{
 				col++;
 			}
 		}
+	} else {
+		fprintf(stderr,"Default board file does not exist\n");
 	}
+	fclose(fp);
+}
+
+void readMoveList(TestData tData)	{
+
+	FILE *fp;
+	int move,row, col;
+	if((fp = fopen("testMoves.txt","r")) != NULL)	{
+		for(row = 0, col = 0; (move = getc(fp)) != EOF; )	{
+			if(isalnum(move))	{
+				if(col == 0)	{
+					growMoveDataArray(tData,row);
+				}
+
+				if( col < MOVETYPECOL)	{
+					move -= TOINT;
+				}
+				tData->dataArray[row][col] = move;
+				col++;
+				if(col > MOVETYPECOL)	{
+					row++;
+					col = 0; //! resetting column
+				}
+			}
+		}	
+	} else {
+		fprintf(stderr,"sample move set data file does not exist \n");
+	}	
+	fclose(fp);
+
 }
