@@ -36,7 +36,8 @@ struct boardQueueHead	{
 struct boardNode	{
 
 	BoardNode parentBoard; //!Link to parent board
-	Button **board;
+	//Button **board;
+	buttonState **board;
 	BoardNode next; 	//!Next board in queue.  Deafults to NULL.
 
 };
@@ -66,7 +67,7 @@ BoardNode getFinalBoard()	{
 int getButtonStatus(BoardNode currentNode, int row, int col)	{
 
 
-	if(currentNode->board[row][col]->currState == ALIVE)	{
+	if(currentNode->board[row][col] == ALIVE)	{
 		return 1;
 	}
 
@@ -83,9 +84,28 @@ void printSuccessSeries()	{
 	for(sBoard = getQueue(NULL)->finalBoard;sBoard->parentBoard != NULL; sBoard = sBoard->parentBoard)	{
 		printBoard("final Solution",sBoard);
 	}
-
 }
 
+
+/*
+ *Recursively Prints board
+ */
+
+int recursiveSuccess(BoardNode currBoard)	{
+	if(getFinalBoard() == NULL)	{return 0;}
+	if(currBoard->parentBoard == NULL){ printBoard("Success",currBoard); return 1;}
+
+	if(recursiveSuccess(currBoard->parentBoard))	{
+		printBoard("success",currBoard);
+		return 1;
+	}	
+	
+	return 0;
+}
+
+/*
+ * Returns first board in queue
+ */
 BoardNode getStartBoard()	{
 
 	return getQueue(NULL)->start;
@@ -96,11 +116,7 @@ BoardNode getStartBoard()	{
  * returns true if target destination has been filled with button
  */
 void checkTarget(BoardNode currentBoard)	{
-	if(currentBoard->board[getQueue(NULL)->targetRow][getQueue(NULL)->targetCol]->currState == ALIVE)	{
-		iprint(getQueue(NULL)->targetRow);
-		iprint(getQueue(NULL)->targetCol);
-		iprint(currentBoard->board[getQueue(NULL)->targetRow][getQueue(NULL)->targetCol]->currState);
-		printBoard("thinks its good",currentBoard);
+	if(currentBoard->board[getQueue(NULL)->targetRow][getQueue(NULL)->targetCol] == ALIVE)	{
 		getQueue(NULL)->finalBoard = currentBoard;
 	}
 }
@@ -158,8 +174,8 @@ void freeBoard(BoardNode board)	{
 
 int changeButton(BoardNode currBoard, int row, int col, buttonState newState)	{
 
-	if(currBoard->board[row][col]->currState != newState)	{
-		currBoard->board[row][col]->currState = newState;
+	if(currBoard->board[row][col]!= newState)	{
+		currBoard->board[row][col] = newState;
 	} else {
 		fprintf(stderr,"Invalid move has been attempted\n");
 		return 0;
@@ -173,7 +189,7 @@ BoardNode copyParentToChild(BoardNode Parent, BoardNode Child)	{
 	int row,col;
 	for(row = 0; row < MAXROW; row++)	{
 		for(col = 0; col < MAXCOL; col++)	{
-			Child->board[row][col]->currState = Parent->board[row][col]->currState;
+			Child->board[row][col] = Parent->board[row][col];
 		}
 	}
 	return Child;
@@ -184,7 +200,7 @@ void printBoard(char *string,BoardNode btp)	{
 	printf("%s\n",string);
 	for(row = 0; row < MAXROW; row++)	{
 		for(col = 0; col < MAXCOL; col++)	{
-			printf("%d",btp->board[row][col]->currState);
+			printf("%d ",btp->board[row][col]);
 		}
 		pNL();
 	}
@@ -202,13 +218,11 @@ BoardNode compBoardWithList(BoardNode currBoard)	{
 	while(checkNode == getQueue(NULL)->start || checkNode->next != NULL)	{
 		for(row = 0, matching = 0; row < MAXROW; row++)	{
 			for(col = 0; col < MAXCOL; col++)	{
-				if(checkNode->board[row][col]->currState == currBoard->board[row][col]->currState)	{
+				if(checkNode->board[row][col] == currBoard->board[row][col])	{
 					matching++;
 				}
 			}
 			if(matching == (MAXCOL*MAXROW))	{
-				//printBoard("this new board is the same as:",currBoard);
-				//printBoard("this board in the queue:",checkNode);
 				return NULL;
 			}
 		}
@@ -220,13 +234,15 @@ BoardNode compBoardWithList(BoardNode currBoard)	{
 	return currBoard;
 
 }
-
+/*
+ *Ensures parent and child are exact copies and child is linked to parent
+ */
 int testCopyParentToChild(BoardNode Parent, BoardNode Child)	{
 
 	int	row, col;
 	for(row = 0; row < MAXROW; row++)	{
 		for (col = 0; col < MAXCOL; col++)	{
-			if(Parent->board[row][col]->currState != Child->board[row][col]->currState)	{
+			if(Parent->board[row][col] != Child->board[row][col])	{
 				fprintf(stderr,"Copy from parent to child is not exact replica: %d,%d differs\n",row,col);
 				return 0;
 			}
@@ -237,7 +253,7 @@ int testCopyParentToChild(BoardNode Parent, BoardNode Child)	{
 		fprintf(stderr,"Child board is not linked to parent board\n");
 		return 0;
 	}
-
+	free(Child);
 	return 1;
 }
 
@@ -290,36 +306,12 @@ void populateBoard(BoardNode newBoard, BoardNode ParentBoard)	{
 	int row,col;
 	newBoard->parentBoard = ParentBoard;
 
-	//!creating a 2d array of pointers to structures
-	//!Here I am mallocing pointer to 1d array of pointers( to each row),
-	//!which will in turn hold pointers to structures  
-	newBoard->board = (Button**) checkMalloc(malloc(MAXROW * sizeof(*(newBoard->board))));
-
-	//!proving this malloc is correct:
-	if((MAXROW * sizeof(*(newBoard->board))) != (MAXROW * sizeof(struct button***)))	{
-		fprintf(stderr,"Not mallocing enough space for 2d array of buttons\n");
-		exit(1);
-	}
-
+	newBoard->board = (buttonState**) checkMalloc(malloc(MAXROW * sizeof(buttonState*)));
+	
 	for(row = 0; row < MAXROW; row++)	{
-		//! creating space for each row, which will point to structure
-		newBoard->board[row] = (Button*)	checkMalloc(malloc(MAXCOL * sizeof(*(newBoard->board[row]))));
-
-		//!proving this malloc is correct:
-		if((MAXCOL * sizeof(*(newBoard->board[row]))) != (MAXCOL * sizeof(struct button**)))	{
-			fprintf(stderr,"Not mallocing enough space for row of buttons\n");
-			exit(1);
-		}
+		newBoard->board[row] = (buttonState*) checkMalloc(malloc(MAXCOL*sizeof(buttonState)));
 		for(col = 0; col < MAXCOL; col++)	{
-			//! pointer to structures in each element dereferenced.  Creating space for structure.
-			newBoard->board[row][col] = (Button) checkMalloc(malloc(sizeof(*(newBoard->board[row][col]))));
-			newBoard->board[row][col]->currState = DEAD;
-			
-			//!proving this malloc is correct:
-			if(sizeof(*(newBoard->board[row][col])) != sizeof(struct button))	{
-				fprintf(stderr,"Not mallocing enough space for button structure \n");
-				exit(1);
-			}
+			newBoard->board[row][col] = DEAD;
 		}
 	}
 	newBoard->next = NULL;
@@ -398,14 +390,14 @@ void addButtonToBoard(BoardNode newBoard, int button, int row, int col)	{
  * Set button state to Alive
  */
 void setButtonAlive(BoardNode board, int row, int col)	{
-	board->board[row][col]->currState = ALIVE;
+	board->board[row][col] = ALIVE;
 }
 
 /*
  * Set button state to Dead
  */
 void setButtonDead(BoardNode board, int row, int col)	{
-	board->board[row][col]->currState = DEAD;
+	board->board[row][col] = DEAD;
 }
 
 /*
@@ -433,7 +425,7 @@ void printQueue()	{
 		printf("Queue Item %d\n",queueN);
 		for(row = 0; row < MAXROW; row++)	{
 			for(col = 0; col < MAXCOL; col++)	{
-				printf("%d",boardToPrint->board[row][col]->currState);
+				printf("%d ",boardToPrint->board[row][col]);
 			}
 		pNL();
 		}

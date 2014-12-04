@@ -1,6 +1,6 @@
 /*----------Enumerated Types-----------*/
 
-typedef enum { DEAD, ALIVE } buttonState;
+typedef enum buttonState { DEAD, ALIVE } buttonState;
 
 /*----------Symbolic Constants-----------*/
 
@@ -39,6 +39,7 @@ BoardNode nextInList(BoardNode currentBoard);
 void verifyNumQueueItems();
 int getNumBoards();
 void printBoard(char *string,BoardNode btp);
+int recursiveSuccess(BoardNode currBoard);
 void printSuccessSeries();
 /*----------Test Function Prototypes-----------*/
 int testStartOfQueue();
