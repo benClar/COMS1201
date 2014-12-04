@@ -18,14 +18,19 @@
 /*---------- Main -----------*/
 
 int main(int argc, char *argv[]){
-	
+	BoardNode currentBoard;
+	checkArg(&argc);
 	createQueue();
-	//userEnterTargetDestination();	
+	userEnterTargetDestination(argv[1],argv[2]);	
 	readDefaultMap();
-	testing();
-	setTargetMove(0,0);
-	//generatePossibleMove(getStartBoard());
-	//copyParentToChild(getStartBoard(),addToQueue(createBoard(getStartBoard())));
+	printQueue();
+	
+	//testing();
+	for(currentBoard = getStartBoard(); getFinalBoard() == NULL; currentBoard=nextInList(currentBoard))	{
+		generatePossibleMove(currentBoard);
+	}
+	printQueue();
+	printSuccessSeries();
 	return 0;
 
 }
@@ -33,13 +38,22 @@ int main(int argc, char *argv[]){
 /*---------- Functions ----------*/
 
 /*
+ *
+ */
+void checkArg(int *argc){
+	(*argc)--;
+	if(*argc != ARGCNT)	{
+		fprintf(stderr,"Please input set of x,y coordinates of target position\n");
+		exit(1);
+	}
+}
+/*
  * Suite of tests for this program
  */
 void testing()	{
 	printf("*** Entering Suite of Tests ***\n");
 
 	testVal(testStartOfQueue(), TRUE,"First board in queue has default button layout");
-	testVal(testCheckTarget(4,3), TRUE,"target is 3,3: should be alive");
 	testVal(checkBounds(10,3), FALSE,"row 9 is out of height bounds");
 	testVal(checkBounds(0,3), TRUE, "0,3 is in bounds");
 	testVal(checkBounds(0,8), FALSE, "column 8 is out of length bounds");
@@ -64,38 +78,61 @@ void testVal(int testResult,int expectedResult, char *description)	{
 
 int generatePossibleMove(BoardNode currentBoard)	{
 
-	//! return true if target position has been reached
-	if(checkTarget(currentBoard)) { return 1; }
-
 	int row, col;
 
 	for(row = 0; row < MAXROW; row++)	{
 		for(col = 0; col < MAXCOL; col++)	{
 			if(getButtonStatus(currentBoard,row,col) == ALIVE)	{
 				if(validateMove(currentBoard,DONTMV,MVRIGHT,row, col,NEIGHDIS))	{
-					//!Create a  blank board, copy parent board to it, add it to the queue, 
-					//!make the move then generate boards with possible moves again
-					//generatePossibleMove(makeMove(addToQueue(createBoard(currentBoard))));
+					generateUniqueBoardWithMove(currentBoard,DONTMV,MVRIGHT,row,col);
 				} else if(validateMove(currentBoard,DONTMV,MVLEFT,row, col,NEIGHDIS))	{
-	
+					generateUniqueBoardWithMove(currentBoard,DONTMV,MVLEFT,row,col);
 				} else if(validateMove(currentBoard,MVUP,DONTMV,row,col,NEIGHDIS))	{
-
+					generateUniqueBoardWithMove(currentBoard,MVUP,DONTMV,row,col);
 				} else if(validateMove(currentBoard,MVDOWN,DONTMV,row,col,NEIGHDIS))	{
-			
+					generateUniqueBoardWithMove(currentBoard,MVDOWN,DONTMV,row,col);
 				}
-				//! no possible moves 
 			}
 		}
 	}
-	return 0;
+	return 1;
 }
 
-int removeJumpedButton() {
-return 1;
-}
+void generateUniqueBoardWithMove(BoardNode currentBoard, int rowMove, int colMove, int currRow, int currCol)	{
 
-int makeMove(int currRow, int currCol) {
-return 1;
+	//!Create a  blank board, copy parent board to it, make the move,  check if it
+	//!is unique, add it to queue 
+	BoardNode generatedBoard;
+
+	if((generatedBoard = compBoardWithList(makeMove(copyParentToChild(currentBoard,createBoard(currentBoard)),rowMove,colMove,currRow,currCol,DELETE))) != NULL)	{
+		addToQueue(generatedBoard);	
+		checkTarget(generatedBoard);
+	} else {
+		freeBoard(generatedBoard);
+	}
+
+
+	}
+
+BoardNode makeMove(BoardNode newBoard, int moveRow, int moveCol, int currRow, int currCol, moveStage currStep) {
+	if(currStep == DONE)	{ return newBoard; }
+	switch(currStep)	{
+	
+	case DELETE:
+				changeButton(newBoard,currRow,currCol,DEAD); //!removing current button
+				currStep = JUMP;
+				changeButton(newBoard,currRow+moveRow,currCol+moveCol,DEAD); //!deleting button to be jumped
+				break;
+	case JUMP:
+				changeButton(newBoard,currRow+moveRow,currCol+moveCol,ALIVE); //! placing button in new spot
+				currStep = DONE;
+				break;
+	default:
+				fprintf(stderr,"Unrecognised step\n");
+				break;
+	}
+
+	return(makeMove(newBoard,moveRow,moveCol,currRow+moveRow,currCol+moveCol,currStep));
 }
 
 /*
@@ -130,33 +167,41 @@ int validateMove(BoardNode currentBoard, int moveRow, int moveCol, int currRow, 
 /*
  *	User enters target destination for counter
  */
-void userEnterTargetDestination()	{
-	int row, col;	
-	printf("Please enter your target x coordinate:	");
-	scanInt(&col,MAXCOL,MINCOORD);
-	pNL();
-	printf("Please enter your target y coordinate:	");
-	scanInt(&row,MAXROW,MINCOORD);
+void userEnterTargetDestination(char *x, char *y)	{
+	int row, col;
+	row = checkInt(atoi(checkEnteredString(y)),MAXROW,MINCOORD);
+	col = checkInt(atoi(checkEnteredString(x)),MAXCOL,MINCOORD) - 1;
+	iprint(row);
+	iprint(col);
 	setTargetMove(row,col);
 }
 
 /*
  *  Safely Scans integers from keyboard within specified range
  */
-void scanInt(int *toScan, int max, int min) {
+int checkInt(int toCheck, int max, int min) {
 
-	do  {
-        while(!scanf("%d", toScan))       {
-               clearInputBuf
-               printf("please enter integer\n");
-        }
-		if(*toScan > max)	{
+		if(toCheck > max)	{
 			printf("Please ensure integer entered is less than %d\n",max);
-		} else if (*toScan < min)	{
+			exit(1);
+		} else if (toCheck < min)	{
 			printf("Please ensure integer entered is greater than %d\n",min);
+			exit(1);
 		}
-	} while (*toScan > max || *toScan < min);
 
+		return toCheck;
+}
+
+char *checkEnteredString(char *toCheck)	{
+
+	int ele;
+	for(ele=0; toCheck[ele] != '\0'; ele++)	{
+		if(toCheck[ele] < '0' || toCheck[ele] > '9')	{
+			fprintf(stderr,"You have supplied a non integer as a target destination \n");
+			exit(1);
+		} 	
+	}
+		return toCheck;
 }
 
 void readDefaultMap()	{

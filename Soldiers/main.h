@@ -1,6 +1,6 @@
 /*----------Enumerated Types-----------*/
 
-
+typedef enum moveStage {JUMP, DELETE, DONE} moveStage;
 
 /*----------Symbolic Constants-----------*/
 
@@ -16,17 +16,23 @@
 #define DONTMV		0		//!Add to row or columns to keep constant
 #define NEIGHDIS	1		//!Check Neighbour in adjacent cell
 #define MAXDISTOCHECK	2	//!Positions distance of 2 away from current position need to be checked to move
+#define ARGCNT		2		//! Number of arguments that should be passed into program
 /*----------Typedefs----------*/
 
 
 
 /*----------Function Prototypes-----------*/
-void userEnterTargetDestination();
-void scanInt(int *toScan, int max, int min);
+
+int checkInt(int toCheck, int max, int min);
 void readDefaultMap();
 int generatePossibleMove(BoardNode currentBoard);
 int validateMove(BoardNode currentBoard, int moveRow, int moveCol, int currRow, int currCol, int distance);
-
+BoardNode makeMove(BoardNode newBoard, int moveRow, int moveCol, int currRow, int currCol, moveStage currStep);
+void generateUniqueBoardWithMove(BoardNode currentBoard, int rowMove, int colMove, int currRow, int currCol);
+BoardNode getFinalBoard();
+void userEnterTargetDestination(char *x, char *y);
+void checkArg(int *argc);
+char *checkEnteredString(char *toCheck);
 /*----------Testing Function Prototypes-----------*/
 void testing();
 void testVal(int testResult, int expected, char *description);
