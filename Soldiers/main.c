@@ -22,7 +22,6 @@
 /*---------- Main -----------*/
 
 int main(int argc, char *argv[]){
-	start_SDL();
 	BoardNode currentBoard;
 	createQueue();
 	readDefaultMap();
@@ -30,10 +29,10 @@ int main(int argc, char *argv[]){
 	
 	userEnterTargetDestination(argv[1],argv[2]);	
 	readDefaultMap();
-	
 	for(currentBoard = getStartBoard(); getFinalBoard() == NULL; currentBoard=nextInList(currentBoard))	{
 		generatePossibleMove(currentBoard);
 	}
+	start_SDL();
 	recursiveSuccess(getFinalBoard());
 	return 0;
 

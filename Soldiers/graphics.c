@@ -18,6 +18,22 @@ struct display	{
 
 };
 
+void pauseForInput()	{
+	Display d = getDisplay(NULL);
+	while(!d->sw.finished)	{
+		Neill_SDL_Events(&d->sw);
+	}
+	resetFinished();
+
+}
+
+void resetFinished()	{
+
+		Display d = getDisplay(NULL);
+		d->sw.finished = 0;
+
+}
+
 void createDisplay()	{
 
 	Display newDisplay = (Display) malloc(sizeof(*newDisplay));
@@ -52,7 +68,7 @@ void drawAliveButton(int col, int row)	{
 	rectangle.y = col*RECTSIZE;
 	SDL_RenderFillRect(d->sw.renderer,&rectangle);
 	SDL_RenderPresent(d->sw.renderer);
-	SDL_UpdateWindowSurface(d->sw.win);
+//	SDL_UpdateWindowSurface(d->sw.win);
 }
 
 void drawDeadButton(int col, int row)	{

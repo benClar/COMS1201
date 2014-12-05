@@ -47,7 +47,7 @@ int getNumBoards();
 void printBoard(char *string,BoardNode btp);
 int recursiveSuccess(BoardNode currBoard);
 void printSuccessSeries();
-
+void graphicalPrintBoard(BoardNode currBoard);
 /*----------Test Function Prototypes-----------*/
 int testStartOfQueue();
 void *checkMalloc(void *malP);

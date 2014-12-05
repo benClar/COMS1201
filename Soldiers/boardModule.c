@@ -78,44 +78,44 @@ int getButtonStatus(BoardNode currentNode, int row, int col)	{
  * Prints Successful Final Series
  */
 void printSuccessSeries()	{
-
+	int i = 0;
+	printf("%i\n",i);
 	BoardNode sBoard;
 	printf("Success\n");
 	for(sBoard = getQueue(NULL)->finalBoard;sBoard->parentBoard != NULL; sBoard = sBoard->parentBoard)	{
-		//printBoard("final Solution",sBoard);
+		printBoard("final Solution",sBoard);
 		
 	}
 }
 
-void graphicalPrintSolution()	{
+void graphicalPrintBoard(BoardNode sBoard)	{
 
-	BoardNode sBoard;	
 	int row, col;
-	for(sBoard = getQueue(NULL)->finalBoard;sBoard->parentBoard != NULL; sBoard = sBoard->parentBoard)	{
-		for(row = 0; row < MAXROW; row++)	{
-			for(col = 0; col < MAXCOL; col++)	{
-				if(sBoard->board[row][col] == ALIVE)	{
-					drawAliveButton(row,col);
-				} else if(sBoard->board[row][col] == DEAD)	{
-					drawDeadButton(row,col);
-				}
+	for(row = 0; row < MAXROW; row++)	{
+		for(col = 0; col < MAXCOL; col++)	{
+			if(sBoard->board[row][col] == ALIVE)	{
+				drawAliveButton(row,col);
+			} else if(sBoard->board[row][col] == DEAD)	{
+				drawDeadButton(row,col);
 			}
 		}
-	}	
+	}
+		pauseForInput();
 
 }
+
 
 int recursiveSuccess(BoardNode currBoard)	{
 	if(getFinalBoard() == NULL)	{return 0;}
 	if(currBoard->parentBoard == NULL){ 
 		//printBoard("Success",currBoard); 
-		graphicalPrintSolution();
+		graphicalPrintBoard(currBoard);
 		return 1;
 	}
 
 	if(recursiveSuccess(currBoard->parentBoard))	{
-		//	printBoard("success",currBoard);
-		graphicalPrintSolution();
+			//printBoard("success",currBoard);
+		graphicalPrintBoard(currBoard);
 		return 1;
 	}	
 	
@@ -347,6 +347,7 @@ void createQueue()	{
 	newQueue->start = NULL;
 	newQueue->start = NULL;
 	newQueue->nItems = 0;
+	newQueue->finalBoard = NULL;
 	getQueue(newQueue);
 }
 
