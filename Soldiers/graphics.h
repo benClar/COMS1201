@@ -13,8 +13,8 @@ typedef struct display *Display;
 
 /*----------Function Prototypes-----------*/
 void pauseForInput();
-void drawAliveButton(int row, int col);
-void drawDeadButton(int row, int col);
+void drawAliveButton(int x, int y);
+void drawDeadButton(int x, int y);
 void createDisplay();
 Display getDisplay(Display currDisplay);
 void start_SDL();

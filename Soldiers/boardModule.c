@@ -90,13 +90,13 @@ void printSuccessSeries()	{
 
 void graphicalPrintBoard(BoardNode sBoard)	{
 
-	int row, col;
-	for(row = 0; row < MAXROW; row++)	{
-		for(col = 0; col < MAXCOL; col++)	{
+	int row, col, xOffset, yOffset;
+	for(row = 0, yOffset = 0; row < MAXROW; row++, yOffset+=1)	{
+		for(col = 0, xOffset = 0; col < MAXCOL; col++, xOffset+=1)	{
 			if(sBoard->board[row][col] == ALIVE)	{
-				drawAliveButton(row,col);
+				drawAliveButton(col+xOffset,row+yOffset);
 			} else if(sBoard->board[row][col] == DEAD)	{
-				drawDeadButton(row,col);
+				drawDeadButton(col+xOffset,row+yOffset);
 			}
 		}
 	}

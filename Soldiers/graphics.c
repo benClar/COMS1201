@@ -60,28 +60,28 @@ Display getDisplay(Display currDisplay)	{
 	return cDisplay;
 
 }
-void drawAliveButton(int col, int row)	{
+void drawAliveButton(int x, int y)	{
 	
 	Display d = getDisplay(NULL);
 	SDL_Rect rectangle;
 	rectangle.w = RECTSIZE;
 	rectangle.h = RECTSIZE;
 	Neill_SDL_SetDrawColour(&d->sw,255,255,255);
-	rectangle.x = row*RECTSIZE + 10;
-	rectangle.y = col*RECTSIZE + 10;
+	rectangle.x = x*RECTSIZE+y;
+	rectangle.y = y*RECTSIZE;
 	SDL_RenderFillRect(d->sw.renderer,&rectangle);
 	SDL_RenderPresent(d->sw.renderer);
 //	SDL_UpdateWindowSurface(d->sw.win);
 }
 
-void drawDeadButton(int col, int row)	{
+void drawDeadButton(int x, int y)	{
 	Display d = getDisplay(NULL);
 	SDL_Rect rectangle;
 	rectangle.w = RECTSIZE;
 	rectangle.h = RECTSIZE;
 	Neill_SDL_SetDrawColour(&d->sw,128,0,0);
-	rectangle.x = row*RECTSIZE;
-	rectangle.y = col*RECTSIZE;
+	rectangle.x = x*RECTSIZE;
+	rectangle.y = y*RECTSIZE;
 	SDL_RenderFillRect(d->sw.renderer,&rectangle);
 	SDL_RenderPresent(d->sw.renderer);
 	SDL_UpdateWindowSurface(d->sw.win);
