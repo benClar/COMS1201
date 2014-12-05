@@ -1,5 +1,5 @@
 #include <math.h>
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 #define WWIDTH 1000	 
 #define WHEIGHT	800 

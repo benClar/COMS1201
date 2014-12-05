@@ -6,7 +6,7 @@ int Neill_SDL_Init(SDL_Simplewin *sw)
 {
 
 
-   if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
+   if (SDL_Init(SDL_INIT_VIDEO) != 0) {
       fprintf(stderr, "\nUnable to initialize SDL:  %s\n", SDL_GetError());
       SDL_Quit();
       exit(1);
@@ -15,8 +15,8 @@ int Neill_SDL_Init(SDL_Simplewin *sw)
    sw->finished = 0;
    
    sw->win= SDL_CreateWindow("SDL Window",
-                          SDL_WINDOWPOS_CENTERED,
-                          SDL_WINDOWPOS_CENTERED,
+                          SDL_WINDOWPOS_UNDEFINED,
+                          SDL_WINDOWPOS_UNDEFINED,
                           WWIDTH, WHEIGHT,
                           SDL_WINDOW_SHOWN);
    if(sw->win == NULL){
@@ -25,7 +25,7 @@ int Neill_SDL_Init(SDL_Simplewin *sw)
       exit(1);
    }
 
-   sw->renderer = SDL_CreateRenderer(sw->win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+   sw->renderer = SDL_CreateRenderer(sw->win, -1, 0);
    if(sw->renderer == NULL){
       fprintf(stderr, "\nUnable to initialize SDL Renderer:  %s\n", SDL_GetError());
       SDL_Quit();
@@ -59,7 +59,7 @@ void Neill_SDL_Events(SDL_Simplewin *sw)
 void Neill_SDL_SetDrawColour(SDL_Simplewin *sw, Uint8 r, Uint8 g, Uint8 b)
 {
 
-   SDL_SetRenderDrawColor(sw->renderer, r, g, b, 255);
+   SDL_SetRenderDrawColor(sw->renderer, r, g, b, SDL_ALPHA_OPAQUE);
 
 }
 

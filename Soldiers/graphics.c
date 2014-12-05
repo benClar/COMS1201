@@ -64,8 +64,8 @@ void drawAliveButton(int col, int row)	{
 	rectangle.w = RECTSIZE;
 	rectangle.h = RECTSIZE;
 	Neill_SDL_SetDrawColour(&d->sw,255,255,255);
-	rectangle.x = row*RECTSIZE;
-	rectangle.y = col*RECTSIZE;
+	rectangle.x = row*RECTSIZE + 10;
+	rectangle.y = col*RECTSIZE + 10;
 	SDL_RenderFillRect(d->sw.renderer,&rectangle);
 	SDL_RenderPresent(d->sw.renderer);
 //	SDL_UpdateWindowSurface(d->sw.win);
