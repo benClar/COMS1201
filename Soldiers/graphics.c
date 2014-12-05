@@ -42,9 +42,11 @@ void createDisplay()	{
 }
 
 void start_SDL()	{
-
 	createDisplay();
-	Neill_SDL_Init(&(getDisplay(NULL)->sw));
+	Display d = getDisplay(NULL);
+	Neill_SDL_Init(&d->sw);
+	Neill_SDL_SetDrawColour(&d->sw, 0, 0, 0);
+	SDL_RenderClear(d->sw.renderer);
 
 }
 
@@ -59,6 +61,7 @@ Display getDisplay(Display currDisplay)	{
 
 }
 void drawAliveButton(int col, int row)	{
+	
 	Display d = getDisplay(NULL);
 	SDL_Rect rectangle;
 	rectangle.w = RECTSIZE;
