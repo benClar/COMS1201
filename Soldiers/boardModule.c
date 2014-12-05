@@ -82,21 +82,40 @@ void printSuccessSeries()	{
 	BoardNode sBoard;
 	printf("Success\n");
 	for(sBoard = getQueue(NULL)->finalBoard;sBoard->parentBoard != NULL; sBoard = sBoard->parentBoard)	{
-		printBoard("final Solution",sBoard);
+		//printBoard("final Solution",sBoard);
+		
 	}
 }
 
+void graphicalPrintSolution()	{
 
-/*
- *Recursively Prints board
- */
+	BoardNode sBoard;	
+	int row, col;
+	for(sBoard = getQueue(NULL)->finalBoard;sBoard->parentBoard != NULL; sBoard = sBoard->parentBoard)	{
+		for(row = 0; row < MAXROW; row++)	{
+			for(col = 0; col < MAXCOL; col++)	{
+				if(sBoard->board[row][col] == ALIVE)	{
+					drawAliveButton(row,col);
+				} else if(sBoard->board[row][col] == DEAD)	{
+					drawDeadButton(row,col);
+				}
+			}
+		}
+	}	
+
+}
 
 int recursiveSuccess(BoardNode currBoard)	{
 	if(getFinalBoard() == NULL)	{return 0;}
-	if(currBoard->parentBoard == NULL){ printBoard("Success",currBoard); return 1;}
+	if(currBoard->parentBoard == NULL){ 
+		//printBoard("Success",currBoard); 
+		graphicalPrintSolution();
+		return 1;
+	}
 
 	if(recursiveSuccess(currBoard->parentBoard))	{
-		printBoard("success",currBoard);
+		//	printBoard("success",currBoard);
+		graphicalPrintSolution();
 		return 1;
 	}	
 	

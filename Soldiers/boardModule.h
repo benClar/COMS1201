@@ -1,13 +1,19 @@
+#ifndef boardModule_h
+#define boardModule_h
+
+#include "graphics.h"
+
 /*----------Enumerated Types-----------*/
 
 typedef enum buttonState { DEAD, ALIVE } buttonState;
 
 /*----------Symbolic Constants-----------*/
 
-#define MAXCOL      7   //!width of board
-#define MAXROW      8   //!height of board
-#define MINCOORD    0   //!smallest coordinate allowed
 #define HALFWAY		3	//! Halfway point of board height
+#define MAXCOL      7       //!width of board
+#define MAXROW      8       //!height of board
+#define MINCOORD    0       //!smallest coordinate allowed
+
 /*----------Typedefs----------*/
 
 typedef struct boardQueueHead *BoardQueueHead;
@@ -41,7 +47,10 @@ int getNumBoards();
 void printBoard(char *string,BoardNode btp);
 int recursiveSuccess(BoardNode currBoard);
 void printSuccessSeries();
+
 /*----------Test Function Prototypes-----------*/
 int testStartOfQueue();
 void *checkMalloc(void *malP);
 int testCopyParentToChild(BoardNode Parent, BoardNode Child);
+
+#endif

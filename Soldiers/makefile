@@ -1,9 +1,8 @@
-#CFLAGS = `sdl2-config --cflags` -O4 -Wall -pedantic -std=c99 -lm
-CFLAGS = -O4 -Wall -pedantic -std=c99 -lm
-INCS = 
+CFLAGS = `sdl2-config --cflags` -O4 -Wall -pedantic -std=c99 -lm
+INCS = neillsdl2.h graphics.h boardModule.h moveModule.h testingModule.h main.h 
 TARGET = main
-SOURCES = boardModule.c  $(TARGET).c 
-#LIBS =  `sdl2-config --libs`
+SOURCES = neillsdl2.c graphics.c boardModule.c moveModule.c testingModule.c $(TARGET).c 
+LIBS =  `sdl2-config --libs`
 CC = gcc
 
 
