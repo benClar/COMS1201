@@ -71,7 +71,7 @@ void drawAliveButton(int x, int y)	{
 	rectangle.y = y*RECTSIZE;
 	SDL_RenderFillRect(d->sw.renderer,&rectangle);
 	Neill_SDL_SetDrawColour(&d->sw,0,0,0);
-	Neill_SDL_RenderFillCircle(d->sw.renderer,x,y,RECTSIZE);
+	Neill_SDL_RenderFillCircle(d->sw.renderer,(x*RECTSIZE) + RECTSIZE/2,(y*RECTSIZE) + RECTSIZE/2,RECTSIZE/2);
 	SDL_RenderPresent(d->sw.renderer);
 //	SDL_UpdateWindowSurface(d->sw.win);
 }
