@@ -5,7 +5,7 @@
 
 /*----------Symbolic Constants-----------*/
 
-#define RECTSIZE 30
+#define RECTSIZE	50 
 
 /*----------TypeDefs-----------*/
 
