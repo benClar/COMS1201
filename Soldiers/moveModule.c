@@ -75,18 +75,37 @@ int generatePossibleMove(BoardNode currentBoard)    {
         for(col = 0; col < MAXCOL; col++)   {
             if(getButtonStatus(currentBoard,row,col) == ALIVE)  {
                 if(validateMove(currentBoard,DONTMV,MVRIGHT,row, col,NEIGHDIS)) {
-                    generateUniqueBoardWithMove(currentBoard,DONTMV,MVRIGHT,row,col);
+                   //generateUniqueBoardWithMove(currentBoard,DONTMV,MVRIGHT,row,col);
+                   generateUniqueBoardHash(currentBoard,DONTMV,MVRIGHT,row,col);
                 } else if(validateMove(currentBoard,DONTMV,MVLEFT,row, col,NEIGHDIS))   {
-                    generateUniqueBoardWithMove(currentBoard,DONTMV,MVLEFT,row,col);
+                    //generateUniqueBoardWithMove(currentBoard,DONTMV,MVLEFT,row,col);
+                    generateUniqueBoardHash(currentBoard,DONTMV,MVLEFT,row,col);
                 } else if(validateMove(currentBoard,MVUP,DONTMV,row,col,NEIGHDIS))  {
-                    generateUniqueBoardWithMove(currentBoard,MVUP,DONTMV,row,col);
+                    //generateUniqueBoardWithMove(currentBoard,MVUP,DONTMV,row,col);
+                    generateUniqueBoardHash(currentBoard,MVUP,DONTMV,row,col);
                 } else if(validateMove(currentBoard,MVDOWN,DONTMV,row,col,NEIGHDIS))    {
-                    generateUniqueBoardWithMove(currentBoard,MVDOWN,DONTMV,row,col);
+                    //generateUniqueBoardWithMove(currentBoard,MVDOWN,DONTMV,row,col);
+                    generateUniqueBoardHash(currentBoard,MVDOWN,DONTMV,row,col);
                 }
             }
         }
     }
     return 1;
+}
+
+/*
+ * Extension: Checks and adds to hash table instead of linear linked list queue
+ */
+void generateUniqueBoardHash(BoardNode currentBoard, int rowMove, int colMove, int currRow, int currCol)    {
+
+	int hashKey;
+    BoardNode generatedBoard;
+	generatedBoard = makeMove(copyParentToChild(currentBoard,createBoard(currentBoard)),rowMove,colMove,currRow,currCol,DELETE);
+	hashKey = generateHashKey(generatedBoard);
+	if(hashBoard(hashKey,generatedBoard))	{
+		addToQueue(generatedBoard);
+		checkTarget(generatedBoard);
+	}
 }
 
 void generateUniqueBoardWithMove(BoardNode currentBoard, int rowMove, int colMove, int currRow, int currCol)    {

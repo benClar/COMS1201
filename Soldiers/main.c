@@ -9,7 +9,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
-
+#include <time.h>
 /*---------- Custom Headers	-----------*/
 
 #include "debug.h"
@@ -22,17 +22,18 @@
 /*---------- Main -----------*/
 
 int main(int argc, char *argv[]){
+	srand(time(NULL));
 	BoardNode currentBoard;
 	createQueue();
 	readDefaultMap();
 	checkArg(&argc,argv);
-	
+	initZobrist();
+	createHashTable();
 	userEnterTargetDestination(argv[1],argv[2]);	
-	readDefaultMap();
 	for(currentBoard = getStartBoard(); getFinalBoard() == NULL; currentBoard=nextInList(currentBoard))	{
 		generatePossibleMove(currentBoard);
 	}
-	start_SDL();
+//	start_SDL();
 	recursiveSuccess(getFinalBoard());
 	return 0;
 
@@ -62,8 +63,6 @@ void userEnterTargetDestination(char *sRow, char *sCol)	{
 	int row, col;
 	row = checkInt(atoi(checkEnteredString(sRow)),MAXROW,MINCOORD);
 	col = checkInt(atoi(checkEnteredString(sCol)),MAXCOL,MINCOORD);
-	iprint(row);
-	iprint(col);
 	setTargetMove(row,col);
 }
 
