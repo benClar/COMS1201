@@ -94,13 +94,13 @@ int generatePossibleMove(BoardNode currentBoard)    {
 					} else {
                     	generateUniqueBoardWithMove(currentBoard,MVUP,DONTMV,row,col);
 					}
-                } else if(validateMove(currentBoard,MVDOWN,DONTMV,row,col,NEIGHDIS))    {
+                } /*else if(validateMove(currentBoard,MVDOWN,DONTMV,row,col,NEIGHDIS))    {
 					if(getMode() == HASH)	{
                     	generateUniqueBoardHash(currentBoard,MVDOWN,DONTMV,row,col);
 					} else {
                     	generateUniqueBoardWithMove(currentBoard,MVDOWN,DONTMV,row,col);
 					}
-                }
+                }*/
             }
         }
     }
@@ -134,6 +134,5 @@ void generateUniqueBoardWithMove(BoardNode currentBoard, int rowMove, int colMov
     } else {
         freeBoard(generatedBoard);
     }
-
-
 }
+

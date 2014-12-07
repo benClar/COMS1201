@@ -60,7 +60,7 @@ void startTest()    {
  */
 TestData createTestDataStr()    {
 
-    TestData newTestData = (TestData) malloc(sizeof(*newTestData));
+    TestData newTestData = (TestData) checkMalloc(malloc(sizeof(*newTestData)));
     newTestData->dataArray = NULL;
     newTestData->nMoves = 0;
 	getTestData(newTestData);
@@ -179,7 +179,7 @@ int testMakeMove(BoardNode testBoard)   {
  */
 void growMoveDataArray(TestData testStr, int row)   {
     testStr->dataArray = (int**) realloc(testStr->dataArray,(row + 1) * sizeof(int*));
-    testStr->dataArray[row] = (int*) malloc(3*sizeof(int));
+    testStr->dataArray[row] = (int*) checkMalloc(malloc(3*sizeof(int)));
     testStr->nMoves++;
 }
 

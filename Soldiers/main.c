@@ -29,13 +29,22 @@ int main(int argc, char *argv[]){
 	initZobrist();
 	createHashTable();
 	userEnterTargetDestination(argv[1],argv[2]);	
-	for(currentBoard = getStartBoard(); getFinalBoard() == NULL; currentBoard=nextInList(currentBoard))	{
+	for(currentBoard = getStartBoard(); currentBoard != NULL && getFinalBoard() == NULL; currentBoard=nextInList(currentBoard))	{
 		generatePossibleMove(currentBoard);
 	}
-	start_SDL();
-	recursiveSuccess(getFinalBoard());
-	return 0;
 
+	freeHashingStructures();
+
+	if(getFinalBoard() != NULL)	{
+		start_SDL();
+		recursiveSuccess(getFinalBoard());
+		freeQueue();
+		return 0;
+	} else {
+		freeQueue();
+		fprintf(stderr,"Solution could not be found\n");
+		return 1;
+	}
 }
 
 /*---------- Functions ----------*/
