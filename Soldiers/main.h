@@ -15,7 +15,7 @@
 
 #define EMPTY		0		//!button not present in space from default file
 #define	FULL		1		//!button present in space from default file
-#define ARGCNT		2		//! Number of arguments that should be passed into program
+#define ARGCNT		3		//! Number of arguments that may be passed into program
 
 /*----------Typedefs----------*/
 

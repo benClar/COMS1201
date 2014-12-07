@@ -66,7 +66,9 @@ BoardNode makeMove(BoardNode newBoard, int moveRow, int moveCol, int currRow, in
 
     return(makeMove(newBoard,moveRow,moveCol,currRow+moveRow,currCol+moveCol,currStep));
 }
-
+/*
+ * Calls functions required for generating moves depending on program mode
+ */
 int generatePossibleMove(BoardNode currentBoard)    {
 
     int row, col;
@@ -75,17 +77,29 @@ int generatePossibleMove(BoardNode currentBoard)    {
         for(col = 0; col < MAXCOL; col++)   {
             if(getButtonStatus(currentBoard,row,col) == ALIVE)  {
                 if(validateMove(currentBoard,DONTMV,MVRIGHT,row, col,NEIGHDIS)) {
-                   //generateUniqueBoardWithMove(currentBoard,DONTMV,MVRIGHT,row,col);
-                   generateUniqueBoardHash(currentBoard,DONTMV,MVRIGHT,row,col);
+					if(getMode() == HASH)	{
+                   		generateUniqueBoardHash(currentBoard,DONTMV,MVRIGHT,row,col);
+					} else {
+                   		generateUniqueBoardWithMove(currentBoard,DONTMV,MVRIGHT,row,col);
+					}
                 } else if(validateMove(currentBoard,DONTMV,MVLEFT,row, col,NEIGHDIS))   {
-                    //generateUniqueBoardWithMove(currentBoard,DONTMV,MVLEFT,row,col);
-                    generateUniqueBoardHash(currentBoard,DONTMV,MVLEFT,row,col);
+					if(getMode() == HASH)	{
+                    	generateUniqueBoardHash(currentBoard,DONTMV,MVLEFT,row,col);
+					} else {
+                    	generateUniqueBoardWithMove(currentBoard,DONTMV,MVLEFT,row,col);
+					}
                 } else if(validateMove(currentBoard,MVUP,DONTMV,row,col,NEIGHDIS))  {
-                    //generateUniqueBoardWithMove(currentBoard,MVUP,DONTMV,row,col);
-                    generateUniqueBoardHash(currentBoard,MVUP,DONTMV,row,col);
+					if(getMode() == HASH)	{
+                    	generateUniqueBoardHash(currentBoard,MVUP,DONTMV,row,col);
+					} else {
+                    	generateUniqueBoardWithMove(currentBoard,MVUP,DONTMV,row,col);
+					}
                 } else if(validateMove(currentBoard,MVDOWN,DONTMV,row,col,NEIGHDIS))    {
-                    //generateUniqueBoardWithMove(currentBoard,MVDOWN,DONTMV,row,col);
-                    generateUniqueBoardHash(currentBoard,MVDOWN,DONTMV,row,col);
+					if(getMode() == HASH)	{
+                    	generateUniqueBoardHash(currentBoard,MVDOWN,DONTMV,row,col);
+					} else {
+                    	generateUniqueBoardWithMove(currentBoard,MVDOWN,DONTMV,row,col);
+					}
                 }
             }
         }

@@ -6,7 +6,7 @@
 /*----------Enumerated Types-----------*/
 
 typedef enum buttonState { DEAD, ALIVE } buttonState;
-
+typedef enum mode {LINEAR, HASH } mode;
 /*----------Symbolic Constants-----------*/
 
 #define HALFWAY		3	//! Halfway point of board height
@@ -49,7 +49,9 @@ int recursiveSuccess(BoardNode currBoard);
 void printSuccessSeries();
 void graphicalPrintBoard(BoardNode currBoard);
 int compareTwoBoards(BoardNode boardOne, BoardNode boardTwo);
+void startHashing();
 void setNextBoard(BoardNode current, BoardNode next);
+mode getMode();
 /*----------Test Function Prototypes-----------*/
 int testStartOfQueue();
 void *checkMalloc(void *malP);

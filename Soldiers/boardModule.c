@@ -26,9 +26,10 @@ struct boardQueueHead	{
 	int targetCol;	//!Target column of final Destination
 	BoardNode finalBoard; //!Board that fulfills criteria
 	BoardNode start;	//!first Board in queue	
-
-
+	BoardNode end; 	//!last board in queue
+	mode runMode; 	//!Whether the program is running in linear or hash mode
 };
+
 
 /*
  * Hold boards and related information
@@ -113,14 +114,14 @@ void graphicalPrintBoard(BoardNode sBoard)	{
 int recursiveSuccess(BoardNode currBoard)	{
 	if(getFinalBoard() == NULL)	{return 0;}
 	if(currBoard->parentBoard == NULL){ 
-		printBoard("Success",currBoard); 
-		//graphicalPrintBoard(currBoard);
+		//printBoard("Success",currBoard); 
+		graphicalPrintBoard(currBoard);
 		return 1;
 	}
 
 	if(recursiveSuccess(currBoard->parentBoard))	{
-			printBoard("success",currBoard);
-		//graphicalPrintBoard(currBoard);
+		//	printBoard("success",currBoard);
+		graphicalPrintBoard(currBoard);
 		return 1;
 	}	
 	
@@ -301,18 +302,21 @@ int testCopyParentToChild(BoardNode Parent, BoardNode Child)	{
 BoardNode addToQueue(BoardNode newBoard)	{
 
 	BoardNode checkQueue = getQueue(NULL)->start;
+
 	if((getQueue(NULL)->nItems % 1000) == 0)	{
 		printf("Number of items in Queue: %d \n",getQueue(NULL)->nItems);
 	}
 	if(checkQueue == NULL)	{
 		//! If there are no boards.
-		getQueue(NULL)->start = newBoard;
+		getQueue(NULL)->end = getQueue(NULL)->start = newBoard;
 	} else {
-		while(checkQueue->next != NULL)	{
-			checkQueue = checkQueue->next;
-		}
+		//while(checkQueue->next != NULL)	{
+		//	checkQueue = checkQueue->next;
+		//}
+		getQueue(NULL)->end->next = newBoard;
+		getQueue(NULL)->end = getQueue(NULL)->end->next;
 		//!Add new board to the end of the queue
-		checkQueue->next = newBoard;
+		//checkQueue->next = newBoard;
 	}
 	getQueue(NULL)->nItems++;
 	return newBoard;
@@ -367,8 +371,30 @@ void createQueue()	{
 	newQueue->start = NULL;
 	newQueue->nItems = 0;
 	newQueue->finalBoard = NULL;
+	newQueue->runMode = LINEAR;
 	getQueue(newQueue);
 }
+
+/*
+ * Sets program to hashing mode
+ */
+
+void startHashing()	{
+
+	getQueue(NULL)->runMode = HASH;
+}
+
+/*
+ * Determine Mode of the program
+ */
+
+mode getMode()	{
+
+	return getQueue(NULL)->runMode;
+
+}
+
+
 
 /*
  * Sets the target row and column 
