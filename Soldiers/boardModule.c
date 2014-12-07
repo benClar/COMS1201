@@ -101,12 +101,8 @@ void graphicalPrintBoard(BoardNode sBoard)	{
 		for(col = 0, xOffset = 0; col < MAXCOL; col++, xOffset+=1)	{
 			if(sBoard->board[row][col] == ALIVE)	{
 				drawAliveButton(col+xOffset,row+yOffset);
-				iprint(col+xOffset);
-				iprint(row+yOffset);
 			} else if(sBoard->board[row][col] == DEAD)	{
 				drawDeadButton(col+xOffset,row+yOffset);
-				iprint(col+xOffset);
-				iprint(row+yOffset);
 			}
 		}
 	}
@@ -118,14 +114,14 @@ void graphicalPrintBoard(BoardNode sBoard)	{
 int recursiveSuccess(BoardNode currBoard)	{
 	if(getFinalBoard() == NULL)	{return 0;}
 	if(currBoard->parentBoard == NULL){ 
-		//printBoard("Success",currBoard); 
-		graphicalPrintBoard(currBoard);
+		printBoard("Success",currBoard); 
+		//graphicalPrintBoard(currBoard);
 		return 1;
 	}
 
 	if(recursiveSuccess(currBoard->parentBoard))	{
-		//	printBoard("success",currBoard);
-		graphicalPrintBoard(currBoard);
+		printBoard("success",currBoard);
+		//graphicalPrintBoard(currBoard);
 		return 1;
 	}	
 	
@@ -307,7 +303,7 @@ BoardNode addToQueue(BoardNode newBoard)	{
 
 	BoardNode checkQueue = getQueue(NULL)->start;
 
-	if((getQueue(NULL)->nItems % 1000) == 0)	{
+	if((getQueue(NULL)->nItems % 100000) == 0)	{
 		printf("Number of items in Queue: %d \n",getQueue(NULL)->nItems);
 	}
 	if(checkQueue == NULL)	{
