@@ -43,15 +43,6 @@ struct boardNode	{
 
 };
 
-/*
- *Buttons that fill board
- */
-struct button	{
-
-	buttonState currState;		
-
-};
-
 /*---------- Functions ----------*/
 
 /*
@@ -87,6 +78,18 @@ void printSuccessSeries()	{
 		printBoard("final Solution",sBoard);
 		
 	}
+}
+
+void freeQueue()	{
+
+	BoardQueueHead q = getQueue(NULL);
+	BoardNode b;
+	BoardNode temp;
+	for(b = q->start; b->next != NULL; b = b->next)	{
+		temp = b->next;
+		free(b);
+		b = temp;	
+	}	
 }
 
 void setNextBoard(BoardNode current, BoardNode next)	{
@@ -303,7 +306,7 @@ BoardNode addToQueue(BoardNode newBoard)	{
 
 	BoardNode checkQueue = getQueue(NULL)->start;
 
-	if((getQueue(NULL)->nItems % 1000) == 0)	{
+	if((getQueue(NULL)->nItems % 10000) == 0)	{
 		printf("Number of items in Queue: %d \n",getQueue(NULL)->nItems);
 	}
 	if(checkQueue == NULL)	{

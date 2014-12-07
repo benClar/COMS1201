@@ -38,15 +38,15 @@ struct hashNode	{
 
 void createHashTable()	{
 
-	HashTable newTable = (HashTable) malloc(sizeof(*newTable));
-	newTable->table = (HashNode*) calloc(HASHTABLESIZE, sizeof(*(newTable->table)));
+	HashTable newTable = (HashTable) checkMalloc(malloc(sizeof(*newTable)));
+	newTable->table = (HashNode*) checkMalloc(calloc(HASHTABLESIZE, sizeof(*(newTable->table))));
 	getHashTable(newTable);
 
 }
 
 HashNode addHashNode(BoardNode uniqueBoard)	{
 
-	HashNode HNode = (HashNode) malloc(sizeof(*HNode));
+	HashNode HNode = (HashNode) checkMalloc(malloc(sizeof(*HNode)));
 	HNode->hashedBoard = uniqueBoard;
 	HNode->nextHNode = NULL;	
 	return HNode;
@@ -63,15 +63,44 @@ HashTable getHashTable(HashTable currTable)	{
 	return hTable;
 
 }
+
+void freeHashingStructures()	{
+
+		HashTable hTable = getHashTable(NULL);
+		Zobrist zb = getZValues(NULL);
+		HashNode boardToFree;
+		HashNode temp;
+		int row, col;
+
+		for(row = 0; row < MAXROW; row++)	{
+			for(col = 0; col < MAXCOL; col++)	{
+				free(zb->hashKey[row][col]);
+			}
+		}
+		free(zb);
+		for(row = 0; row < HASHTABLESIZE; row++)	{
+			boardToFree = hTable->table[row];
+			if(boardToFree != NULL)	{
+				while(boardToFree->nextHNode != NULL)	{
+					temp = boardToFree->nextHNode;
+					free(boardToFree);
+					boardToFree = temp;	
+				}
+				free(boardToFree);
+			}
+		}
+		free(hTable);
+}
+
 void initZobrist()	{
 
 		int aliveRandom, deadRandom, row, col;
-		Zobrist values = (Zobrist) malloc(sizeof(*values));
-		values->hashKey = (ZobristVal**) malloc(MAXROW * sizeof(*(values->hashKey)));
+		Zobrist values = (Zobrist) checkMalloc(malloc(sizeof(*values)));
+		values->hashKey = (ZobristVal**) checkMalloc(malloc(MAXROW * sizeof(*(values->hashKey))));
 		for(row = 0; row < MAXROW; row++)	{
-			values->hashKey[row] = (ZobristVal*) malloc(MAXCOL * sizeof(ZobristVal));
+			values->hashKey[row] = (ZobristVal*) checkMalloc(malloc(MAXCOL * sizeof(ZobristVal)));
 			for(col = 0; col < MAXCOL; col++)	{
-				values->hashKey[row][col] = (ZobristVal) malloc(sizeof(*(values->hashKey[row][col])));
+				values->hashKey[row][col] = (ZobristVal) checkMalloc(malloc(sizeof(*(values->hashKey[row][col]))));
 			}
 		}
 		for(row = 0; row < MAXROW; row++)	{

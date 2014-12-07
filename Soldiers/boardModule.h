@@ -52,6 +52,7 @@ int compareTwoBoards(BoardNode boardOne, BoardNode boardTwo);
 void startHashing();
 void setNextBoard(BoardNode current, BoardNode next);
 mode getMode();
+void freeQueue();
 /*----------Test Function Prototypes-----------*/
 int testStartOfQueue();
 void *checkMalloc(void *malP);

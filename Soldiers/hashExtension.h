@@ -9,7 +9,7 @@
 /*----------Symbolic Constants-----------*/
 
 #define MINKEYSIZE	0
-#define HASHTABLESIZE 10000000
+#define HASHTABLESIZE 100000
 
 /*----------Typedefs----------*/
 typedef struct zobrist *Zobrist;
@@ -30,4 +30,5 @@ void createHashTable();
 HashTable getHashTable(HashTable currTable);
 int hashBoard(int key, BoardNode board);
 void printEmptyKeys();
+void freeHashingStructures();
 #endif
