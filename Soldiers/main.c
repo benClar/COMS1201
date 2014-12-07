@@ -22,7 +22,6 @@
 /*---------- Main -----------*/
 
 int main(int argc, char *argv[]){
-	srand(time(NULL));
 	BoardNode currentBoard;
 	createQueue();
 	readDefaultMap();
@@ -33,7 +32,7 @@ int main(int argc, char *argv[]){
 	for(currentBoard = getStartBoard(); getFinalBoard() == NULL; currentBoard=nextInList(currentBoard))	{
 		generatePossibleMove(currentBoard);
 	}
-//	start_SDL();
+	start_SDL();
 	recursiveSuccess(getFinalBoard());
 	return 0;
 
@@ -47,11 +46,18 @@ int main(int argc, char *argv[]){
  */
 void checkArg(int *argc,char **args){
 	(*argc)--;
+	if(*argc < 1)	{
+		fprintf(stderr,"Please use test parameter to run testing or specify two x y coordinates\n");
+		exit(1);
+	}
 	if(!strcmp("test",args[1])){
 		startTest();
+	} else if(*argc > 2 && !strcmp("hash",args[3])) {
+		printf("Hash Mode Enabled\n");
+		startHashing();
 	}
-	if(*argc != ARGCNT)	{
-		fprintf(stderr,"Please input set of x,y coordinates of target position\n");
+	if(*argc > ARGCNT)	{
+		fprintf(stderr,"Please run program with any of the following options: \n ./pOut test \n ./pOut [row] [col] \n ./pOut [row] [col] hash\n");
 		exit(1);
 	}
 }
