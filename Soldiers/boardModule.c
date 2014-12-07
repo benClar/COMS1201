@@ -95,8 +95,12 @@ void graphicalPrintBoard(BoardNode sBoard)	{
 		for(col = 0, xOffset = 0; col < MAXCOL; col++, xOffset+=1)	{
 			if(sBoard->board[row][col] == ALIVE)	{
 				drawAliveButton(col+xOffset,row+yOffset);
+				iprint(col+xOffset);
+				iprint(row+yOffset);
 			} else if(sBoard->board[row][col] == DEAD)	{
 				drawDeadButton(col+xOffset,row+yOffset);
+				iprint(col+xOffset);
+				iprint(row+yOffset);
 			}
 		}
 	}
