@@ -171,6 +171,7 @@ int testMakeMove(BoardNode testBoard)   {
             return 0;
         }
     }
+	printBoard("Testing Board",testBoard);
     return 1;
 }
 

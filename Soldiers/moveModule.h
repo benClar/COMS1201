@@ -1,6 +1,7 @@
 #ifndef moveModule_h
 #define moveModule_h
 
+#include "hashExtension.h"
 #include "boardModule.h"
 
 /*----------Enumerated Types-----------*/
@@ -25,5 +26,5 @@ BoardNode makeMove(BoardNode newBoard, int moveRow, int moveCol, int currRow, in
 int validateMove(BoardNode currentBoard, int moveRow, int moveCol, int currRow, int currCol, int distance);
 void generateUniqueBoardWithMove(BoardNode currentBoard, int rowMove, int colMove, int currRow, int currCol);
 int generatePossibleMove(BoardNode currentBoard);
-
+void generateUniqueBoardHash(BoardNode currentBoard, int rowMove, int colMove, int currRow, int currCol);
 #endif

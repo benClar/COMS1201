@@ -48,6 +48,8 @@ void printBoard(char *string,BoardNode btp);
 int recursiveSuccess(BoardNode currBoard);
 void printSuccessSeries();
 void graphicalPrintBoard(BoardNode currBoard);
+int compareTwoBoards(BoardNode boardOne, BoardNode boardTwo);
+void setNextBoard(BoardNode current, BoardNode next);
 /*----------Test Function Prototypes-----------*/
 int testStartOfQueue();
 void *checkMalloc(void *malP);

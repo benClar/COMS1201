@@ -2,6 +2,7 @@
 #define main_h
 
 #include "dataParsing.h"
+#include "hashExtension.h"
 #include "testingModule.h"
 #include "moveModule.h"
 #include "boardModule.h"

@@ -88,6 +88,11 @@ void printSuccessSeries()	{
 	}
 }
 
+void setNextBoard(BoardNode current, BoardNode next)	{
+
+	current->next = next;
+}
+
 void graphicalPrintBoard(BoardNode sBoard)	{
 
 	int row, col, xOffset, yOffset;
@@ -112,14 +117,14 @@ void graphicalPrintBoard(BoardNode sBoard)	{
 int recursiveSuccess(BoardNode currBoard)	{
 	if(getFinalBoard() == NULL)	{return 0;}
 	if(currBoard->parentBoard == NULL){ 
-		//printBoard("Success",currBoard); 
-		graphicalPrintBoard(currBoard);
+		printBoard("Success",currBoard); 
+		//graphicalPrintBoard(currBoard);
 		return 1;
 	}
 
 	if(recursiveSuccess(currBoard->parentBoard))	{
-			//printBoard("success",currBoard);
-		graphicalPrintBoard(currBoard);
+			printBoard("success",currBoard);
+		//graphicalPrintBoard(currBoard);
 		return 1;
 	}	
 	
@@ -232,22 +237,15 @@ void printBoard(char *string,BoardNode btp)	{
 
 BoardNode compBoardWithList(BoardNode currBoard)	{
  	BoardNode checkNode = getQueue(NULL)->start;
-	int row, col, matching;
 	if(checkNode == NULL)	{
 		fprintf(stderr,"queue is empty\n");
 		exit(1);
 	}
 	
 	while(checkNode == getQueue(NULL)->start || checkNode->next != NULL)	{
-		for(row = 0, matching = 0; row < MAXROW; row++)	{
-			for(col = 0; col < MAXCOL; col++)	{
-				if(checkNode->board[row][col] == currBoard->board[row][col])	{
-					matching++;
-				}
-			}
-			if(matching == (MAXCOL*MAXROW))	{
-				return NULL;
-			}
+
+		if(!compareTwoBoards(checkNode,currBoard))	{
+			return NULL;
 		}
 
 		if (checkNode == getQueue(NULL)->start && checkNode->next == NULL ) { return currBoard;} 
@@ -257,6 +255,27 @@ BoardNode compBoardWithList(BoardNode currBoard)	{
 	return currBoard;
 
 }
+
+int compareTwoBoards(BoardNode boardOne, BoardNode boardTwo)	{
+	int row, col, matching;
+
+	for(row = 0, matching = 0; row < MAXROW; row++)	{
+		for(col = 0; col < MAXCOL; col++)	{
+			if(boardOne->board[row][col] == boardTwo->board[row][col])	{
+				matching++;
+			}
+		}
+	}
+
+	if(matching == (MAXCOL*MAXROW))	{
+		return 0;
+	}
+
+	return 1;
+}
+
+
+
 /*
  *Ensures parent and child are exact copies and child is linked to parent
  */
