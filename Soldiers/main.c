@@ -41,7 +41,7 @@ int main(int argc, char *argv[]){
 		freeQueue();
 		return 0;
 	} else {
-		freeQueue();
+//		freeQueue();
 		fprintf(stderr,"Solution could not be found\n");
 		return 1;
 	}
