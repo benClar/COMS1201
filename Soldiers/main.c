@@ -74,11 +74,18 @@ void checkArg(int *argc,char **args){
 /*
  *	User enters target destination for counter
  */
-void userEnterTargetDestination(char *sRow, char *sCol)	{
+void userEnterTargetDestination(char *sCol, char *sRow)	{
 	int row, col;
-	row = checkInt(atoi(checkEnteredString(sRow)),MAXROW,MINCOORD);
-	col = checkInt(atoi(checkEnteredString(sCol)),MAXCOL,MINCOORD);
+	row = rowToY(checkInt(atoi(checkEnteredString(sRow)),MAXROW+1,MINCOORD));
+	col = checkInt(atoi(checkEnteredString(sCol)),MAXCOL+1,MINCOORD) - 1;
+	iprint(row);
+	iprint(col);
 	setTargetMove(row,col);
+}
+
+int rowToY(int row)	{
+
+		return(MAXROW - row);
 }
 
 /*

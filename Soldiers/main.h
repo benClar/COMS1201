@@ -28,5 +28,6 @@ BoardNode getFinalBoard();
 void userEnterTargetDestination(char *x, char *y);
 void checkArg(int *argc,char **args);
 char *checkEnteredString(char *toCheck);
+int rowToY(int row);
 
 #endif
