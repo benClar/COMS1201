@@ -114,14 +114,14 @@ void graphicalPrintBoard(BoardNode sBoard)	{
 int recursiveSuccess(BoardNode currBoard)	{
 	if(getFinalBoard() == NULL)	{return 0;}
 	if(currBoard->parentBoard == NULL){ 
-		//printBoard("Success",currBoard); 
-		graphicalPrintBoard(currBoard);
+		printBoard("Success",currBoard); 
+		//graphicalPrintBoard(currBoard);
 		return 1;
 	}
 
 	if(recursiveSuccess(currBoard->parentBoard))	{
-		//printBoard("success",currBoard);
-		graphicalPrintBoard(currBoard);
+		printBoard("success",currBoard);
+		//graphicalPrintBoard(currBoard);
 		return 1;
 	}	
 	
@@ -376,12 +376,12 @@ void createQueue()	{
 }
 
 /*
- * Sets program to hashing mode
+ * changes program mode
  */
 
-void startHashing()	{
+void setMode(mode programMode)	{
 
-	getQueue(NULL)->runMode = HASH;
+	getQueue(NULL)->runMode = programMode;
 }
 
 /*

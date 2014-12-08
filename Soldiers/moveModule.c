@@ -77,30 +77,36 @@ int generatePossibleMove(BoardNode currentBoard)    {
         for(col = 0; col < MAXCOL; col++)   {
             if(getButtonStatus(currentBoard,row,col) == ALIVE)  {
                 if(validateMove(currentBoard,DONTMV,MVRIGHT,row, col,NEIGHDIS)) {
-					if(getMode() == HASH)	{
+					if(getMode() == ZHASH)	{
                    		generateUniqueBoardHash(currentBoard,DONTMV,MVRIGHT,row,col);
+					} else if(getMode() == BHASH)	{
+                   		generateUniqueBoardBitHash(currentBoard,DONTMV,MVRIGHT,row,col);
 					} else {
                    		generateUniqueBoardWithMove(currentBoard,DONTMV,MVRIGHT,row,col);
 					}
                 } else if(validateMove(currentBoard,DONTMV,MVLEFT,row, col,NEIGHDIS))   {
-					if(getMode() == HASH)	{
+					if(getMode() == ZHASH)	{
                     	generateUniqueBoardHash(currentBoard,DONTMV,MVLEFT,row,col);
+					} else if(getMode() == BHASH)	{
+                    	generateUniqueBoardBitHash(currentBoard,DONTMV,MVLEFT,row,col);
 					} else {
                     	generateUniqueBoardWithMove(currentBoard,DONTMV,MVLEFT,row,col);
 					}
                 } else if(validateMove(currentBoard,MVUP,DONTMV,row,col,NEIGHDIS))  {
-					if(getMode() == HASH)	{
+					if(getMode() == ZHASH)	{
                     	generateUniqueBoardHash(currentBoard,MVUP,DONTMV,row,col);
+					} else if(getMode() == BHASH)	{
+                    	generateUniqueBoardBitHash(currentBoard,MVUP,DONTMV,row,col);
 					} else {
                     	generateUniqueBoardWithMove(currentBoard,MVUP,DONTMV,row,col);
 					}
-                } /*else if(validateMove(currentBoard,MVDOWN,DONTMV,row,col,NEIGHDIS))    {
-					if(getMode() == HASH)	{
-                    	generateUniqueBoardHash(currentBoard,MVDOWN,DONTMV,row,col);
-					} else {
-                    	generateUniqueBoardWithMove(currentBoard,MVDOWN,DONTMV,row,col);
-					}
-                }*/
+                }
+
+	 			if(getMode() == LINEAR)	{
+					if(validateMove(currentBoard,MVDOWN,DONTMV,row,col,NEIGHDIS))    {
+       					   	generateUniqueBoardWithMove(currentBoard,MVDOWN,DONTMV,row,col);
+      				}
+				}
             }
         }
     }
@@ -108,7 +114,19 @@ int generatePossibleMove(BoardNode currentBoard)    {
 }
 
 /*
- * Extension: Checks and adds to hash table instead of linear linked list queue
+ * Extension: Checks and adds to hash table using a bit ID based hash function
+ */
+void generateUniqueBoardBitHash(BoardNode currentBoard, int rowMove, int colMove, int currRow, int currCol)	{
+	BoardNode generatedBoard;
+	generatedBoard = makeMove(copyParentToChild(currentBoard,createBoard(currentBoard)),rowMove,colMove,currRow,currCol,DELETE);
+	if(generateBitHashKey(generatedBoard))	{
+		addToQueue(generatedBoard);
+		checkTarget(generatedBoard);
+	}
+}
+
+/*
+ * Extension: Checks and adds to hash table using Zobrist hash function instead of linear linked list queue
  */
 void generateUniqueBoardHash(BoardNode currentBoard, int rowMove, int colMove, int currRow, int currCol)    {
 
@@ -122,6 +140,10 @@ void generateUniqueBoardHash(BoardNode currentBoard, int rowMove, int colMove, i
 	}
 }
 
+
+/*
+ *Basic: adds unqiue boards to linear linked list queue
+ */
 void generateUniqueBoardWithMove(BoardNode currentBoard, int rowMove, int colMove, int currRow, int currCol)    {
 
     //!Create a  blank board, copy parent board to it, make the move,  check if it

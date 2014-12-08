@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 /*---------- Custom Headers	-----------*/
 
@@ -11,30 +12,126 @@
 
 /*---------- Symbolic Constants  -----------*/
 
+//! zobrist hashing structures
+
+//!Holds table that holds a randomised integer for each square on grid
 struct zobrist	{
 
 	ZobristVal **hashKey;	
 	
 };
 
+//! Elements of zobrist value table
 struct zobristVal	{
 	int alive;
 	int dead;
 };
 
+//!Hash table that holds zobrist nodes pointing to unique boards
 struct hashTable	{
 
 	HashNode *table;
 
 };
 
+//!Poinys to unique boards in queue
 struct hashNode	{
 
 	BoardNode hashedBoard;
 	HashNode nextHNode;
 
 };
+
+//! Bit Hashing structures
+
+struct bitHash	{
+
+	BHashValues **bHashKey;
+
+};
+
+struct bHashValues	{
+
+	uint64_t aliveKey;
+	uint64_t deadKey;
+
+};
+
+struct bitHashTable	{
+
+	BitHashNode *bitTable;
+
+};
+
+struct bitHashNode	{
+
+	uint64_t BitID;
+	BitHashNode next;
+};
+
 /*---------- Functions ----------*/
+
+void initBitHashValues()	{
+
+	BitHash hashValuesTable = (BitHash) checkMalloc(malloc(sizeof(*hashValuesTable)));
+	hashValuesTable->bHashKey = (BHashValues**) checkMalloc(malloc(MAXROW *sizeof(*(hashValuesTable->bHashKey))));
+	getBValues(hashValuesTable);
+
+	int row, col,count;
+	for(row = 0; row < MAXROW; row++)	{
+		hashValuesTable->bHashKey[row] = (BHashValues*) checkMalloc(malloc(MAXCOL*sizeof(*(hashValuesTable->bHashKey[row]))));
+		for(col = 0; col < MAXCOL; col++)	{
+			hashValuesTable->bHashKey[row][col] = (BHashValues) checkMalloc(malloc(sizeof(*(hashValuesTable->bHashKey[row][col]))));
+			hashValuesTable->bHashKey[row][col]->aliveKey = 0;
+			hashValuesTable->bHashKey[row][col]->deadKey = 0;
+		}
+	}
+
+	//!Setting key values
+	for(row = 0,count = 0; row < MAXROW; row++)	{
+		for(col = 0; col < MAXCOL; col++)	{
+			hashValuesTable->bHashKey[row][col]->aliveKey = UINT64_C(1)<<count;
+			count++;
+		}
+	}
+}
+
+BitHash getBValues(BitHash values)	{
+
+	static BitHash cValues;
+
+	if(values != NULL)	{
+		cValues = values;
+	}
+
+	return cValues;
+}
+
+
+void createBitHashTable()	{
+
+	BitHashTable newBitTable = (BitHashTable) checkMalloc(malloc(sizeof(*newBitTable)));
+	newBitTable->bitTable = (BitHashNode*) checkMalloc(calloc(HASHTABLESIZE, sizeof(*(newBitTable->bitTable))));
+	getBTable(newBitTable);
+}
+
+BitHashTable getBTable(BitHashTable table)	{
+
+	static BitHashTable cTable;
+
+	if(table != NULL)	{
+		cTable = table;	
+	}
+
+	return cTable;
+}
+
+BitHashNode addBitNode()	{
+	BitHashNode newNode = (BitHashNode) checkMalloc(malloc(sizeof(*newNode)));
+	newNode->next = NULL;
+	return newNode;	
+}
+
 
 void createHashTable()	{
 
@@ -142,31 +239,79 @@ int validateKeys(ZobristVal **array, int dRndm, int aRndm)	{
 	return 1;
 }
 
+int generateBitHashKey(BoardNode boardToHash)	{
 
-int generateHashKey(BoardNode boardToHash)	{
-		int row = 0, col = 0, key  = 0;
-
-		if(getButtonStatus(boardToHash,row,col))    {
-             key = (getZValues(NULL)->hashKey[row][col]->alive);
-        } if(!getButtonStatus(boardToHash,row,col)){
-             key = (getZValues(NULL)->hashKey[row][col]->dead);
-        }
-
-		for(row = 1; row < MAXROW; row++)	{
-			for(col = 1; col < MAXCOL; col++)	{
-				if(getButtonStatus(boardToHash,row,col))	{
-					key ^= (getZValues(NULL)->hashKey[row][col]->alive);
-				} if(!getButtonStatus(boardToHash,row,col)){
-					key ^= (getZValues(NULL)->hashKey[row][col]->dead);
-				}
+	int row = 0, col = 0;
+	uint64_t bitID = 0;
+	uint64_t key;
+    if(getButtonStatus(boardToHash,row,col))    {
+	    bitID = getBValues(NULL)->bHashKey[row][col]->aliveKey;
+    } if(!getButtonStatus(boardToHash,row,col)){
+	    bitID = getBValues(NULL)->bHashKey[row][col]->deadKey;
+   }
+	for(row = 1; row < MAXROW; row++)	{
+		for(col = 1; col < MAXCOL; col++)	{
+			if(getButtonStatus(boardToHash,row,col))	{
+				bitID =  bitID | (getBValues(NULL)->bHashKey[row][col]->aliveKey);
+			} if(!getButtonStatus(boardToHash,row,col)){
+				bitID = bitID  | (getBValues(NULL)->bHashKey[row][col]->deadKey);
 			}
 		}
-		key = key%HASHTABLESIZE;
-		return key;
+	}
+	key = bitID%HASHTABLESIZE;
+	return addToBitHTable(key,bitID,addBitNode(key));
 }
-/*
- * Collision Resolution handled by a linear probe decrementing
- */
+
+int addToBitHTable(int key,uint64_t bitID,BitHashNode newNode)	{
+	newNode->BitID = bitID;
+	BitHashTable bTab = getBTable(NULL); 
+	BitHashNode currNode = bTab->bitTable[key];
+	if(currNode == NULL)	{
+		bTab->bitTable[key]	= newNode;
+		return 1;
+	} else if(currNode->next == NULL) {
+		if(newNode->BitID == currNode->BitID)	{
+			free(newNode);
+			return 0;
+		}
+	} else {
+		while(currNode->next != NULL)	{
+			if(newNode->BitID == currNode->BitID)	{
+				free(newNode);
+				return 0;
+			}
+			currNode = currNode->next;	
+		}
+	}
+	currNode->next = newNode;
+	return 1;
+}
+
+
+int generateHashKey(BoardNode boardToHash)	{
+	int row = 0, col = 0, key  = 0;
+
+	if(getButtonStatus(boardToHash,row,col))    {
+   		 key = (getZValues(NULL)->hashKey[row][col]->alive);
+    } if(!getButtonStatus(boardToHash,row,col)){
+         key = (getZValues(NULL)->hashKey[row][col]->dead);
+    }
+
+	for(row = 1; row < MAXROW; row++)	{
+		for(col = 1; col < MAXCOL; col++)	{
+			if(getButtonStatus(boardToHash,row,col))	{
+				key = key^(getZValues(NULL)->hashKey[row][col]->alive);
+			} if(!getButtonStatus(boardToHash,row,col)){
+				key = key^(getZValues(NULL)->hashKey[row][col]->dead);
+			}
+		}
+	}
+		
+	key = key%HASHTABLESIZE;
+	return key;
+}
+
+
 
 int hashBoard(int newKey, BoardNode board)	{
 	HashNode currNode = getHashTable(NULL)->table[newKey];
@@ -175,7 +320,7 @@ int hashBoard(int newKey, BoardNode board)	{
 		getHashTable(NULL)->table[newKey] = addHashNode(board);	
 		return 1;
 	} else if(currNode->nextHNode == NULL)  {
-		compFlag = compareTwoBoards(board,currNode->hashedBoard);
+			compFlag = compareTwoBoards(board,currNode->hashedBoard);
 	} else{ 
 		while(currNode->nextHNode != NULL && (compFlag = compareTwoBoards(board,currNode->hashedBoard)))	{
 			currNode = currNode->nextHNode;

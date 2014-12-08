@@ -27,4 +27,5 @@ int validateMove(BoardNode currentBoard, int moveRow, int moveCol, int currRow, 
 void generateUniqueBoardWithMove(BoardNode currentBoard, int rowMove, int colMove, int currRow, int currCol);
 int generatePossibleMove(BoardNode currentBoard);
 void generateUniqueBoardHash(BoardNode currentBoard, int rowMove, int colMove, int currRow, int currCol);
+void generateUniqueBoardBitHash(BoardNode currentBoard, int rowMove, int colMove, int currRow, int currCol);
 #endif

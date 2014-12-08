@@ -16,8 +16,10 @@ typedef struct zobrist *Zobrist;
 typedef struct zobristVal *ZobristVal;
 typedef struct hashTable *HashTable;
 typedef struct hashNode *HashNode;
-
-
+typedef struct bitHashTable *BitHashTable;
+typedef struct bitHashNode	*BitHashNode;
+typedef struct bitHash *BitHash;
+typedef struct bHashValues	*BHashValues;
 
 /*----------Function Prototypes-----------*/
 char *int2bin(int a, char *buffer, int buf_size);
@@ -31,4 +33,10 @@ HashTable getHashTable(HashTable currTable);
 int hashBoard(int key, BoardNode board);
 void printEmptyKeys();
 void freeHashingStructures();
+BitHashTable getBTable(BitHashTable table);
+void createBitHashTable();
+void initBitHashValues();
+BitHash getBValues(BitHash values);
+int generateBitHashKey(BoardNode boardToHash);
+int addToBitHTable(int key,uint64_t bitID,BitHashNode newNode);
 #endif

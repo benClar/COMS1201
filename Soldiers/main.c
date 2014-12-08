@@ -15,10 +15,6 @@
 #include "debug.h"
 #include "main.h"
 
-/*struct testData	{
-	int nMoves; 	//!Number of moves
-	int **dataArray;	//!array holding moves
-};*/
 /*---------- Main -----------*/
 
 int main(int argc, char *argv[]){
@@ -26,22 +22,21 @@ int main(int argc, char *argv[]){
 	createQueue();
 	readDefaultMap();
 	checkArg(&argc,argv);
-	initZobrist();
-	createHashTable();
+	printf("all created \n");
 	userEnterTargetDestination(argv[1],argv[2]);	
 	for(currentBoard = getStartBoard(); currentBoard != NULL && getFinalBoard() == NULL; currentBoard=nextInList(currentBoard))	{
 		generatePossibleMove(currentBoard);
 	}
 
-	freeHashingStructures();
+	//freeHashingStructures();
 
 	if(getFinalBoard() != NULL)	{
-		start_SDL();
+	//	start_SDL();
 		recursiveSuccess(getFinalBoard());
 		freeQueue();
 		return 0;
 	} else {
-//		freeQueue();
+		freeQueue();
 		fprintf(stderr,"Solution could not be found\n");
 		return 1;
 	}
@@ -61,12 +56,19 @@ void checkArg(int *argc,char **args){
 	}
 	if(!strcmp("test",args[1])){
 		startTest();
-	} else if(*argc > 2 && !strcmp("hash",args[3])) {
-		printf("Hash Mode Enabled\n");
-		startHashing();
+	} else if(*argc > 2 && !strcmp("zhash",args[3])) {
+		printf("Zobrist Hashing Mode Enabled\n");
+		initZobrist();
+		createHashTable();
+		setMode(ZHASH);
+	} else if(*argc > 2 && !strcmp("bhash",args[3]))	{
+		printf("Bit Hashing Mode Enabled\n");
+		initBitHashValues();
+		createBitHashTable();
+		setMode(BHASH);
 	}
 	if(*argc > ARGCNT)	{
-		fprintf(stderr,"Please run program with any of the following options: \n ./pOut test \n ./pOut [row] [col] \n ./pOut [row] [col] hash\n");
+		fprintf(stderr,"Please run program with any of the following options: \n ./pOut test \n ./pOut [row] [col] \n ./pOut [row] [col] zhash\n ./pOut [row] [col] bhash\n");
 		exit(1);
 	}
 }
