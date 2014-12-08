@@ -67,6 +67,7 @@ struct bitHashNode	{
 
 	uint64_t BitID;
 	BitHashNode next;
+	BoardNode hashedBoard;
 };
 
 /*---------- Functions ----------*/
@@ -252,17 +253,19 @@ int generateBitHashKey(BoardNode boardToHash)	{
 	for(row = 1; row < MAXROW; row++)	{
 		for(col = 1; col < MAXCOL; col++)	{
 			if(getButtonStatus(boardToHash,row,col))	{
-				bitID =  bitID | (getBValues(NULL)->bHashKey[row][col]->aliveKey);
+				bitID =  bitID ^ (getBValues(NULL)->bHashKey[row][col]->aliveKey);
 			} if(!getButtonStatus(boardToHash,row,col)){
-				bitID = bitID  | (getBValues(NULL)->bHashKey[row][col]->deadKey);
+				bitID = bitID  ^ (getBValues(NULL)->bHashKey[row][col]->deadKey);
 			}
 		}
 	}
 	key = bitID%HASHTABLESIZE;
-	return addToBitHTable(key,bitID,addBitNode(key));
+	return addToBitHTable(key,bitID,addBitNode(),boardToHash);
 }
 
-int addToBitHTable(int key,uint64_t bitID,BitHashNode newNode)	{
+int addToBitHTable(int key,uint64_t bitID,BitHashNode newNode, BoardNode board)	{
+	newNode->hashedBoard = board;
+	//printf("%" PRId64 "\n", key);
 	newNode->BitID = bitID;
 	BitHashTable bTab = getBTable(NULL); 
 	BitHashNode currNode = bTab->bitTable[key];
@@ -271,18 +274,33 @@ int addToBitHTable(int key,uint64_t bitID,BitHashNode newNode)	{
 		return 1;
 	} else if(currNode->next == NULL) {
 		if(newNode->BitID == currNode->BitID)	{
+			if(compareTwoBoards(newNode->hashedBoard,currNode->hashedBoard)){
+				printBoard("board1",newNode->hashedBoard);
+				printf("%" PRId64 "\n",newNode->BitID);
+				printBoard("board2",currNode->hashedBoard);
+				printf("%" PRId64 "\n",currNode->BitID);
+				printf("ERROR!!! BIT THINKS BOARDS ARE THE SAME BUT THEY ARENNT\n");
+			}
 			free(newNode);
 			return 0;
 		}
 	} else {
 		while(currNode->next != NULL)	{
 			if(newNode->BitID == currNode->BitID)	{
+				if(compareTwoBoards(newNode->hashedBoard,currNode->hashedBoard)){
+					printf("ERROR!!! BIT THINKS BOARDS ARE THE SAME BUT THEY ARENNT\n");
+				printBoard("board1",newNode->hashedBoard);
+				printf("%" PRId64 "\n",newNode->BitID);
+				printBoard("board2",currNode->hashedBoard);
+				printf("%" PRId64 "\n",currNode->BitID);
+				}
 				free(newNode);
 				return 0;
 			}
 			currNode = currNode->next;	
 		}
 	}
+	printf("Unique\n");
 	currNode->next = newNode;
 	return 1;
 }

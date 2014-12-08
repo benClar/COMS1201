@@ -38,5 +38,5 @@ void createBitHashTable();
 void initBitHashValues();
 BitHash getBValues(BitHash values);
 int generateBitHashKey(BoardNode boardToHash);
-int addToBitHTable(int key,uint64_t bitID,BitHashNode newNode);
+int addToBitHTable(int key,uint64_t bitID,BitHashNode newNode,BoardNode board);
 #endif

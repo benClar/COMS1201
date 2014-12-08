@@ -310,9 +310,6 @@ BoardNode addToQueue(BoardNode newBoard)	{
 		//! If there are no boards.
 		getQueue(NULL)->end = getQueue(NULL)->start = newBoard;
 	} else {
-		//while(checkQueue->next != NULL)	{
-		//	checkQueue = checkQueue->next;
-		//}
 		getQueue(NULL)->end->next = newBoard;
 		getQueue(NULL)->end = getQueue(NULL)->end->next;
 		//!Add new board to the end of the queue
@@ -378,7 +375,6 @@ void createQueue()	{
 /*
  * changes program mode
  */
-
 void setMode(mode programMode)	{
 
 	getQueue(NULL)->runMode = programMode;

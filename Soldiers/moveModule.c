@@ -76,6 +76,7 @@ int generatePossibleMove(BoardNode currentBoard)    {
     for(row = 0; row < MAXROW; row++)   {
         for(col = 0; col < MAXCOL; col++)   {
             if(getButtonStatus(currentBoard,row,col) == ALIVE)  {
+
                 if(validateMove(currentBoard,DONTMV,MVRIGHT,row, col,NEIGHDIS)) {
 					if(getMode() == ZHASH)	{
                    		generateUniqueBoardHash(currentBoard,DONTMV,MVRIGHT,row,col);
@@ -84,7 +85,9 @@ int generatePossibleMove(BoardNode currentBoard)    {
 					} else {
                    		generateUniqueBoardWithMove(currentBoard,DONTMV,MVRIGHT,row,col);
 					}
-                } else if(validateMove(currentBoard,DONTMV,MVLEFT,row, col,NEIGHDIS))   {
+                }
+
+				if(validateMove(currentBoard,DONTMV,MVLEFT,row, col,NEIGHDIS))   {
 					if(getMode() == ZHASH)	{
                     	generateUniqueBoardHash(currentBoard,DONTMV,MVLEFT,row,col);
 					} else if(getMode() == BHASH)	{
@@ -92,7 +95,9 @@ int generatePossibleMove(BoardNode currentBoard)    {
 					} else {
                     	generateUniqueBoardWithMove(currentBoard,DONTMV,MVLEFT,row,col);
 					}
-                } else if(validateMove(currentBoard,MVUP,DONTMV,row,col,NEIGHDIS))  {
+               	}
+
+				if(validateMove(currentBoard,MVUP,DONTMV,row,col,NEIGHDIS))  {
 					if(getMode() == ZHASH)	{
                     	generateUniqueBoardHash(currentBoard,MVUP,DONTMV,row,col);
 					} else if(getMode() == BHASH)	{
@@ -126,7 +131,7 @@ void generateUniqueBoardBitHash(BoardNode currentBoard, int rowMove, int colMove
 }
 
 /*
- * Extension: Checks and adds to hash table using Zobrist hash function instead of linear linked list queue
+ * Extension: Checks and adds to hash table using Zobrist hash function 
  */
 void generateUniqueBoardHash(BoardNode currentBoard, int rowMove, int colMove, int currRow, int currCol)    {
 
@@ -157,4 +162,3 @@ void generateUniqueBoardWithMove(BoardNode currentBoard, int rowMove, int colMov
         freeBoard(generatedBoard);
     }
 }
-
