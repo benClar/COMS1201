@@ -20,16 +20,25 @@
 int main(int argc, char *argv[]){
 	BoardNode currentBoard;
 	createQueue();
-	readDefaultMap();
 	checkArg(&argc,argv);
 	userEnterTargetDestination(argv[1],argv[2]);	
+	readDefaultMap();
+	currentBoard = getStartBoard();
 	for(currentBoard = getStartBoard(); currentBoard != NULL && getFinalBoard() == NULL; currentBoard=nextInList(currentBoard))	{
-		generatePossibleMove(currentBoard);
+		if(getMode() == BHASH)	{
+			bitDecoder(currentBoard);
+			generatePossibleMove(currentBoard);
+		} else {
+			generatePossibleMove(currentBoard);
+		}
 	}
 
 	//freeHashingStructures();
 
 	if(getFinalBoard() != NULL)	{
+		if(getMode()==BHASH)	{
+			decodeFinalSeries();
+		}
 	//	start_SDL();
 		recursiveSuccess(getFinalBoard());
 		freeQueue();
@@ -137,4 +146,7 @@ void readDefaultMap()	{
 		fprintf(stderr,"Default board file does not exist\n");
 	}
 	fclose(fp);
+	if(getMode() == BHASH)	{
+		bitEncoder(defBoard);
+	}
 }

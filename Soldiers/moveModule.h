@@ -1,6 +1,7 @@
 #ifndef moveModule_h
 #define moveModule_h
 
+#include "bitEncoder.h"
 #include "hashExtension.h"
 #include "boardModule.h"
 

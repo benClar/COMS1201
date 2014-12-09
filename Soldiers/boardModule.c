@@ -37,8 +37,8 @@ struct boardQueueHead	{
 struct boardNode	{
 
 	BoardNode parentBoard; //!Link to parent board
-	//Button **board;
 	buttonState **board;
+	uint64_t bitID;
 	BoardNode next; 	//!Next board in queue.  Deafults to NULL.
 
 };
@@ -67,12 +67,12 @@ int getButtonStatus(BoardNode currentNode, int row, int col)	{
 }
 
 /*
- *
+ *Frees array holding board
  */
 void freeBoardArray(BoardNode board)	{
 
 		free(board->board);
-
+		board->board = NULL;
 }
 /*
  * Prints Successful Final Series
@@ -95,6 +95,12 @@ void freeQueue()	{
 	for(b = q->start; b->next != NULL; b = b->next)	{
 		free(b);
 	}	
+}
+
+BoardNode getParent(BoardNode CurrBoard)	{
+	
+	return CurrBoard->parentBoard;
+
 }
 
 void setNextBoard(BoardNode current, BoardNode next)	{
@@ -209,10 +215,7 @@ int changeButton(BoardNode currBoard, int row, int col, buttonState newState)	{
 
 	if(currBoard->board[row][col]!= newState)	{
 		currBoard->board[row][col] = newState;
-	} else {
-		fprintf(stderr,"Invalid move has been attempted\n");
-		return 0;
-	}
+	} 
 
 	return 1;
 
@@ -350,18 +353,36 @@ void verifyNumQueueItems()	{
  * populate board node's members
  */
 void populateBoard(BoardNode newBoard, BoardNode ParentBoard)	{
-	int row,col;
 	newBoard->parentBoard = ParentBoard;
-
-	newBoard->board = (buttonState**) checkMalloc(malloc(MAXROW * sizeof(buttonState*)));
-	
-	for(row = 0; row < MAXROW; row++)	{
-		newBoard->board[row] = (buttonState*) checkMalloc(malloc(MAXCOL*sizeof(buttonState)));
-		for(col = 0; col < MAXCOL; col++)	{
-			newBoard->board[row][col] = DEAD;
-		}
-	}
+	newBoard->bitID = '\0';
+	createBoardArray(newBoard);
 	newBoard->next = NULL;
+}
+
+void createBoardArray(BoardNode newBoard)	{
+
+	int row, col;
+
+    newBoard->board = (buttonState**) checkMalloc(malloc(MAXROW * sizeof(buttonState*)));
+
+    for(row = 0; row < MAXROW; row++)   {
+        newBoard->board[row] = (buttonState*) checkMalloc(malloc(MAXCOL*sizeof(buttonState)));
+        for(col = 0; col < MAXCOL; col++)   {
+            newBoard->board[row][col] = DEAD;
+        }
+    }		
+
+}
+
+void setBitID(BoardNode board, uint64_t bitID)	{
+
+	board->bitID = bitID;
+
+}
+
+uint64_t getBitID(BoardNode board)	{
+
+	return board->bitID;
 }
 
 /*

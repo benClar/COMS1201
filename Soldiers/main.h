@@ -1,6 +1,7 @@
 #ifndef main_h
 #define main_h
 
+#include "bitEncoder.h"
 #include "dataParsing.h"
 #include "hashExtension.h"
 #include "testingModule.h"

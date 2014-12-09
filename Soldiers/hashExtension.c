@@ -52,7 +52,6 @@ struct bitHashTable	{
 
 struct bitHashNode	{
 
-	uint64_t BitID;
 	BitHashNode next;
 	BoardNode hashedBoard;
 };
@@ -203,45 +202,27 @@ int validateKeys(ZobristVal **array, int dRndm, int aRndm)	{
 }
 
 int generateBitHashKey(BoardNode boardToHash)	{
-
-	int row = 0, col = 0;
-	uint64_t bitID = 0;
-	uint64_t key;
-	for(row = 0; row < MAXROW; row++)	{
-		for(col = 0; col < MAXCOL; col++)	{
-			if(getButtonStatus(boardToHash,row,col))	{
-				if(bitID==0)	{ 
-					bitID = 1;
-				} else {
-					bitID <<= 1;
-					bitID |=  1;
-				}
-			} if(!getButtonStatus(boardToHash,row,col)){
-				bitID <<= 1;
-			}
-		}
-	}
-	key = bitID%HASHTABLESIZE;
-	return addToBitHTable(key,bitID,addBitNode(),boardToHash);
+	int key;
+	key = getBitID(boardToHash)%HASHTABLESIZE;
+	return addToBitHTable(key,addBitNode(),boardToHash);
 }
 
-int addToBitHTable(int key,uint64_t bitID,BitHashNode newNode, BoardNode board)	{
+int addToBitHTable(int key,BitHashNode newNode, BoardNode board)	{
 	newNode->hashedBoard = board;
 	//printf("%" PRId64 "\n", key);
-	newNode->BitID = bitID;
 	BitHashTable bTab = getBTable(NULL); 
 	BitHashNode currNode = bTab->bitTable[key];
 	if(currNode == NULL)	{
 		bTab->bitTable[key]	= newNode;
 		return 1;
 	} else if(currNode->next == NULL) {
-		if(newNode->BitID == currNode->BitID)	{
+		if(getBitID(newNode->hashedBoard) == getBitID(currNode->hashedBoard))	{
 			free(newNode);
 			return 0;
 		}
 	} else {
 		while(currNode->next != NULL)	{
-			if(newNode->BitID == currNode->BitID)	{
+			if(getBitID(newNode->hashedBoard) == getBitID(currNode->hashedBoard))	{
 				free(newNode);
 				return 0;
 			}

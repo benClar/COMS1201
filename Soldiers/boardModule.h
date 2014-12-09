@@ -52,8 +52,12 @@ int compareTwoBoards(BoardNode boardOne, BoardNode boardTwo);
 void setMode(mode programMode);
 void setNextBoard(BoardNode current, BoardNode next);
 mode getMode();
+void setBitID(BoardNode board, uint64_t bitID);
+uint64_t getBitID(BoardNode board);
 void freeQueue();
 void freeBoardArray(BoardNode board);
+void createBoardArray(BoardNode newBoard);
+BoardNode getParent(BoardNode CurrBoard);
 /*----------Test Function Prototypes-----------*/
 int testStartOfQueue();
 void *checkMalloc(void *malP);

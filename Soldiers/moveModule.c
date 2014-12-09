@@ -124,9 +124,11 @@ int generatePossibleMove(BoardNode currentBoard)    {
 void generateUniqueBoardBitHash(BoardNode currentBoard, int rowMove, int colMove, int currRow, int currCol)	{
 	BoardNode generatedBoard;
 	generatedBoard = makeMove(copyParentToChild(currentBoard,createBoard(currentBoard)),rowMove,colMove,currRow,currCol,DELETE);
+	bitEncoder(generatedBoard);
 	if(generateBitHashKey(generatedBoard))	{
 		addToQueue(generatedBoard);
 		checkTarget(generatedBoard);
+		freeBoardArray(generatedBoard);
 	}
 }
 
