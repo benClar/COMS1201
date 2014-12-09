@@ -36,7 +36,7 @@ void resetFinished()	{
 
 void createDisplay()	{
 
-	Display newDisplay = (Display) malloc(sizeof(*newDisplay));
+	Display newDisplay = (Display) gCheckMalloc(malloc(sizeof(*newDisplay)));
 	getDisplay(newDisplay);
 
 }
@@ -73,7 +73,6 @@ void drawAliveButton(int x, int y)	{
 	Neill_SDL_SetDrawColour(&d->sw,0,0,0);
 	Neill_SDL_RenderFillCircle(d->sw.renderer,(x*RECTSIZE) + RECTSIZE/2,(y*RECTSIZE) + RECTSIZE/2,RECTSIZE/2);
 	SDL_RenderPresent(d->sw.renderer);
-//	SDL_UpdateWindowSurface(d->sw.win);
 }
 
 void drawDeadButton(int x, int y)	{
@@ -87,4 +86,13 @@ void drawDeadButton(int x, int y)	{
 	SDL_RenderFillRect(d->sw.renderer,&rectangle);
 	SDL_RenderPresent(d->sw.renderer);
 	SDL_UpdateWindowSurface(d->sw.win);
+}
+
+void *gCheckMalloc(void *malP)   {
+
+    if (malP == NULL)   {
+        fprintf(stderr, "null address generated\n");
+        exit(1);
+    }
+    return malP;
 }

@@ -58,18 +58,6 @@ struct bitHashNode	{
 
 /*---------- Functions ----------*/
 
-BitHash getBValues(BitHash values)	{
-
-	static BitHash cValues;
-
-	if(values != NULL)	{
-		cValues = values;
-	}
-
-	return cValues;
-}
-
-
 void createBitHashTable()	{
 
 	BitHashTable newBitTable = (BitHashTable) checkMalloc(malloc(sizeof(*newBitTable)));
@@ -124,6 +112,37 @@ HashTable getHashTable(HashTable currTable)	{
 }
 
 void freeHashingStructures()	{
+
+	if(getMode() == BHASH)	{
+		freeBHashingStructures();
+	} else if (getMode() == ZHASH)	{
+		freeZHashingStructures();
+	} else	{
+		fprintf(stderr,"Hashing mode is not enabled.  Should not be trying to free hash structures\n");
+	}
+
+}
+
+void freeBHashingStructures()	{
+	int row;
+	BitHashTable btable = getBTable(NULL);	
+	BitHashNode bNode, temp;
+	for(row = 0, bNode = btable->bitTable[row]; row < HASHTABLESIZE; bNode = btable->bitTable[++row])	{
+		if(bNode != NULL)	{
+			while(bNode->next != NULL)	{
+				temp = bNode->next;
+				free(bNode);
+				bNode = temp;	
+			}
+		}
+
+	}
+
+	free(btable);	
+
+}
+
+void freeZHashingStructures()	{
 
 		HashTable hTable = getHashTable(NULL);
 		Zobrist zb = getZValues(NULL);

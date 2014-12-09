@@ -33,7 +33,7 @@ int main(int argc, char *argv[]){
 		}
 	}
 
-	//freeHashingStructures();
+	freeHashingStructures();
 
 	if(getFinalBoard() != NULL)	{
 		if(getMode()==BHASH)	{
