@@ -1,3 +1,12 @@
+To run:
+	make all
+
+then, to access the different run modes:
+	./pOut test			//Testing Module
+	./pOut x y			//Basic
+	./pOut x y zhash	//Zobrist Hashing
+	./pOut x y bhash	//Bit Hashing
+
 I have tried to take a highly modular approach
 to the design of this program.  As per attached PDF,
 Each module has its own set of structures, that are

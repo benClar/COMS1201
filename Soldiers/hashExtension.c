@@ -1,4 +1,26 @@
-/*---------- Standard Headers -----------*/
+//! HashExtension.c
+//
+// This module sits slots in between making moves & changing the boards.  
+//
+// It takes two approaches for hashing.  The first is using the Zobrist function, 
+// which is utilised for other board based games such as chess.  It
+// Uses a set of hash keys that are randomly generated at the start to
+// assign values to each possibility on each square of the board (
+// in this programs case, that there is a dead or an alive button).  
+// When a board is presented, it is compared against this set of values
+// for each element.  Each value is x-ored together.  This allows the Xor
+// to be done again for a value to quickly achieve the inverse moves value.
+// E.g. xOr the zobrist hash value of a button being IN element 1,7.  xOr
+// this value again to get the hash value of this removed.
+//
+// The second approach uses the bit ID generated from the bit encoding module 
+// get a hash value for the hash table.
+//
+// Both of my hash methods work concurrently with the linear queue, their nodes made up
+// of pointers to this queue.  The queue stores the boards, whilst the hashes are used to
+// search for unique boards.
+
+///*---------- Standard Headers -----------*/
 
 #include <stdio.h>
 #include <string.h>
@@ -43,13 +65,14 @@ struct hashNode	{
 };
 
 //! Bit Hashing structures
-
+//!Holds the bit hash table
 struct bitHashTable	{
 
 	BitHashNode *bitTable;
 
 };
 
+//!Nodes that populate the bit hash table
 struct bitHashNode	{
 
 	BitHashNode next;
@@ -57,7 +80,9 @@ struct bitHashNode	{
 };
 
 /*---------- Functions ----------*/
-
+/*
+ *Creates bit hash table
+ */
 void createBitHashTable()	{
 
 	BitHashTable newBitTable = (BitHashTable) checkMalloc(malloc(sizeof(*newBitTable)));
@@ -65,6 +90,9 @@ void createBitHashTable()	{
 	getBTable(newBitTable);
 }
 
+/*
+ *Return memory address of bit hash table
+ */
 BitHashTable getBTable(BitHashTable table)	{
 
 	static BitHashTable cTable;
@@ -76,13 +104,18 @@ BitHashTable getBTable(BitHashTable table)	{
 	return cTable;
 }
 
+/*
+ *Adds node to bit hash table
+ */
 BitHashNode addBitNode()	{
 	BitHashNode newNode = (BitHashNode) checkMalloc(malloc(sizeof(*newNode)));
 	newNode->next = NULL;
 	return newNode;	
 }
 
-
+/*
+ *Create Zobrist hash table
+ */
 void createHashTable()	{
 
 	HashTable newTable = (HashTable) checkMalloc(malloc(sizeof(*newTable)));
@@ -91,6 +124,9 @@ void createHashTable()	{
 
 }
 
+/*
+ * Add Zobrist Hash node to table
+ */
 HashNode addHashNode(BoardNode uniqueBoard)	{
 
 	HashNode HNode = (HashNode) checkMalloc(malloc(sizeof(*HNode)));
@@ -99,6 +135,9 @@ HashNode addHashNode(BoardNode uniqueBoard)	{
 	return HNode;
 }
 
+/*
+ *Get Zobrist Hash table address
+ */
 HashTable getHashTable(HashTable currTable)	{
 
 	static HashTable hTable;
@@ -111,6 +150,9 @@ HashTable getHashTable(HashTable currTable)	{
 
 }
 
+/*
+ *Selects which hash structures to free based on program mode
+ */
 void freeHashingStructures()	{
 
 	if(getMode() == BHASH)	{
@@ -123,6 +165,9 @@ void freeHashingStructures()	{
 
 }
 
+/*
+ *Free all structures for Bit Hashing
+ */
 void freeBHashingStructures()	{
 	int row;
 	BitHashTable btable = getBTable(NULL);	
@@ -142,6 +187,9 @@ void freeBHashingStructures()	{
 
 }
 
+/*
+ * Free all structures used for Zobrist Hashing
+ */
 void freeZHashingStructures()	{
 
 		HashTable hTable = getHashTable(NULL);
@@ -170,6 +218,9 @@ void freeZHashingStructures()	{
 		free(hTable);
 }
 
+/*
+ *Creates the Zobrist Hash Keys
+ */
 void initZobrist()	{
 
 		int aliveRandom, deadRandom, row, col;
@@ -194,6 +245,9 @@ void initZobrist()	{
 		getZValues(values);
 }
 
+/*
+ *Get Zobrist values table memory address
+ */
 Zobrist getZValues(Zobrist zValues)	{
 
 	static Zobrist currZValues;
@@ -204,6 +258,9 @@ Zobrist getZValues(Zobrist zValues)	{
 	return currZValues;
 }
 
+/*
+ *Valids randomly generated Zobrist hash values
+ */
 int validateKeys(ZobristVal **array, int dRndm, int aRndm)	{
 
 	int row, col;
@@ -220,15 +277,20 @@ int validateKeys(ZobristVal **array, int dRndm, int aRndm)	{
 	return 1;
 }
 
+/*
+ *Generate hash key from BitID
+ */
 int generateBitHashKey(BoardNode boardToHash)	{
 	int key;
 	key = getBitID(boardToHash)%HASHTABLESIZE;
 	return addToBitHTable(key,addBitNode(),boardToHash);
 }
 
+/*
+ *adds board to bit hash table if it is unique.  Uses equality operators for quick comparison.
+ */
 int addToBitHTable(int key,BitHashNode newNode, BoardNode board)	{
 	newNode->hashedBoard = board;
-	//printf("%" PRId64 "\n", key);
 	BitHashTable bTab = getBTable(NULL); 
 	BitHashNode currNode = bTab->bitTable[key];
 	if(currNode == NULL)	{
@@ -252,7 +314,9 @@ int addToBitHTable(int key,BitHashNode newNode, BoardNode board)	{
 	return 1;
 }
 
-
+/*
+ *Generate Zobrist hash key using Xor bitwise operator
+ */
 int generateHashKey(BoardNode boardToHash)	{
 	int row = 0, col = 0, key  = 0;
 
@@ -277,7 +341,9 @@ int generateHashKey(BoardNode boardToHash)	{
 }
 
 
-
+/*
+ * Adds board to Zobrist hash table if it does not already exist.  Manually compares boards.
+ */
 int hashBoard(int newKey, BoardNode board)	{
 	HashNode currNode = getHashTable(NULL)->table[newKey];
 	int compFlag;
@@ -300,6 +366,9 @@ int hashBoard(int newKey, BoardNode board)	{
 	return 0;
 }
 
+/*
+ *Debug: Print any unused hash elements
+ */
 void printEmptyKeys()	{
 
 		int i;

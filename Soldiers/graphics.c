@@ -1,3 +1,12 @@
+//! graphics module: Basic
+//
+// This module displays representations of boards via SDL.  Note that this module
+// is not dependent on any other modules: for example, it does not cycle through board elements 
+// to draw them. It will simply draw the values that is pushed to it, e.g. In this way, 
+// I believe that this graphics module is generic and flexible.
+//
+//
+
 /*---------- Standard Headers -----------*/
 
 #include <stdio.h>

@@ -1,3 +1,14 @@
+//!
+//
+// Testing Module.  Due to the difficulties of fully testing the basic version's results,
+// this testing module provides an interface to read in a set of test moves from the file
+// and then explicitly check each element of a board for correctness following actioning 
+// each one.  Additionally, I have included a flexible testing function to check values
+// against what is expected and output script friendly specified error message to easily
+// Identify which test has gone wrong.
+//
+//
+
 /*---------- Standard Headers -----------*/
 
 #include <stdio.h>
@@ -50,6 +61,9 @@ void testVal(int testResult,int expectedResult, char *description)  {
     }
 }
 
+/*
+ *Initiate testing
+ */
 void startTest()    {
         testing();
         exit(0);
@@ -67,6 +81,9 @@ TestData createTestDataStr()    {
     return newTestData;
 }
 
+/*
+ *Returns address to test data structure
+ */
 TestData getTestData(TestData tData)	{
 
 	static TestData currTdata;
@@ -76,6 +93,9 @@ TestData getTestData(TestData tData)	{
 	return currTdata;
 }
 
+/*
+ *Add move type to test data structure
+ */
 void setTestDataArr(int row, int col, int move)	{
 
 	getTestData(NULL)->dataArray[row][col] = move;
@@ -178,11 +198,14 @@ int testMakeMove(BoardNode testBoard)   {
  *Increases the size of the array holding test data
  */
 void growMoveDataArray(TestData testStr, int row)   {
-    testStr->dataArray = (int**) realloc(testStr->dataArray,(row + 1) * sizeof(int*));
+    testStr->dataArray = (int**) checkMalloc(realloc(testStr->dataArray,(row + 1) * sizeof(int*)));
     testStr->dataArray[row] = (int*) checkMalloc(malloc(3*sizeof(int)));
     testStr->nMoves++;
 }
 
+/*
+ *Reads list of moves in from file to dynamic array
+ */
 void readMoveList(TestData tData)   {
 
     FILE *fp;
@@ -195,14 +218,13 @@ void readMoveList(TestData tData)   {
                 }
 
                 if( col < MOVETYPECOL)  {
-                    move -= TOINT;
+                    move -= TOINT; 	//!converting first two columns to integer values
                 }
                 setTestDataArr(row,col,move);
-                //tData->dataArray[row][col] = move;
                 col++;
                 if(col > MOVETYPECOL)   {
                     row++;
-                    col = 0; //! resetting column
+                    col = 0; 	//! resetting column
                 }
             }
         }

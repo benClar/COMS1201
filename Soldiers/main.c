@@ -25,25 +25,25 @@ int main(int argc, char *argv[]){
 	readDefaultMap();
 	currentBoard = getStartBoard();
 	for(currentBoard = getStartBoard(); currentBoard != NULL && getFinalBoard() == NULL; currentBoard=nextInList(currentBoard))	{
-		if(getMode() == BHASH)	{
-			bitDecoder(currentBoard);
+		if(getMode() == BHASH)	{ //!extension
+			bitDecoder(currentBoard); //!creating board from bit ID to pass to move generator
 			generatePossibleMove(currentBoard);
 		} else {
-			generatePossibleMove(currentBoard);
+			generatePossibleMove(currentBoard); //!basic
 		}
 	}
 
 	freeHashingStructures();
 
 	if(getFinalBoard() != NULL)	{
-		if(getMode()==BHASH)	{
+		if(getMode()==BHASH)	{  //! Extended: Need to decode final series of board for printing
 			decodeFinalSeries();
 		}
-	//	start_SDL();
+		start_SDL();
 		recursiveSuccess(getFinalBoard());
 		freeQueue();
 		return 0;
-	} else {
+	} else { //! if we run out of boards in the queue
 		freeQueue();
 		fprintf(stderr,"Solution could not be found\n");
 		return 1;
@@ -62,16 +62,15 @@ void checkArg(int *argc,char **args){
 		fprintf(stderr,"Please use test parameter to run testing or specify two x y coordinates\n");
 		exit(1);
 	}
-	if(!strcmp("test",args[1])){
+	if(!strcmp("test",args[1])){ //! Testing mode
 		startTest();
-	} else if(*argc > 2 && !strcmp("zhash",args[3])) {
+	} else if(*argc > 2 && !strcmp("zhash",args[3])) { //!Extended: Setting mode to use Zobrist Hashing function
 		printf("Zobrist Hashing Mode Enabled\n");
 		initZobrist();
 		createHashTable();
 		setMode(ZHASH);
-	} else if(*argc > 2 && !strcmp("bhash",args[3]))	{
+	} else if(*argc > 2 && !strcmp("bhash",args[3]))	{ //!Extended: Setting mode to Bit Hash
 		printf("Bit Hashing Mode Enabled\n");
-		//initBitHashValues();
 		createBitHashTable();
 		setMode(BHASH);
 	}
@@ -93,6 +92,9 @@ void userEnterTargetDestination(char *sCol, char *sRow)	{
 	setTargetMove(row,col);
 }
 
+/*
+ *Converts row to y axis value
+ */
 int rowToY(int row)	{
 
 		return(MAXROW - row);

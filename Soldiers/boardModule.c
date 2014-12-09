@@ -1,7 +1,6 @@
-//
-// boardModule.c
-// Created by bclarke on 2014/29/11
-// tags: 
+//! boardModule.c: Basic
+// 
+//This module holds the queue of unique boards that have been generated. 
 //
 /*---------- Standard Headers -----------*/
 
@@ -37,8 +36,8 @@ struct boardQueueHead	{
 struct boardNode	{
 
 	BoardNode parentBoard; //!Link to parent board
-	buttonState **board;
-	uint64_t bitID;
+	buttonState **board; 	//!2d array containing board elements
+	uint64_t bitID; 	//!64 bit ID for board: Extension
 	BoardNode next; 	//!Next board in queue.  Deafults to NULL.
 
 };
@@ -94,7 +93,8 @@ void freeQueue()	{
 	BoardNode b;
 	for(b = q->start; b->next != NULL; b = b->next)	{
 		free(b);
-	}	
+	}
+	free(b); //! free last board	
 }
 
 BoardNode getParent(BoardNode CurrBoard)	{
@@ -128,14 +128,14 @@ void graphicalPrintBoard(BoardNode sBoard)	{
 int recursiveSuccess(BoardNode currBoard)	{
 	if(getFinalBoard() == NULL)	{return 0;}
 	if(currBoard->parentBoard == NULL){ 
-		printBoard("Success",currBoard); 
-		//graphicalPrintBoard(currBoard);
+		//printBoard("Success",currBoard); 
+		graphicalPrintBoard(currBoard);
 		return 1;
 	}
 
 	if(recursiveSuccess(currBoard->parentBoard))	{
-		printBoard("success",currBoard);
-		//graphicalPrintBoard(currBoard);
+		//printBoard("success",currBoard);
+		graphicalPrintBoard(currBoard);
 		return 1;
 	}	
 	
@@ -323,8 +323,6 @@ BoardNode addToQueue(BoardNode newBoard)	{
 	} else {
 		getQueue(NULL)->end->next = newBoard;
 		getQueue(NULL)->end = getQueue(NULL)->end->next;
-		//!Add new board to the end of the queue
-		//checkQueue->next = newBoard;
 	}
 	getQueue(NULL)->nItems++;
 	return newBoard;
@@ -336,6 +334,9 @@ int getNumBoards()	{
 	return getQueue(NULL)->nItems;
 }	
 
+/*
+ *Validation module comparing the actual number of boards to the number the counter thinks there is
+ */
 void verifyNumQueueItems()	{
 
 	BoardNode currBoard;
@@ -459,6 +460,9 @@ BoardQueueHead getQueue(BoardQueueHead newQueue)	{
 	return currQueue;
 }
 
+/*
+ *Validation for Malloc
+ */
 void *checkMalloc(void *malP)   {
 
     if (malP == NULL)   {
@@ -468,6 +472,9 @@ void *checkMalloc(void *malP)   {
     return malP;
 }
 
+/*
+ *Adds a button to the board depending on value
+ */
 void addButtonToBoard(BoardNode newBoard, int button, int row, int col)	{
 	if(button == 1)	{
 		setButtonAlive(newBoard,row,col);
@@ -504,7 +511,7 @@ int checkBounds(int row, int col)	{
 
 
 /*
- * Print Entire queue
+ * Print Entire queue: Debugging
  */
 void printQueue()	{
 	

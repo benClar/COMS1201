@@ -1,4 +1,17 @@
-/*---------- Standard Headers -----------*/
+//! MoveModule.c
+//
+// Basic & Extended: This module contains clearly labeled basic and extended moving functions.  
+// Module primarily acts as an interface between extended hasing functions, main and the board
+// module.  It passes in the values of the elements of the boards that need to change to 
+// carry out a move, after checking that the generated board is unique in a variety of ways,
+// depending on the mode the program is being run in.
+//
+// The basic functionality generates 4 boards based on the current board that has been passed in
+// from main, it then checks that these boards are unqiue via a linear search through the queue of
+// generated boards.  If this search comes back as true, the current board will be added to the list
+//
+
+///*---------- Standard Headers -----------*/
 
 #include <stdio.h>
 #include <string.h>
@@ -79,37 +92,37 @@ int generatePossibleMove(BoardNode currentBoard)    {
 
                 if(validateMove(currentBoard,DONTMV,MVRIGHT,row, col,NEIGHDIS)) {
 					if(getMode() == ZHASH)	{
-                   		generateUniqueBoardHash(currentBoard,DONTMV,MVRIGHT,row,col);
+                   		generateUniqueBoardHash(currentBoard,DONTMV,MVRIGHT,row,col); 		//!extended Zobrist Hash
 					} else if(getMode() == BHASH)	{
-                   		generateUniqueBoardBitHash(currentBoard,DONTMV,MVRIGHT,row,col);
+                   		generateUniqueBoardBitHash(currentBoard,DONTMV,MVRIGHT,row,col); 	//! Extended bit Hash 
 					} else {
-                   		generateUniqueBoardWithMove(currentBoard,DONTMV,MVRIGHT,row,col);
+                   		generateUniqueBoardWithMove(currentBoard,DONTMV,MVRIGHT,row,col); 	//!Basic
 					}
                 }
 
 				if(validateMove(currentBoard,DONTMV,MVLEFT,row, col,NEIGHDIS))   {
 					if(getMode() == ZHASH)	{
-                    	generateUniqueBoardHash(currentBoard,DONTMV,MVLEFT,row,col);
+                    	generateUniqueBoardHash(currentBoard,DONTMV,MVLEFT,row,col);		//!extended Zobrist Hash
 					} else if(getMode() == BHASH)	{
-                    	generateUniqueBoardBitHash(currentBoard,DONTMV,MVLEFT,row,col);
+                    	generateUniqueBoardBitHash(currentBoard,DONTMV,MVLEFT,row,col);		//! Extended bit Hash
 					} else {
-                    	generateUniqueBoardWithMove(currentBoard,DONTMV,MVLEFT,row,col);
-					}
-               	}
-
-				if(validateMove(currentBoard,MVUP,DONTMV,row,col,NEIGHDIS))  {
+                    	generateUniqueBoardWithMove(currentBoard,DONTMV,MVLEFT,row,col); 	//!Basic 
+					}                                                                                            
+               	}                                                                       
+                                                                                                                 
+				if(validateMove(currentBoard,MVUP,DONTMV,row,col,NEIGHDIS))  {         
 					if(getMode() == ZHASH)	{
-                    	generateUniqueBoardHash(currentBoard,MVUP,DONTMV,row,col);
+                    	generateUniqueBoardHash(currentBoard,MVUP,DONTMV,row,col);		//!extended Zobrist Hash
 					} else if(getMode() == BHASH)	{
-                    	generateUniqueBoardBitHash(currentBoard,MVUP,DONTMV,row,col);
+                    	generateUniqueBoardBitHash(currentBoard,MVUP,DONTMV,row,col); 	//! Extended bit Hash
 					} else {
-                    	generateUniqueBoardWithMove(currentBoard,MVUP,DONTMV,row,col);
+                    	generateUniqueBoardWithMove(currentBoard,MVUP,DONTMV,row,col);  //!Basic
 					}
                 }
 
 	 			if(getMode() == LINEAR)	{
 					if(validateMove(currentBoard,MVDOWN,DONTMV,row,col,NEIGHDIS))    {
-       					   	generateUniqueBoardWithMove(currentBoard,MVDOWN,DONTMV,row,col);
+       					   	generateUniqueBoardWithMove(currentBoard,MVDOWN,DONTMV,row,col); //!Basic move down
       				}
 				}
             }
