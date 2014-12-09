@@ -44,19 +44,6 @@ struct hashNode	{
 
 //! Bit Hashing structures
 
-struct bitHash	{
-
-	BHashValues **bHashKey;
-
-};
-
-struct bHashValues	{
-
-	uint64_t aliveKey;
-	uint64_t deadKey;
-
-};
-
 struct bitHashTable	{
 
 	BitHashNode *bitTable;
@@ -71,31 +58,6 @@ struct bitHashNode	{
 };
 
 /*---------- Functions ----------*/
-
-void initBitHashValues()	{
-
-	BitHash hashValuesTable = (BitHash) checkMalloc(malloc(sizeof(*hashValuesTable)));
-	hashValuesTable->bHashKey = (BHashValues**) checkMalloc(malloc(MAXROW *sizeof(*(hashValuesTable->bHashKey))));
-	getBValues(hashValuesTable);
-
-	int row, col,count;
-	for(row = 0; row < MAXROW; row++)	{
-		hashValuesTable->bHashKey[row] = (BHashValues*) checkMalloc(malloc(MAXCOL*sizeof(*(hashValuesTable->bHashKey[row]))));
-		for(col = 0; col < MAXCOL; col++)	{
-			hashValuesTable->bHashKey[row][col] = (BHashValues) checkMalloc(malloc(sizeof(*(hashValuesTable->bHashKey[row][col]))));
-			hashValuesTable->bHashKey[row][col]->aliveKey = 0;
-			hashValuesTable->bHashKey[row][col]->deadKey = 0;
-		}
-	}
-
-	//!Setting key values
-	for(row = 0,count = 0; row < MAXROW; row++)	{
-		for(col = 0; col < MAXCOL; col++)	{
-			hashValuesTable->bHashKey[row][col]->aliveKey = UINT64_C(1)<<count;
-			count++;
-		}
-	}
-}
 
 BitHash getBValues(BitHash values)	{
 
@@ -245,17 +207,17 @@ int generateBitHashKey(BoardNode boardToHash)	{
 	int row = 0, col = 0;
 	uint64_t bitID = 0;
 	uint64_t key;
-    if(getButtonStatus(boardToHash,row,col))    {
-	    bitID = getBValues(NULL)->bHashKey[row][col]->aliveKey;
-    } if(!getButtonStatus(boardToHash,row,col)){
-	    bitID = getBValues(NULL)->bHashKey[row][col]->deadKey;
-   }
-	for(row = 1; row < MAXROW; row++)	{
-		for(col = 1; col < MAXCOL; col++)	{
+	for(row = 0; row < MAXROW; row++)	{
+		for(col = 0; col < MAXCOL; col++)	{
 			if(getButtonStatus(boardToHash,row,col))	{
-				bitID =  bitID ^ (getBValues(NULL)->bHashKey[row][col]->aliveKey);
+				if(bitID==0)	{ 
+					bitID = 1;
+				} else {
+					bitID <<= 1;
+					bitID |=  1;
+				}
 			} if(!getButtonStatus(boardToHash,row,col)){
-				bitID = bitID  ^ (getBValues(NULL)->bHashKey[row][col]->deadKey);
+				bitID <<= 1;
 			}
 		}
 	}
@@ -274,33 +236,18 @@ int addToBitHTable(int key,uint64_t bitID,BitHashNode newNode, BoardNode board)	
 		return 1;
 	} else if(currNode->next == NULL) {
 		if(newNode->BitID == currNode->BitID)	{
-			if(compareTwoBoards(newNode->hashedBoard,currNode->hashedBoard)){
-				printBoard("board1",newNode->hashedBoard);
-				printf("%" PRId64 "\n",newNode->BitID);
-				printBoard("board2",currNode->hashedBoard);
-				printf("%" PRId64 "\n",currNode->BitID);
-				printf("ERROR!!! BIT THINKS BOARDS ARE THE SAME BUT THEY ARENNT\n");
-			}
 			free(newNode);
 			return 0;
 		}
 	} else {
 		while(currNode->next != NULL)	{
 			if(newNode->BitID == currNode->BitID)	{
-				if(compareTwoBoards(newNode->hashedBoard,currNode->hashedBoard)){
-					printf("ERROR!!! BIT THINKS BOARDS ARE THE SAME BUT THEY ARENNT\n");
-				printBoard("board1",newNode->hashedBoard);
-				printf("%" PRId64 "\n",newNode->BitID);
-				printBoard("board2",currNode->hashedBoard);
-				printf("%" PRId64 "\n",currNode->BitID);
-				}
 				free(newNode);
 				return 0;
 			}
 			currNode = currNode->next;	
 		}
 	}
-	printf("Unique\n");
 	currNode->next = newNode;
 	return 1;
 }

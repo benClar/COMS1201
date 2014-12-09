@@ -53,6 +53,7 @@ void setMode(mode programMode);
 void setNextBoard(BoardNode current, BoardNode next);
 mode getMode();
 void freeQueue();
+void freeBoardArray(BoardNode board);
 /*----------Test Function Prototypes-----------*/
 int testStartOfQueue();
 void *checkMalloc(void *malP);

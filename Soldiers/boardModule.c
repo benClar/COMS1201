@@ -67,6 +67,14 @@ int getButtonStatus(BoardNode currentNode, int row, int col)	{
 }
 
 /*
+ *
+ */
+void freeBoardArray(BoardNode board)	{
+
+		free(board->board);
+
+}
+/*
  * Prints Successful Final Series
  */
 void printSuccessSeries()	{

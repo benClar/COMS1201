@@ -22,7 +22,6 @@ int main(int argc, char *argv[]){
 	createQueue();
 	readDefaultMap();
 	checkArg(&argc,argv);
-	printf("all created \n");
 	userEnterTargetDestination(argv[1],argv[2]);	
 	for(currentBoard = getStartBoard(); currentBoard != NULL && getFinalBoard() == NULL; currentBoard=nextInList(currentBoard))	{
 		generatePossibleMove(currentBoard);
@@ -63,7 +62,7 @@ void checkArg(int *argc,char **args){
 		setMode(ZHASH);
 	} else if(*argc > 2 && !strcmp("bhash",args[3]))	{
 		printf("Bit Hashing Mode Enabled\n");
-		initBitHashValues();
+		//initBitHashValues();
 		createBitHashTable();
 		setMode(BHASH);
 	}
