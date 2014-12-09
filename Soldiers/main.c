@@ -114,6 +114,9 @@ int checkInt(int toCheck, int max, int min) {
 		return toCheck;
 }
 
+/*
+ * Further string validation
+ */
 char *checkEnteredString(char *toCheck)	{
 
 	int ele;
@@ -126,6 +129,9 @@ char *checkEnteredString(char *toCheck)	{
 		return toCheck;
 }
 
+/*
+ *Reads in default map
+ */
 void readDefaultMap()	{
 	BoardNode defBoard = addToQueue(createBoard(NULL));
 	FILE *fp;
@@ -146,6 +152,7 @@ void readDefaultMap()	{
 		fprintf(stderr,"Default board file does not exist\n");
 	}
 	fclose(fp);
+	//!Extension: Encodes map if extension mode specified
 	if(getMode() == BHASH)	{
 		bitEncoder(defBoard);
 	}
