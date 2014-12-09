@@ -87,8 +87,6 @@ void userEnterTargetDestination(char *sCol, char *sRow)	{
 	int row, col;
 	row = rowToY(checkInt(atoi(checkEnteredString(sRow)),MAXROW+1,MINCOORD));
 	col = checkInt(atoi(checkEnteredString(sCol)),MAXCOL+1,MINCOORD) - 1;
-	iprint(row);
-	iprint(col);
 	setTargetMove(row,col);
 }
 
@@ -137,23 +135,33 @@ char *checkEnteredString(char *toCheck)	{
 void readDefaultMap()	{
 	BoardNode defBoard = addToQueue(createBoard(NULL));
 	FILE *fp;
-	int button, col, row;
-	if((fp = fopen("defaultBoard.txt","r")) != NULL) {
-		for(col = 0, row = 0; (button = getc(fp)) != EOF ;)	{
-			if(col == MAXCOL)	{
-				col = 0; //resetting column
-				row++;
+	int button, col, row, defaultSuccess = 0;
+	while(!defaultSuccess)	{
+		if((fp = fopen("defaultBoard.txt","r")) != NULL) {
+			defaultSuccess = 1;
+			for(col = 0, row = 0; (button = getc(fp)) != EOF ;)	{
+				if(col == MAXCOL)	{
+					col = 0; //resetting column
+					row++;
+				}
+				if(button == '1' || button == '0')	{
+					button -= TOINT; //!converting to integer
+					addButtonToBoard(defBoard,button, row, col);
+					col++;
+				}
 			}
-			if(button == '1' || button == '0')	{
-				button -= TOINT; //!converting to integer
-				addButtonToBoard(defBoard,button, row, col);
-				col++;
+			fclose(fp);
+		} else {
+			fclose(fp);
+			fprintf(stderr,"Default board file does not exist. Attempting to create one.\n");
+			if((fp = fopen("defaultBoard.txt","w+")) != NULL) { 
+				fprintf(fp,"0000000\n0000000\n0000000\n0000000\n1111111\n1111111\n1111111\n1111111");
+				fclose(fp);
+			} else {
+				fprintf(stderr,"Creating new file failed.  Please place file in current directory called default.txt with following contents: \n 0000000\n0000000\n0000000\n0000000\n1111111\n1111111\n1111111\n1111111\n");
 			}
 		}
-	} else {
-		fprintf(stderr,"Default board file does not exist\n");
 	}
-	fclose(fp);
 	//!Extension: Encodes map if extension mode specified
 	if(getMode() == BHASH)	{
 		bitEncoder(defBoard);
