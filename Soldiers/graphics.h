@@ -19,3 +19,4 @@ void createDisplay();
 Display getDisplay(Display currDisplay);
 void start_SDL();
 void resetFinished();
+void *gCheckMalloc(void *malP);   

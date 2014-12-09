@@ -112,6 +112,9 @@ int checkInt(int toCheck, int max, int min) {
 		return toCheck;
 }
 
+/*
+ * Further string validation
+ */
 char *checkEnteredString(char *toCheck)	{
 
 	int ele;
@@ -124,6 +127,9 @@ char *checkEnteredString(char *toCheck)	{
 		return toCheck;
 }
 
+/*
+ *Reads in default map
+ */
 void readDefaultMap()	{
 	BoardNode defBoard = addToQueue(createBoard(NULL));
 	FILE *fp;
@@ -150,10 +156,11 @@ void readDefaultMap()	{
 				fprintf(fp,"0000000\n0000000\n0000000\n0000000\n1111111\n1111111\n1111111\n1111111");
 				fclose(fp);
 			} else {
-				fprintf(stderr,"Creating new file failed");
+				fprintf(stderr,"Creating new file failed.  Please place file in current directory called default.txt with following contents: \n 0000000\n0000000\n0000000\n0000000\n1111111\n1111111\n1111111\n1111111\n");
 			}
 		}
 	}
+	//!Extension: Encodes map if extension mode specified
 	if(getMode() == BHASH)	{
 		bitEncoder(defBoard);
 	}

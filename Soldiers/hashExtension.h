@@ -32,11 +32,13 @@ void createHashTable();
 HashTable getHashTable(HashTable currTable);
 int hashBoard(int key, BoardNode board);
 void printEmptyKeys();
-void freeHashingStructures();
+void freeZHashingStructures();
 BitHashTable getBTable(BitHashTable table);
 void createBitHashTable();
 void initBitHashValues();
 BitHash getBValues(BitHash values);
 int generateBitHashKey(BoardNode boardToHash);
 int addToBitHTable(int key,BitHashNode newNode, BoardNode board);
+void freeBHashingStructures();
+void freeHashingStructures();
 #endif
