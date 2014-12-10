@@ -24,6 +24,7 @@ int main(int argc, char *argv[]){
 	userEnterTargetDestination(argv[1],argv[2]);	
 	readDefaultMap();
 	currentBoard = getStartBoard();
+	checkTarget(currentBoard);
 	for(currentBoard = getStartBoard(); currentBoard != NULL && getFinalBoard() == NULL; currentBoard=nextInList(currentBoard))	{
 		if(getMode() == BHASH)	{ //!extension
 			bitDecoder(currentBoard); //!creating board from bit ID to pass to move generator
