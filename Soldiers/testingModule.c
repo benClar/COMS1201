@@ -36,7 +36,6 @@ struct testData {
  */
 void testing()  {
     printf("*** Entering Suite of Tests ***\n");
-
     testVal(testStartOfQueue(), TRUE,"First board in queue has default button layout");
     testVal(checkBounds(10,3), FALSE,"row 9 is out of height bounds");
     testVal(checkBounds(0,3), TRUE, "0,3 is in bounds");

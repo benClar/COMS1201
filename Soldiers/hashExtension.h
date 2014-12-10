@@ -9,7 +9,7 @@
 /*----------Symbolic Constants-----------*/
 
 #define MINKEYSIZE	0
-#define HASHTABLESIZE 100000
+#define HASHTABLESIZE 1000000
 
 /*----------Typedefs----------*/
 typedef struct zobrist *Zobrist;

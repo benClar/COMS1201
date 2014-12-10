@@ -63,6 +63,7 @@ void checkArg(int *argc,char **args){
 		exit(1);
 	}
 	if(!strcmp("test",args[1])){ //! Testing mode
+		readDefaultMap();
 		startTest();
 	} else if(*argc > 2 && !strcmp("zhash",args[3])) { //!Extended: Setting mode to use Zobrist Hashing function
 		printf("Zobrist Hashing Mode Enabled\n");
