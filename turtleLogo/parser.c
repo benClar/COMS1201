@@ -85,8 +85,12 @@ int removeLastSNodeOfType(char *type)	{
 void removeNode(SyntaxNode node)	{
 		SyntaxStack cStack = getSynStack(NULL);
 		if(node == cStack->start)	{
-			cStack->start = node->previous;
-			cStack->start->next = NULL;
+			if(node->previous != NULL)	{
+				cStack->start = node->previous;
+				cStack->start->next = NULL;
+			} else {
+				cStack->start = NULL;
+			}
 			free(node);	
 		} else if(node == cStack->end)	{
 			cStack->end = cStack->end->next;
@@ -124,35 +128,37 @@ void createProgram()	{
 void prog()	{
 
 	if(compCurrCw(R_BRACE))	{
-	//if(!strcmp(R_BRACE,cProg->tokenList[getCw()]))	{
 		setCw(getCw()+1);
 		addNode(createNode(R_BRACE));
 	} else {
 		ERROR("Missing { to start")
-	}	
+	}
+	code();	
 }
 
 int code()	{
-	Program cProg = getProgram(NULL);
-
-	if(checkSynStackEmpty())	{
-		if(!checkNoMoreWords())	{
+	//!Base case
+	iprint(checkNoMoreWords());
+	iprint(checkSynStackEmpty());
+	if(checkSynStackEmpty() && !checkNoMoreWords())	{
 			ERROR("No more input expected");
 			return 0;
-		}
-	} else if(checkNoMoreWords()) {
+	} else if(!checkSynStackEmpty() && checkNoMoreWords()) {
 			ERROR("Closing Brace missed");
 			return 0;	
-	} else {
+	} else if(checkSynStackEmpty() && checkNoMoreWords()) {
+		printf("No errors\n");
 		return 1;
 	}
-
 	if(compCurrCw(L_BRACE))	{
-		removeLastSNodeOfType(L_BRACE);		
+		removeLastSNodeOfType(R_BRACE);		
 	}	
-
 	setCw(getCw()+1); 	//!Moving on current Word to parse
 	code();
+}
+
+void statement()	{
+
 }
 
 int getTotalTokens()	{

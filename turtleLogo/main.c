@@ -17,8 +17,8 @@
 int main(){
 
 	initialize();
-	readFile("file1.txt");
-	//printTokenList();
+	readFile("testingFile.txt");
+	printTokenList();
 	prog();
 	//testing();
 }

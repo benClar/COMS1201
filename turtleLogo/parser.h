@@ -19,7 +19,6 @@ Program getProgram(Program cProg);
 void addToken(char *token);
 char** increaseStringList(char **stringList, int current);
 void printTokenList();
-void prog();
 int getTotalTokens();
 
 int getCw();
@@ -34,6 +33,10 @@ int checkSynStackEmpty();
 int removeLastSNodeOfType(char *type);
 void removeNode(SyntaxNode node);
 int checkNoMoreWords();
+
+int code();
+void prog();
+
 /*----------Testing Function Prototypes-----------*/
 
 void parserUnitTests();
