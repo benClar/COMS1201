@@ -12,6 +12,10 @@
 /*---------- Symbolic Constants  -----------*/
 
 
+/*---------- To do -----------*/
+//!Finish Set parser and polish parser
+
+
 /*---------- Main -----------*/
 
 int main(){
@@ -30,6 +34,7 @@ void initialize()	{
 		createProgram();
 		createSuite();
 		createSynStack();
+		createCalcStack();
 }
 
 void testing()	{
