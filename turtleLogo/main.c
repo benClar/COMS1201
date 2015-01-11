@@ -13,17 +13,26 @@
 
 
 /*---------- To do -----------*/
-//!Finish Set parser and polish parser
-
-
+//!Do Storing Variables
+//! Do looping 
+//! Do moving graphics
 /*---------- Main -----------*/
 
 int main(){
 
 	initialize();
-	readFile("testingFile.txt");
-	printTokenList();
-	prog();
+	
+	//readFile("testingFile.txt");
+	//printTokenList();
+	//prog();
+	int xt,xy;
+	xt = xy = 0;
+	while(1)	{
+	//	clearFrame();
+		drawLine(0, 0, xt, xy);
+		endFrame();
+		endAnimation();
+	}
 	//testing();
 }
 
@@ -35,6 +44,7 @@ void initialize()	{
 		createSuite();
 		createSynStack();
 		createCalcStack();
+		init_SDL();
 }
 
 void testing()	{
