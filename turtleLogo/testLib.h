@@ -1,3 +1,6 @@
+#ifndef testLib_h
+#define testLib_h
+
 #include "libraryFunctions.h"
 
 /*----------TypeDefs-----------*/
@@ -22,3 +25,5 @@ TestSuite getSuite(TestSuite tSuite);
 void testVal(int testResult,int expectedResult, char *description);
 void leaveSuite();
 void enterSuite(char *suiteName);
+
+#endif

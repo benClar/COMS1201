@@ -1,5 +1,7 @@
 #include "parser.h"
 #include "display.h"
+#include "turtle.h"
+
 /*----------Enumerated Types-----------*/
 
 

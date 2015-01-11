@@ -11,7 +11,8 @@ typedef struct display *Display;
 #define FULLSCREEN_YN   0
 #define SCREEN_WIDTH    800
 #define SCREEN_HEIGHT   700
-
+#define HALF	2
+#define DEGREES	360
 /*----------Structures----------*/
 
 

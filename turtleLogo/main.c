@@ -21,15 +21,13 @@
 int main(){
 
 	initialize();
-	
+	setAngle(270);
 	//readFile("testingFile.txt");
 	//printTokenList();
 	//prog();
-	int xt,xy;
-	xt = xy = 0;
 	while(1)	{
-	//	clearFrame();
-		drawLine(0, 0, xt, xy);
+		clearFrame();
+		moveTurtleForward(10);		
 		endFrame();
 		endAnimation();
 	}
@@ -44,11 +42,13 @@ void initialize()	{
 		createSuite();
 		createSynStack();
 		createCalcStack();
+		createTurtle();
 		init_SDL();
 }
 
 void testing()	{
 	parserUnitTests();
+	turtleUnitTests();
 }
 
 void readFile(char *fileName)	{

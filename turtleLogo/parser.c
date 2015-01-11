@@ -277,8 +277,6 @@ void statement()	{
 	} else if(compCurrCw(SET))	{
 		setParse(SET);	
 	}	
-					
-					
 }
 
 void setParse()	{

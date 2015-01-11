@@ -1,19 +1,28 @@
+#include "libraryFunctions.h"
+#include "testLib.h"
+
 /*----------Enumerated Types-----------*/
 
 
 /*----------Symbolic Constants-----------*/
 
-#define ERROR(PHRASE) { fprintf(stderr, \
-                "Fatal Error %s occured in %s, line %d\n",  \
-                PHRASE, __FILE__, __LINE__); exit(2); }
-
+#define RADIANS_TO_DEGREES(radians) ((radians) * (180.0 / M_PI))
+#define DEGREES_TO_RADIANS(degrees) (degrees * M_PI / 180.0)
 
 /*----------Structures----------*/
 
-
+typedef struct turtle *Turtle;
 
 /*----------Function Prototypes-----------*/
-char* increaseCharBuffer(char *buffer, int newSize);
-char* createCharBuffer(char *buffer, int size);
-void *checkMalloc(void *malP);
-int getTokenLength(char *token);
+void createTurtle();
+Turtle getTurtle(Turtle nt);
+
+int turnTurtleLeft(int degrees);
+int turnTurtleRight(int degrees);
+void setAngle(int nAngle);
+int getAngle();
+
+void turtleUnitTests();
+void turnTurtleRightTest();
+void turnTurtleLeftTest();
+void moveTurtleForward(int magnitude);
