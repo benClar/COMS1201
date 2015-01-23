@@ -1,0 +1,15 @@
+{
+    FD 10
+    {
+        FD 10
+        {
+            DO A FROM 1 TO B {
+                RT 10
+                FD 20
+                RT 50
+                LT 40
+            }
+            SET C := 1 1 1 + + ;
+        }
+    }
+}
