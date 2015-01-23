@@ -21,19 +21,19 @@ void createTurtle();
 Turtle getTurtle(Turtle nt);
 void initTurtle();
 
-int turnTurtleLeft(int degrees);
-int turnTurtleRight(int degrees);
-void setAngle(int nAngle);
+double turnTurtleLeft(double degrees);
+double turnTurtleRight(double degrees);
+void setAngle(double nAngle);
 
-int getAngle();
-int getTargetY();
-int getTargetX();
-int getOriginY();
-int getOriginX();
+double getAngle();
+double getTargetY();
+double getTargetX();
+double getOriginY();
+double getOriginX();
 
 void turtleUnitTests();
 void turnTurtleRightTest();
 void turnTurtleLeftTest();
-void moveTurtleForward(int magnitude);
+void moveTurtleForward(double magnitude);
 
 #endif

@@ -11,11 +11,11 @@
 
 struct turtle	{
 
-		int originX;
-		int originY;
-		int targetX;
-		int targetY;
-		int angle;
+		double originX;
+		double originY;
+		double targetX;
+		double targetY;
+		double angle;
 };
 
 /*---------- Functions ----------*/
@@ -48,34 +48,34 @@ Turtle getTurtle(Turtle nt)	{
 
 }
 
-int getTargetY()	{
+double getTargetY()	{
 	return getTurtle(NULL)->targetY;
 }
 
-int getTargetX()	{
+double getTargetX()	{
 	return getTurtle(NULL)->targetX;
 }
 
-int getOriginY()	{
+double getOriginY()	{
 	return getTurtle(NULL)->originY;
 }
 
-int getOriginX()	{
+double getOriginX()	{
 	return getTurtle(NULL)->originX;
 }
 
-int turnTurtleRight(int degrees)	{
+double turnTurtleRight(double degrees)	{
 
 	Turtle t = getTurtle(NULL);
-	t->angle += (degrees%DEGREES);	
-	t->angle = (t->angle%DEGREES);
+	t->angle += fmod(degrees,DEGREES);	
+	t->angle = fmod(t->angle,DEGREES);
 	return t->angle;
 }
 
-int turnTurtleLeft(int degrees)	{
+double turnTurtleLeft(double degrees)	{
 
 	Turtle t = getTurtle(NULL);
-	degrees = (degrees%DEGREES);
+	degrees = (fmod(degrees,DEGREES));
 	if(degrees > t->angle)	{
 		degrees -= t->angle;	
 		t->angle = DEGREES - degrees;
@@ -85,26 +85,26 @@ int turnTurtleLeft(int degrees)	{
 	return t->angle;
 }
 
-void setAngle(int nAngle)	{
+void setAngle(double nAngle)	{
 
 	Turtle t = getTurtle(NULL);
 	t->angle = nAngle;
 
 }
 
-int getAngle()	{
+double getAngle()	{
 
 	Turtle t = getTurtle(NULL);
 	return t->angle;
 }
 
-void moveTurtleForward(int magnitude)	{
+void moveTurtleForward(double magnitude)	{
 
 	Turtle t = getTurtle(NULL);
 	t->originX = t->targetX;
 	t->originY = t->targetY;
-	t->targetX += (int) magnitude*(cos((double) DEGREES_TO_RADIANS((double) t->angle)));
-	t->targetY -= (int) magnitude*(sin((double) DEGREES_TO_RADIANS((double) t->angle)));
+	t->targetX += magnitude*(cos(DEGREES_TO_RADIANS(t->angle)));
+	t->targetY -= magnitude*(sin(DEGREES_TO_RADIANS(t->angle)));
 }
 
 /*---------- Testing Functions ----------*/
@@ -137,8 +137,3 @@ void turnTurtleLeftTest()	{
 	testVal(turnTurtleLeft(110),280,"Valid: Turning turtle facing 30 degrees anti-clockwise 110 degrees");
 	
 }
-
-
-
-
-
