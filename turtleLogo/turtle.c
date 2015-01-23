@@ -11,8 +11,10 @@
 
 struct turtle	{
 
-		double x;
-		double y;
+		int originX;
+		int originY;
+		int targetX;
+		int targetY;
 		int angle;
 };
 
@@ -20,10 +22,18 @@ struct turtle	{
 void createTurtle()	{
 
 	Turtle t = checkMalloc(malloc(sizeof(*t)));
-	t->x = SCREEN_WIDTH/HALF;
-	t->y = SCREEN_HEIGHT/HALF;
-	t->angle = 0;
 	getTurtle(t);
+	initTurtle();
+}
+
+void initTurtle()	{
+	Turtle t = getTurtle(NULL);
+	t->originX = SCREEN_WIDTH/HALF;
+	t->originY = SCREEN_HEIGHT/HALF;
+	t->targetX = SCREEN_WIDTH/HALF;
+	t->targetY = SCREEN_HEIGHT/HALF;
+	t->angle = 0;
+	
 }
 
 Turtle getTurtle(Turtle nt)	{
@@ -36,6 +46,22 @@ Turtle getTurtle(Turtle nt)	{
 
 	return ct;
 
+}
+
+int getTargetY()	{
+	return getTurtle(NULL)->targetY;
+}
+
+int getTargetX()	{
+	return getTurtle(NULL)->targetX;
+}
+
+int getOriginY()	{
+	return getTurtle(NULL)->originY;
+}
+
+int getOriginX()	{
+	return getTurtle(NULL)->originX;
 }
 
 int turnTurtleRight(int degrees)	{
@@ -75,8 +101,10 @@ int getAngle()	{
 void moveTurtleForward(int magnitude)	{
 
 	Turtle t = getTurtle(NULL);
-	t->x += magnitude*(cos((double) DEGREES_TO_RADIANS((double) t->angle)));
-	t->y -= magnitude*(sin((double) DEGREES_TO_RADIANS((double) t->angle)));
+	t->originX = t->targetX;
+	t->originY = t->targetY;
+	t->targetX += (int) magnitude*(cos((double) DEGREES_TO_RADIANS((double) t->angle)));
+	t->targetY -= (int) magnitude*(sin((double) DEGREES_TO_RADIANS((double) t->angle)));
 }
 
 /*---------- Testing Functions ----------*/

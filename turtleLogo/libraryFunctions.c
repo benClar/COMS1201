@@ -31,12 +31,16 @@ char* createCharBuffer(char *buffer, int size)	{
 
 }
 
+char getFirstCharacter(char *string)	{
+	return string[0];
+}
+
 int getTokenLength(char *token) {
         int i;
         for(i = 0; token[i] != '\0'; i++)   {
             /*do nothing*/
         }
-        return i;
+        return i+1;
 }
 
 /*
@@ -51,3 +55,8 @@ void *checkMalloc(void *malP)   {
     return malP;
 }
 
+void libraryUnitTests()	{
+
+	enterSuite("Library Function Tests");
+	testVal(getTokenLength("TEST"),5,"Valid: Length of word and null character is 5");
+}

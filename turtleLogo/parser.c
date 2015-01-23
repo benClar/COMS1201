@@ -49,7 +49,127 @@ struct calcNode	{
 	char *op;	
 };
 
+struct varTable	{
+
+	int **vTable;	//! Stores variables
+	int vNum; 	//!Tracks number of variables
+};
+
+
+
 /*---------- Functions ----------*/
+
+void createVarTable()	{
+
+	int i;	
+	VarTable vt = (VarTable) checkMalloc(malloc(sizeof(*vt)));
+	vt->vTable = (int**) checkMalloc(malloc(MAXVAR * sizeof(int*)));
+	for( i = 0; i < MAXVAR; i++)	{
+		vt->vTable[i] = (int *)	checkMalloc(calloc(VAR_T_COLUMNS,sizeof(int)));
+	}
+	vt->vNum = 0;
+	getVarTable(vt);
+}
+
+VarTable getVarTable(VarTable nVT)	{
+
+	static VarTable cVT;
+	if(nVT != NULL)	{
+		cVT = nVT;
+	}
+
+	return cVT;
+
+}
+
+char addVariable(char var, int val)	{
+
+	VarTable vt = getVarTable(NULL);
+	if(checkVarUnique(var))	{
+		if(vt->vNum < MAXVAR)	{
+			vt->vTable[vt->vNum][V_NAME_COL] = var;
+			vt->vTable[vt->vNum][V_VAL_COL] = val;
+		} else	{
+			ERROR("Out of Variable memory: Only 26 variables allowed");
+		}
+		vt->vNum++;
+	} else { 
+		updateVariable(var,val);
+	}
+	return var;
+}
+
+int getVariable(char var)	{
+
+	VarTable vt = getVarTable(NULL);
+	int i;
+	for(i = 0; i < MAXVAR; i++)	{
+		if(vt->vTable[i][V_NAME_COL] == var)	{
+			return vt->vTable[i][V_VAL_COL];
+		}
+	}
+	ERROR("Undefined Symbol");
+}
+
+/*
+ *Checks if a variable is present in var table
+ */
+char checkVarDeclared(char var)	{
+	int i;
+	VarTable vt = getVarTable(NULL);
+
+	for(i = 0; i < MAXVAR; i++)	{
+		if(vt->vTable[i][V_NAME_COL] == var)	{
+			return var;
+		}
+	}
+	ERROR("Undefined Symbol");
+
+}
+
+int checkVarUnique(char var)	{
+	int i;
+	VarTable vt = getVarTable(NULL);
+
+	for(i = 0; i < MAXVAR; i++)	{
+		if(vt->vTable[i][V_NAME_COL] == var)	{
+			return 0;
+		}
+	}
+
+	return 1;
+}
+
+int* getVarAddress(char var)	{
+	int i;
+	VarTable vt = getVarTable(NULL);
+
+	for(i = 0; i < MAXVAR; i++)	{
+		if(vt->vTable[i][V_NAME_COL] == var)	{
+			return &vt->vTable[i][V_VAL_COL];
+		}
+	}
+
+	ERROR("Undefined Symbol");
+
+}
+
+int updateVariable(char var,int val)	{
+	
+	int i;
+	VarTable vt = getVarTable(NULL);
+
+	for(i = 0; i < MAXVAR; i++)	{
+		if(vt->vTable[i][V_NAME_COL] == var)	{
+			vt->vTable[i][V_VAL_COL] = val;
+			return 1;
+		}
+	}
+	ERROR("Variable not declared");
+
+}
+
+
 
 CalcNode popCalcStack()	{
 
@@ -68,11 +188,11 @@ CalcNode popCalcStack()	{
 
 int calcStackEmpty()	{
 
-		if(getCalcStack(NULL)->start == NULL)	{
-			return 1;
-		}	else {
-			return 0;
-		}
+	if(getCalcStack(NULL)->start == NULL)	{
+		return 1;
+	}	else {
+		return 0;
+	}
 }
 
 void createCalcStack()	{
@@ -122,21 +242,21 @@ CalcStack getCalcStack(CalcStack cStack)	{
 
 void createSynStack()	{
 
-		SyntaxStack newStack = (SyntaxStack) checkMalloc(malloc(sizeof(*newStack)));
-		newStack->start = newStack->end = NULL;
-		newStack->numNodes = 0;
-		newStack->instructionLength = 0;
-		getSynStack(newStack);
+	SyntaxStack newStack = (SyntaxStack) checkMalloc(malloc(sizeof(*newStack)));
+	newStack->start = newStack->end = NULL;
+	newStack->numNodes = 0;
+	newStack->instructionLength = 0;
+	getSynStack(newStack);
 }
 
 SyntaxStack getSynStack(SyntaxStack nStack)	{
 
-		static SyntaxStack cStack;
-		if(nStack != NULL)	{
-			cStack = nStack;	
-		}
+	static SyntaxStack cStack;
+	if(nStack != NULL)	{
+		cStack = nStack;	
+	}
 
-		return cStack;
+	return cStack;
 }
 
 SyntaxNode createNode(char *type, synType sType)	{
@@ -208,7 +328,7 @@ void popFromStack()	{
 		removeNode(Node);
 }
 
-void addNode(SyntaxNode Node)	{
+char* addNode(SyntaxNode Node)	{
 
 	SyntaxStack cStack = getSynStack(NULL);
 	if(cStack->start == NULL)	{
@@ -222,6 +342,7 @@ void addNode(SyntaxNode Node)	{
 	if(strcmp(Node->type,R_BRACE))	{
 		cStack->instructionLength++; //!only count as part of instruction if not a brace
 	}
+	return Node->type;
 }
 
 void createProgram()	{
@@ -235,7 +356,7 @@ void createProgram()	{
 }
 
 void prog()	{
-
+	setCw(0);
 	if(compCurrCw(R_BRACE))	{
 		addNode(createNode(R_BRACE,MAIN));
 		setCw(getCw()+1);
@@ -276,7 +397,11 @@ void statement()	{
 		doParse(DO);
 	} else if(compCurrCw(SET))	{
 		setParse(SET);	
-	}	
+	} else	{
+	sprint(cProg->tokenList[getCw()]);
+		ERROR("Unrecognisd Symbol");
+	}
+
 }
 
 void setParse()	{
@@ -297,6 +422,7 @@ void setParse()	{
 	}
 
 	polishParse(getCToken());
+	addVariable(getFirstCharacter(getKeywordFromStack(3)),strtol(getKeywordFromStack(1),NULL,10));
 }
 
 void polishParse()	{
@@ -306,7 +432,7 @@ void polishParse()	{
 			addCalcNode(createCalcOpNode(getCToken()));	
 			calculatePolish();
 		} else if(checkIfVariable(getCToken()))	{
-			//!Implement memory section to store variables and get value here to add
+			addCalcNode(createCalcValNode(getVariable(getFirstCharacter(getCToken()))));
 		} else if(checkIfNumber(getCToken()))	{
 			addCalcNode(createCalcValNode(strtol(getCToken(),NULL,10)));
 		} else {
@@ -319,8 +445,7 @@ void polishParse()	{
 		ERROR("Error in POLISH statement: number of VAR and number of OP do not match");
 	}
 	addNode(createNode(calcRes,VAR));
-	printf("Printing stack\n");
-	printStack();
+	//printStack(); //!prints the current calc
 }
 
 void calculatePolish()	{
@@ -347,9 +472,16 @@ int doParse(char *instruction)	{
 	Program cProg = getProgram(NULL);
 	addNode(createNode(instruction,INSTRUC));
 	setCw(getCw()+1);
-
+	char minVal, maxVal;
+	int *pMaxVal;
+	int mNumVal, beforeLoopPos;
+	printf("do\n");
 	if(checkIfVariable(cProg->tokenList[getCw()])){
 		addNode(createNode(getCToken(),VAR));
+		minVal = getFirstCharacter(getCToken());	
+		if(checkVarUnique(getFirstCharacter(getCToken())))	{
+			addVariable(getFirstCharacter(getCToken()),NEW_VAR);
+		} 
 		setCw(getCw()+1);
 	} else {
 		ERROR("Expected VAR in DO statement");
@@ -363,8 +495,9 @@ int doParse(char *instruction)	{
 
 	if(checkIfVariable(getCToken()))	{
 		addNode(createNode(getCToken(),VAR));
+		updateVariable(minVal, getVariable(getFirstCharacter(getCToken())));
 	} else if(checkIfNumber(getCToken()))	{
-		addNode(createNode(getCToken(),NUM));
+		updateVariable(minVal, strtol(addNode(createNode(getCToken(),NUM)),NULL,10));
 	} else {
 		ERROR("Expected VARNUM in DO statement");
 	}
@@ -378,9 +511,14 @@ int doParse(char *instruction)	{
 	}
 	
 	if(checkIfVariable(getCToken()))	{
-		addNode(createNode(getCToken(),VAR));
+		maxVal = checkVarDeclared(getFirstCharacter(addNode(createNode(getCToken(),VAR))));
+		pMaxVal = getVarAddress(maxVal);
+		if(*pMaxVal != getVariable(maxVal))	{
+			ERROR("Memory Error: Local value variable does not match var table");
+		}
 	} else if(checkIfNumber(getCToken()))	{
-		addNode(createNode(getCToken(),NUM));
+		mNumVal = strtol(addNode(createNode(getCToken(),NUM)),NULL,10);
+		pMaxVal = &mNumVal;
 	} else {
 		ERROR("Expected VARNUM in DO statement");
 	}
@@ -392,14 +530,51 @@ int doParse(char *instruction)	{
 	} else {
 		ERROR("Expected { in DO statement");
 	}
-	while(!compCurrCw(L_BRACE))	{
-		statement();
-		//printf("in loop:\n");
-		//printStack();
-		setCw(getCw()+1);
+
+	beforeLoopPos = getCw();
+	for(;getVariable(minVal) < *pMaxVal;updateVariable(minVal,getVariable(minVal)+1))	{
+		setCw(beforeLoopPos);
+		while(!compCurrCw(L_BRACE))	{
+			statement();
+			//printf("in loop:\n");
+		//	printStack();
+			setCw(getCw()+1);
+		}
 	}
 	removeLastSNodeOfType(R_BRACE);
 	return 1;
+}
+
+/*int getCurrInstructionValues(int symbol)	{
+	if(checkIfVariable(syntaxStackquery(symbol)))	{
+		return getVariable(getFirstCharacter(syntaxStackquery(symbol)));	 	
+	} else if(checkIfNumber(syntaxStackquery(symbol)))	{
+		return strtol(syntaxStackquery(symbol),NULL,10);
+	}
+
+	ERROR("Not a VARNUM");
+}*/
+
+int checkWhileCondition(int current, int max)	{
+
+	if(current > max)	{
+		return 0;
+	}
+	return 1;
+}
+
+//! Returns stack node value from specified node from start of queue
+char* syntaxStackquery(int n)	{
+    SyntaxStack cStack = getSynStack(NULL);
+    SyntaxNode node  = cStack->start;
+	int i;
+	for(i = 0; i < n; i++)	{
+		if(node->previous != NULL)	{
+			node = node->previous;
+		}
+	}
+	return node->type;
+
 }
 
 void printStack()	{
@@ -415,6 +590,7 @@ void printStack()	{
 char* getCToken()	{
 	return getProgram(NULL)->tokenList[getCw()];
 }
+
 /*
  *Parses a movement instruction
  */
@@ -424,14 +600,34 @@ int movementParse(char *instruction)	{
 	setCw(getCw()+1);
 	if(checkIfNumber(cProg->tokenList[getCw()]))	{
    		addNode(createNode(cProg->tokenList[getCw()],INSTRUC));
+		addParseNode(getKeywordFromStack(MOVE_COMMAND),strtol(getKeywordFromStack(VARIABLE),NULL,10)); //!sends move command to interpreter
 		return 1;
-	} else {
+	} else if(checkIfVariable(cProg->tokenList[getCw()]))	{
+		addNode(createNode(cProg->tokenList[getCw()],INSTRUC));   
+		addParseNode(getKeywordFromStack(MOVE_COMMAND),getVariable(getFirstCharacter(getKeywordFromStack(VARIABLE)))); //!sends variable value to interpreter
+		return 1;
+	}	else {
 		ERROR("Expected Number or Variable after instruction");	
 	}
 }
 
+
+char *getKeywordFromStack(int keywordNum)	{
+
+	int i;
+	SyntaxStack cStack = getSynStack(NULL);
+	SyntaxNode node  = cStack->start;
+	for(i = 1; i <= keywordNum; i++)	{
+		if(i == keywordNum)	{
+			return node->type;
+		}
+		node = node->previous;
+	}
+	ERROR("Attempted to retrieve invalid keyword from stack");
+}
+
 int checkIfVariable(char *instruction)	{
-	if(getTokenLength(instruction) == 1 && isupper(instruction[0]))	{
+	if(getTokenLength(instruction) == 2 && isupper(instruction[0]))	{
 		return 1;
 	}
 	return 0;
@@ -467,22 +663,10 @@ int checkIfOp(char *type)	{
 	return 0;
 }
 
-/*int checkSType(SyntaxNode node, synType sType) {
-	if(node->sType == sType)  {
-		return 1;
-    }
-    return 0;
-}*/
-
 int getTotalTokens()	{
 
 	return getProgram(NULL)->tokenNum;
 }
-
-/*SyntaxNode getFirstSyntaxNode()	{
-
-	return getSynStack(NULL)->start;
-}*/
 
 int checkNoMoreWords()	{
 	if(getTotalTokens() == getCw())	{
@@ -491,17 +675,6 @@ int checkNoMoreWords()	{
 		return 0;
 	}
 }
-
-/*int checkForUnfinished()	{
-	SyntaxStack cStack = getSynStack(NULL);
-	if(!strcmp(cStack->start->type,L_BRACE))	{
-		return 1;
-	} else if(!strcmp(cStack->start->type,R_BRACE))	{
-		return 1;
-	}
-	return 0;
-}*/
-
 
 int checkSynStackEmpty()	{
 
@@ -517,19 +690,7 @@ void printCurrentWord()	{
 	printf("cw %d is %s\n",getCw(),getProgram(NULL)->tokenList[getCw()]);
 }
 
-/*
-int compTopOfStack(char *comparison)	{
-	SyntaxStack cStack = getSynStack(NULL);
-    if(!strcmp(comparison,cStack->start->type))   {
-        return 1;
-    } else  {
-        return 0;
-    }	
-}
-*/
-
 int compCurrCw(char *comparison)	{
-
 	Program cProg = getProgram(NULL);
 	if(!strcmp(comparison,cProg->tokenList[getCw()]))	{
 		return 1;

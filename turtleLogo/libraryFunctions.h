@@ -1,3 +1,8 @@
+#ifndef libraryFunctions_h
+#define libraryFunctions_h
+
+#include "testLib.h"
+
 /*----------Enumerated Types-----------*/
 
 
@@ -17,3 +22,8 @@ char* increaseCharBuffer(char *buffer, int newSize);
 char* createCharBuffer(char *buffer, int size);
 void *checkMalloc(void *malP);
 int getTokenLength(char *token);
+char getFirstCharacter(char *string);
+
+void libraryUnitTests();
+
+#endif

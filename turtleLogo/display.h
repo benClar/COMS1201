@@ -1,3 +1,6 @@
+#ifndef display_h
+#define display_h
+
 #include "libraryFunctions.h"
 
 /*----------Enumerated Types-----------*/
@@ -24,3 +27,5 @@ void drawLine(int xSource, int ySource, int xDest, int yDest);
 void endFrame();
 void endAnimation();
 void clearFrame();
+
+#endif

@@ -1,5 +1,6 @@
 #include <SDL2/SDL_image.h>
 #include "display.h"
+#include "debug.h"
 
 struct display	{
 

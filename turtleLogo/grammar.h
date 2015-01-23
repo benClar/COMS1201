@@ -18,4 +18,3 @@
 #define MULT	"*"
 #define DIV		"/"
 #define END_POLISH	";"
-

@@ -21,17 +21,18 @@
 int main(){
 
 	initialize();
-	setAngle(270);
-	//readFile("testingFile.txt");
+	readFile("testingFile.txt");
+	prog();
 	//printTokenList();
-	//prog();
 	while(1)	{
 		clearFrame();
-		moveTurtleForward(10);		
+		readParseArray();
 		endFrame();
 		endAnimation();
+		initTurtle();
 	}
 	//testing();
+	//end();
 }
 
 /*---------- Functions ----------*/
@@ -43,12 +44,20 @@ void initialize()	{
 		createSynStack();
 		createCalcStack();
 		createTurtle();
+		createVarTable();
+		createParseArr();
 		init_SDL();
+}
+
+void end()	{
+	freeParseArr();
 }
 
 void testing()	{
 	parserUnitTests();
 	turtleUnitTests();
+	interpreterUnitTests();
+	libraryUnitTests();
 }
 
 void readFile(char *fileName)	{
