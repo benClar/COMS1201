@@ -19,7 +19,7 @@ struct parseArr	{
 struct parseNode	{
 
 	char *command;
-	int val;
+	double val;
 };
 
 void createParseArr()	{
@@ -83,7 +83,7 @@ void freeParseArr()	{
 	free(pArr);
 }
 
-void moveInterpret(char *command, int value)	{
+void moveInterpret(char *command, double value)	{
 	if(!strcmp(command,FORWARD))	{
 		moveTurtleForward(value);
 		drawLine(getOriginX(),getOriginY(),getTargetX(),getTargetY());

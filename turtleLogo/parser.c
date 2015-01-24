@@ -45,28 +45,30 @@ struct calcNode	{
 
 	CalcNode previous;
 	synType type;
-	int value;
+	double value;
 	char *op;	
 };
 
 struct varTable	{
 
-	int **vTable;	//! Stores variables
+	VarNode *vTable;	//! Stores variables
 	int vNum; 	//!Tracks number of variables
 };
 
+struct varNode	{
+
+	char var;
+	double value;
+
+};
 
 
 /*---------- Functions ----------*/
 
 void createVarTable()	{
 
-	int i;	
 	VarTable vt = (VarTable) checkMalloc(malloc(sizeof(*vt)));
-	vt->vTable = (int**) checkMalloc(malloc(MAXVAR * sizeof(int*)));
-	for( i = 0; i < MAXVAR; i++)	{
-		vt->vTable[i] = (int *)	checkMalloc(calloc(VAR_T_COLUMNS,sizeof(int)));
-	}
+	vt->vTable = NULL;
 	vt->vNum = 0;
 	getVarTable(vt);
 }
@@ -82,30 +84,36 @@ VarTable getVarTable(VarTable nVT)	{
 
 }
 
-char addVariable(char var, int val)	{
+char addVariable(char var, double val)	{
 
 	VarTable vt = getVarTable(NULL);
 	if(checkVarUnique(var))	{
 		if(vt->vNum < MAXVAR)	{
-			vt->vTable[vt->vNum][V_NAME_COL] = var;
-			vt->vTable[vt->vNum][V_VAL_COL] = val;
+			if(vt->vTable == NULL)	{
+				vt->vTable = (VarNode*) checkMalloc(malloc(sizeof(*vt->vTable)));
+			} else	{
+				vt->vTable = (VarNode*) checkMalloc(realloc(vt->vTable,(vt->vNum+1)*sizeof(*vt->vTable[vt->vNum])));	
+			}
+			vt->vTable[vt->vNum] = (VarNode) checkMalloc(malloc(sizeof(*vt->vTable[vt->vNum])));
+			vt->vTable[vt->vNum]->var = var;
+			vt->vTable[vt->vNum]->value = val;
+			vt->vNum++;
 		} else	{
 			ERROR("Out of Variable memory: Only 26 variables allowed");
 		}
-		vt->vNum++;
 	} else { 
 		updateVariable(var,val);
 	}
 	return var;
 }
 
-int getVariable(char var)	{
+double getVariable(char var)	{
 
 	VarTable vt = getVarTable(NULL);
 	int i;
-	for(i = 0; i < MAXVAR; i++)	{
-		if(vt->vTable[i][V_NAME_COL] == var)	{
-			return vt->vTable[i][V_VAL_COL];
+	for(i = 0; i < vt->vNum; i++)	{
+		if(vt->vTable[i]->var == var)	{
+			return vt->vTable[i]->value;
 		}
 	}
 	ERROR("Undefined Symbol");
@@ -119,7 +127,7 @@ char checkVarDeclared(char var)	{
 	VarTable vt = getVarTable(NULL);
 
 	for(i = 0; i < MAXVAR; i++)	{
-		if(vt->vTable[i][V_NAME_COL] == var)	{
+		if(vt->vTable[i]->var == var)	{
 			return var;
 		}
 	}
@@ -130,38 +138,33 @@ char checkVarDeclared(char var)	{
 int checkVarUnique(char var)	{
 	int i;
 	VarTable vt = getVarTable(NULL);
-
-	for(i = 0; i < MAXVAR; i++)	{
-		if(vt->vTable[i][V_NAME_COL] == var)	{
+	for(i = 0; i < vt->vNum; i++)	{
+		if(vt->vTable[i]->var == var)	{
 			return 0;
 		}
 	}
-
 	return 1;
 }
 
-int* getVarAddress(char var)	{
+double* getVarAddress(char var)	{
 	int i;
 	VarTable vt = getVarTable(NULL);
 
-	for(i = 0; i < MAXVAR; i++)	{
-		if(vt->vTable[i][V_NAME_COL] == var)	{
-			return &vt->vTable[i][V_VAL_COL];
+	for(i = 0; i < vt->vNum; i++)	{
+		if(vt->vTable[i]->var == var)	{
+			return &vt->vTable[i]->value;
 		}
 	}
-
 	ERROR("Undefined Symbol");
-
 }
 
-int updateVariable(char var,int val)	{
+double updateVariable(char var,double val)	{
 	
 	int i;
 	VarTable vt = getVarTable(NULL);
-
-	for(i = 0; i < MAXVAR; i++)	{
-		if(vt->vTable[i][V_NAME_COL] == var)	{
-			vt->vTable[i][V_VAL_COL] = val;
+	for(i = 0; i < vt->vNum; i++)	{
+		if(vt->vTable[i]->var == var)	{
+			vt->vTable[i]->value = val;
 			return 1;
 		}
 	}
@@ -217,7 +220,7 @@ CalcNode createCalcOpNode(char *op)	{
 	return newCNode;
 }
 
-CalcNode createCalcValNode(int value)	{
+CalcNode createCalcValNode(double value)	{
 	CalcNode newCNode = createCalcNode();
 	newCNode->value = value;
 	newCNode->type = NUM;
@@ -398,7 +401,7 @@ void statement()	{
 	} else if(compCurrCw(SET))	{
 		setParse(SET);	
 	} else	{
-	sprint(cProg->tokenList[getCw()]);
+		sprint(cProg->tokenList[getCw()]);
 		ERROR("Unrecognisd Symbol");
 	}
 
@@ -422,7 +425,7 @@ void setParse()	{
 	}
 
 	polishParse(getCToken());
-	addVariable(getFirstCharacter(getKeywordFromStack(3)),strtol(getKeywordFromStack(1),NULL,10));
+	addVariable(getFirstCharacter(getKeywordFromStack(3)),(double) strtod(getKeywordFromStack(1),NULL));
 }
 
 void polishParse()	{
@@ -434,13 +437,13 @@ void polishParse()	{
 		} else if(checkIfVariable(getCToken()))	{
 			addCalcNode(createCalcValNode(getVariable(getFirstCharacter(getCToken()))));
 		} else if(checkIfNumber(getCToken()))	{
-			addCalcNode(createCalcValNode(strtol(getCToken(),NULL,10)));
+			addCalcNode(createCalcValNode(strtod(getCToken(),NULL)));
 		} else {
 			ERROR("Expected OP or VARNUM in statement");
 		}
 		setCw(getCw()+1);
 	}
-	sprintf(calcRes,"%d",popCalcStack()->value);
+	sprintf(calcRes,"%f",popCalcStack()->value);
 	if(!calcStackEmpty())	{
 		ERROR("Error in POLISH statement: number of VAR and number of OP do not match");
 	}
@@ -448,24 +451,26 @@ void polishParse()	{
 	//printStack(); //!prints the current calc
 }
 
-void calculatePolish()	{
+double calculatePolish()	{
 		CalcNode opNode = popCalcStack();
 		CalcNode valNode_2 = popCalcStack();
 		CalcNode valNode_1 = popCalcStack();	
+		double result = 0;
 		if(!strcmp(opNode->op,ADD))	{
-			addCalcNode(createCalcValNode(valNode_1->value+valNode_2->value));
+			addCalcNode(createCalcValNode((result = valNode_1->value+valNode_2->value)));
 		} else if(!strcmp(opNode->op,SUB))   {
-			addCalcNode(createCalcValNode(valNode_1->value-valNode_2->value));
+			addCalcNode(createCalcValNode((result = valNode_1->value-valNode_2->value)));
 		} else if(!strcmp(opNode->op,MULT))   {
-			addCalcNode(createCalcValNode(valNode_1->value*valNode_2->value));
+			addCalcNode(createCalcValNode((result = valNode_1->value*valNode_2->value)));
 		} else if(!strcmp(opNode->op,DIV))   {
-			addCalcNode(createCalcValNode(valNode_1->value/valNode_2->value));
+			addCalcNode(createCalcValNode((result = valNode_1->value/valNode_2->value)));
 		} else {
 			fprintf(stderr,"Unrecognised operator in polish statement\n");
 		}
 		free(opNode);
 		free(valNode_2);
 		free(valNode_1);
+		return result;
 }
 
 int doParse(char *instruction)	{
@@ -473,8 +478,8 @@ int doParse(char *instruction)	{
 	addNode(createNode(instruction,INSTRUC));
 	setCw(getCw()+1);
 	char minVal, maxVal;
-	int *pMaxVal;
-	int mNumVal, beforeLoopPos;
+	double *pMaxVal;
+	double mNumVal, beforeLoopPos;
 	if(checkIfVariable(cProg->tokenList[getCw()])){
 		addNode(createNode(getCToken(),VAR));
 		minVal = getFirstCharacter(getCToken());	
@@ -495,8 +500,8 @@ int doParse(char *instruction)	{
 	if(checkIfVariable(getCToken()))	{
 		addNode(createNode(getCToken(),VAR));
 		updateVariable(minVal, getVariable(getFirstCharacter(getCToken())));
-	} else if(checkIfNumber(getCToken()))	{
-		updateVariable(minVal, strtol(addNode(createNode(getCToken(),NUM)),NULL,10));
+	} else if(checkIfNumber(getCToken()))	{	
+		updateVariable(minVal, strtod(addNode(createNode(getCToken(),NUM)),NULL));
 	} else {
 		ERROR("Expected VARNUM in DO statement");
 	}
@@ -516,7 +521,7 @@ int doParse(char *instruction)	{
 			ERROR("Memory Error: Local value variable does not match var table");
 		}
 	} else if(checkIfNumber(getCToken()))	{
-		mNumVal = strtol(addNode(createNode(getCToken(),NUM)),NULL,10);
+		mNumVal = strtod(addNode(createNode(getCToken(),NUM)),NULL);
 		pMaxVal = &mNumVal;
 	} else {
 		ERROR("Expected VARNUM in DO statement");
@@ -554,7 +559,7 @@ int doParse(char *instruction)	{
 	ERROR("Not a VARNUM");
 }*/
 
-int checkWhileCondition(int current, int max)	{
+int checkWhileCondition(double current, double max)	{
 
 	if(current > max)	{
 		return 0;
@@ -599,7 +604,7 @@ int movementParse(char *instruction)	{
 	setCw(getCw()+1);
 	if(checkIfNumber(cProg->tokenList[getCw()]))	{
    		addNode(createNode(cProg->tokenList[getCw()],INSTRUC));
-		addParseNode(getKeywordFromStack(MOVE_COMMAND),strtol(getKeywordFromStack(VARIABLE),NULL,10)); //!sends move command to interpreter
+		addParseNode(getKeywordFromStack(MOVE_COMMAND),strtod(getKeywordFromStack(VARIABLE),NULL)); //!sends move command to interpreter
 		return 1;
 	} else if(checkIfVariable(cProg->tokenList[getCw()]))	{
 		addNode(createNode(cProg->tokenList[getCw()],INSTRUC));   
@@ -641,8 +646,13 @@ void removeCurrentInstruction()	{
 	}
 }
 
+/*
+ *Checks if string is an integer or floating point number
+ */
 int checkIfNumber(char *instruction)	{
 	if(strtol(instruction,NULL,10) || compCurrCw(ZERO))	{
+		return 1;
+	} else if(strtod(instruction,NULL) > 0)	{
 		return 1;
 	}
 		return 0;
@@ -751,8 +761,21 @@ char** increaseStringList(char **stringList, int current)	{
 /*---------- Testing Functions ----------*/
 
 void parserUnitTests()	{
-	enterSuite("Token Length Checker");
-	testVal(getTokenLength("TestingLength"),13,"Valid: Testing Length of dummy token returns correctly");
+	enterSuite("Variable Table Tests");
+	testVal(addVariable('A',20),'A',"Valid: adding new variable to var table");	
+	testVal(getVariable('A'),20,"Valid: check variable value stored as 20");	
+	testVal(addVariable('B',40),'B',"Valid: adding new variable to var table");	
+	testVal(getVariable('B'),40,"Valid: check variable value stored as 40");
+	testVal(checkVarUnique('C'),1,"Valid: C has not yet been entered as a variable");
+	testVal(checkVarDeclared('B'),'B',"Valid: B has been entered as a variable");
+	testVal(updateVariable('B',30),1,"Valid: Updating B's value in variable table");
+	testVal(getVariable('B'),30,"Valid: check B's updated variable value is stored as 30");
+	leaveSuite();
+	enterSuite("Polish Calculator Tests");
+	addCalcNode(createCalcValNode(1.5));
+	addCalcNode(createCalcValNode(1));
+	addCalcNode(createCalcOpNode("+"));
+	testVal(calculatePolish(),2.5,"Valid: 1 + 1 = 2");
 	leaveSuite();
 
 }

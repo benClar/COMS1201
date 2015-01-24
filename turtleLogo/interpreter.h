@@ -28,7 +28,7 @@ void freeParseArr();
 char* pCommand(ParseNode n);
 int pVal(ParseNode n);
 
-void moveInterpret(char *command, int value);
+void moveInterpret(char *command, double value);
 void readParseArray();
 void interpreterUnitTests();
 

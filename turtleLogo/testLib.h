@@ -22,7 +22,7 @@ typedef struct testSuite *TestSuite;
 
 void createSuite();
 TestSuite getSuite(TestSuite tSuite);
-void testVal(int testResult,int expectedResult, char *description);
+void testVal(double testResult,double expectedResult, char *description);
 void leaveSuite();
 void enterSuite(char *suiteName);
 

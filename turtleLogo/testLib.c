@@ -44,7 +44,7 @@ TestSuite getSuite(TestSuite tSuite)	{
 /*
  * Tests return value of test functions against expected value
  */
-void testVal(int testResult,int expectedResult, char *description)  {
+void testVal(double testResult,double expectedResult, char *description)  {
 	TestSuite tSuite = getSuite(NULL);
     if(testResult != expectedResult)    {
         fprintf(stderr,"###FAIL###: \"%s\" has failed \n",description);
@@ -80,4 +80,5 @@ void leaveSuite()	{
 	}
 	tSuite->failNumber = tSuite->passNumber = 0;
 	free(tSuite->currentSuite);
+	tSuite->currentSuite = NULL;
 }

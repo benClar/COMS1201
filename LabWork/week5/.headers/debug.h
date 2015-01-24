@@ -3,3 +3,4 @@
 #define cprint(expr)	printf(#expr "= %c \n",expr)
 #define lfprint(expr)	printf(#expr "= %lf \n",expr)
 #define pNL()           printf("\n");
+#define clearInputBuf   while(getchar() != '\n') {}

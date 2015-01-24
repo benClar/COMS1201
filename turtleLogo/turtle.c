@@ -114,7 +114,6 @@ void turtleUnitTests()	{
 	enterSuite("Turning Turtle ClockWise");
 	turnTurtleRightTest();
 	leaveSuite();
-
 	enterSuite("Turning Turtle AntiClockWise");
 	turnTurtleLeftTest();
 	leaveSuite();
@@ -123,11 +122,11 @@ void turtleUnitTests()	{
 void turnTurtleRightTest()	{
 
 	setAngle(0);
-	testVal(turnTurtleRight(90),90,"Valid: Turning turtle facing 0 degrees clockwise 90 degrees");
-	testVal(turnTurtleRight(360),90,"Valid: Turning turtle facing 90 degrees clockwise 360 degrees");
-	testVal(turnTurtleRight(270),0,"Valid: Turning turtle facing 90 degrees clockwise 270 degrees");
+	testVal((int) turnTurtleRight(90),90,"Valid: Turning turtle facing 0 degrees clockwise 90 degrees");
+	testVal((int) turnTurtleRight(360),90,"Valid: Turning turtle facing 90 degrees clockwise 360 degrees");
+	testVal((int) turnTurtleRight(270),0,"Valid: Turning turtle facing 90 degrees clockwise 270 degrees");
 	setAngle(330);
-	testVal(turnTurtleRight(100),70,"Valid: Turning turtle facing 330 degrees clockwise 100 degrees");
+	testVal((int) turnTurtleRight(100),70,"Valid: Turning turtle facing 330 degrees clockwise 100 degrees");
 }
 
 void turnTurtleLeftTest()	{

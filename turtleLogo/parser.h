@@ -13,6 +13,7 @@ typedef struct syntaxNode *SyntaxNode;
 typedef struct calcStack *CalcStack;
 typedef struct calcNode *CalcNode;
 typedef struct varTable *VarTable;
+typedef struct varNode *VarNode;
 typedef enum synType    {
 
         MAIN= 1,
@@ -23,6 +24,7 @@ typedef enum synType    {
 		CONNECTOR = 6
 
 } synType;
+
 
 /*----------Symbolic Constants-----------*/
 
@@ -44,14 +46,14 @@ void printTokenList();
 int getTotalTokens();
 
 //!Variable functions
+char addVariable(char var, double val);
 char checkVarDeclared(char var);
 void createVarTable();
 VarTable getVarTable(VarTable nVT);
-char addVariable(char var, int val);
-int getVariable(char var);
+double getVariable(char var);
 int checkVarUnique(char var);
-int updateVariable(char var,int val);
-int* getVarAddress(char var);
+double updateVariable(char var,double val);
+double* getVarAddress(char var);
 
 int getCw();
 void setCw(int newValue);
@@ -62,10 +64,12 @@ char* getCToken();
 void createCalcStack();
 CalcNode createCalcNode();
 CalcNode createCalcOpNode(char *op);
-CalcNode createCalcValNode(int value);
+CalcNode createCalcValNode(double value);
 void addCalcNode(CalcNode newNode);
 CalcStack getCalcStack(CalcStack cStack);
 CalcNode popCalcStack();
+double calculatePolish();
+int calcStackEmpty();
 
 SyntaxNode createNode(char *type, synType sType);
 void createSynStack();
@@ -96,16 +100,13 @@ void polishParse();
 
 int checkIfNumber();
 int checkIfVariable(char *instruction);
-int checkWhileCondition(int current, int max);
+int checkWhileCondition(double current, double max);
 
 int code();
 void prog();
 void statement();
 void printCurrentWord();
 
-//! Interpretor functions
-void calculatePolish();
-int calcStackEmpty();
 /*----------Testing Function Prototypes-----------*/
 
 void parserUnitTests();

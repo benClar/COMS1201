@@ -23,12 +23,13 @@ int main(){
 	initialize();
 	readFile("testingFile.txt");
 	prog();
-	//printTokenList();
+	////printTokenList();
 	do	{
   	readParseArray();
 	endFrame();
 	initTurtle();
 	}while(!checkFinished());
+	//testing();
 	end();
 }
 
@@ -52,9 +53,9 @@ void end()	{
 
 void testing()	{
 	parserUnitTests();
-	turtleUnitTests();
-	interpreterUnitTests();
-	libraryUnitTests();
+	//turtleUnitTests();
+	//interpreterUnitTests();
+	//libraryUnitTests();
 }
 
 void readFile(char *fileName)	{
