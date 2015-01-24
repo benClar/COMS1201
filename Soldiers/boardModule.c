@@ -128,13 +128,13 @@ void graphicalPrintBoard(BoardNode sBoard)	{
 int recursiveSuccess(BoardNode currBoard)	{
 	if(getFinalBoard() == NULL)	{return 0;}
 	if(currBoard->parentBoard == NULL){ 
-		//printBoard("Success",currBoard); 
+		printBoard("Success",currBoard); 
 		graphicalPrintBoard(currBoard);
 		return 1;
 	}
 
 	if(recursiveSuccess(currBoard->parentBoard))	{
-		//printBoard("success",currBoard);
+		printBoard("success",currBoard);
 		graphicalPrintBoard(currBoard);
 		return 1;
 	}	

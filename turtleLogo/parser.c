@@ -475,7 +475,6 @@ int doParse(char *instruction)	{
 	char minVal, maxVal;
 	int *pMaxVal;
 	int mNumVal, beforeLoopPos;
-	printf("do\n");
 	if(checkIfVariable(cProg->tokenList[getCw()])){
 		addNode(createNode(getCToken(),VAR));
 		minVal = getFirstCharacter(getCToken());	

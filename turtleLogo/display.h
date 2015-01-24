@@ -2,6 +2,7 @@
 #define display_h
 
 #include "libraryFunctions.h"
+#include <SDL.h>
 
 /*----------Enumerated Types-----------*/
 
@@ -27,5 +28,7 @@ void drawLine(int xSource, int ySource, int xDest, int yDest);
 void endFrame();
 void endAnimation();
 void clearFrame();
+void Neill_SDL_RenderFillCircle(int cx, int cy, int r);
+void Neill_SDL_SetDrawColour(Uint8 r, Uint8 g, Uint8 b);
 
 #endif

@@ -109,4 +109,3 @@ int calcStackEmpty();
 /*----------Testing Function Prototypes-----------*/
 
 void parserUnitTests();
-void setParse(char *instruction);

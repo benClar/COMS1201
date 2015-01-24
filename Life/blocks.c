@@ -15,7 +15,7 @@ int main(void)
 
    Neill_SDL_Init(&sw);
 
-   do{
+/*   do{
 
       // Sleep for a short time
       SDL_Delay(MILLISECONDDELAY);
@@ -51,4 +51,4 @@ int main(void)
 
    return 0;
 
-}
+}*/

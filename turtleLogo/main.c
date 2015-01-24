@@ -24,15 +24,12 @@ int main(){
 	readFile("testingFile.txt");
 	prog();
 	//printTokenList();
-	while(1)	{
-		clearFrame();
-		readParseArray();
-		endFrame();
-		endAnimation();
-		initTurtle();
-	}
-	//testing();
-	//end();
+	do	{
+  	readParseArray();
+	endFrame();
+	initTurtle();
+	}while(!checkFinished());
+	end();
 }
 
 /*---------- Functions ----------*/
@@ -46,7 +43,7 @@ void initialize()	{
 		createTurtle();
 		createVarTable();
 		createParseArr();
-		init_SDL();
+		Neill_SDL_Init();
 }
 
 void end()	{
@@ -64,11 +61,11 @@ void readFile(char *fileName)	{
 	
 	FILE *fp;
 	int tokenLength = 0;
-	char *token;
+	char *token = NULL;
 	char c;
 	if((fp = fopen(fileName, "r")) != NULL){
 		while((c = getc(fp)) != EOF)	{
-			if(c != ' ' && c != '\n')	{
+			if(c != ' ' && c != '\n' && c != '	')	{
 				token = increaseCharBuffer(token,tokenLength+1);
 				token[tokenLength] = c;
 				tokenLength++;

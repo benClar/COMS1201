@@ -1,7 +1,8 @@
 #include "parser.h"
 #include "interpreter.h"
 #include "turtle.h"
-#include "display.h"
+//#include "display.h"
+#include "neillsdl2.h"
 
 /*----------Enumerated Types-----------*/
 
