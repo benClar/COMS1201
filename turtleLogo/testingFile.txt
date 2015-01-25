@@ -1,5 +1,17 @@
-{	
-    FD 50
-	LT 90
-	FD 50
-}
+{
+	SET A := 1 ;
+	SET B := 2 2 + ;
+	FD 10
+	IF A > B {
+		RT 90 
+	} ELIF A > B {
+		RT 90 
+	} ELIF A > B {
+		LT 90
+	} ELSE {
+		FD 100
+		DO C FROM A TO 100	{
+			FD 10
+			RT 90
+		}
+	}

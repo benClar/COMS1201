@@ -31,6 +31,7 @@ void createParseArr()	{
 }
 
 int addParseNode(char *cmd, int value)	{
+	assert(cmd != NULL);
 	ParseArr pArr = getParseArr(NULL);
 	if(pArr->nArr == NULL)	{
 		pArr->nArr = (ParseNode*) checkMalloc(malloc(sizeof(*pArr->nArr)));
@@ -97,8 +98,8 @@ void clearParseArr()	{
 	int i;
 	if(pArr != NULL)	{
 		for(i = 0; i < pArr->items; i++)	{
+			//pArr->nArr[i] = NULL;
 			free(pArr->nArr[i]);
-			pArr->nArr[i] = NULL;
 		}
 		pArr->items = 0;
 	}
@@ -146,6 +147,6 @@ void parseArrayTests()	{
 	clearParseArr();
 	testVal(addParseNode(FORWARD,20),1,"Valid: One parse node added to cleared parse array",EQUALS);
 	clearParseArr();
-	testVal(checkForNull(pCommand(getSpecParseNode(1))),1,"Invalid: No parse nodes in tree",EQUALS);	
+	testVal(checkForNull(pCommand(getSpecParseNode(1))),1,"Invalid: No parse nodes in array",EQUALS);	
 	leaveSuite();
 }

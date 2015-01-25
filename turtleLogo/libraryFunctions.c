@@ -67,5 +67,8 @@ void libraryUnitTests()	{
 
 	enterSuite("Library Function Tests");
 	testVal(getTokenLength("TEST"),5,"Valid: Length of word and null character is 5",EQUALS);
+	testVal(checkForNull("TEST"),0,"Invalid: string passed",EQUALS);
+	testVal(checkForNull(NULL),1,"Valid: Null pointer passed",EQUALS);
+	testVal(getFirstCharacter("TEST"),'T',"Valid: T is first character of TEST",EQUALS);
 	leaveSuite();
 }

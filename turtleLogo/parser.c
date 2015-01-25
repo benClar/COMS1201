@@ -109,6 +109,7 @@ char addVariable(char var, double val)	{
 	}
 	return var;
 }
+
 /*
  *Returns Variable Value
  */
@@ -131,13 +132,12 @@ char checkVarDeclared(char var)	{
 	int i;
 	VarTable vt = getVarTable(NULL);
 
-	for(i = 0; i < MAXVAR; i++)	{
+	for(i = 0; i < vt->vNum; i++)	{
 		if(vt->vTable[i]->var == var)	{
 			return var;
 		}
 	}
 	ERROR("Undefined Symbol");
-
 }
 
 int checkVarUnique(char var)	{
@@ -176,10 +176,25 @@ double updateVariable(char var,double val)	{
 	ERROR("Variable not declared");
 }
 
+void printCalcStack()	{
+	CalcStack cStack = getCalcStack(NULL);
+	CalcNode temp = cStack->start;
+	if(temp != NULL)	{
+		while(temp->previous != NULL)	{
+			if(temp->type == OP )	{
+				sprint(temp->op);
+			} else if(temp->type == NUM)	{
+				dprint(temp->value);
+			}
+			temp = temp->previous;
+		}
+	}
+}
+
 
 
 CalcNode popCalcStack()	{
-
+	
 	CalcStack cStack = getCalcStack(NULL);
 	CalcNode temp = NULL;
 	if(cStack->start != NULL)	{
@@ -280,6 +295,9 @@ SyntaxStack getSynStack(SyntaxStack nStack)	{
 	return cStack;
 }
 
+/*
+ *Creates Node for syntax stack that holds parse symbols for instructions
+ */
 SyntaxNode createNode(char *type, synType sType)	{
 	SyntaxNode newNode = (SyntaxNode) checkMalloc(malloc(sizeof(*newNode)));
 	newNode->type = createCharBuffer(newNode->type,getTokenLength(type));
@@ -307,7 +325,7 @@ int removeLastSNodeOfType(char *type)	{
 		}
 		cNode = cNode->previous;
 	}
-
+	ERROR("Tried to remove symbol that does not exist.  Likely brackets mis-match.");
 	return 0;
 }
 
@@ -317,6 +335,8 @@ int getNumberSynNodes()	{
 
 void removeNode(SyntaxNode node)	{
 	SyntaxStack cStack = getSynStack(NULL);
+
+	assert(cStack->start != NULL);
 
 	if(strcmp(node->type,R_BRACE))	{
     	cStack->instructionLength--;
@@ -345,6 +365,8 @@ void removeNode(SyntaxNode node)	{
 void popFromStack()	{
 	SyntaxStack cStack = getSynStack(NULL);
 	SyntaxNode Node	 = cStack->start;
+	
+	assert(cStack->start != NULL);
 
 	while(!strcmp(Node->type,R_BRACE))	{
 		Node = Node->previous;
@@ -422,11 +444,15 @@ void statement()	{
 		doParse(DO);
 	} else if(compCurrCw(SET))	{
 		setParse(SET);	
+	} else if(compCurrCw(IF))	{
+		ifParse(IF);	
 	} else	{
+		sprint(getCToken());
 		ERROR("Unrecognisd Symbol");
 	}
 
 }
+
 
 void setParse()	{
 	Program cProg = getProgram(NULL);
@@ -489,13 +515,276 @@ double calculatePolish()	{
 		} else if(!strcmp(opNode->op,DIV))   {
 			addCalcNode(createCalcValNode((result = valNode_1->value/valNode_2->value)));
 		} else {
-			fprintf(stderr,"Unrecognised operator in polish statement\n");
+			ERROR("Unrecognised operator in polish statement");
 		}
 		free(opNode);
 		free(valNode_2);
 		free(valNode_1);
 		return result;
 }
+
+void ifParse(char *instruction)	{
+
+	//Program cProg = getProgram(NULL);
+	addNode(createNode(instruction,INSTRUC));
+	setCw(getCw()+1);
+	//char valA, valB;
+    double *pValB;
+    double *pValA;
+    double valANum, valBNum;
+	int ifResult;
+	//int beforeLoopPos;
+	ifComp cmpOp;
+	if(checkIfVariable(getCToken()))	{
+		pValA = getVarAddress(checkVarDeclared(getFirstCharacter(addNode(createNode(getCToken(),VAR)))));
+	} else if(checkIfNumber(getCToken()))	{
+		valANum = strtod(addNode(createNode(getCToken(),NUM)),NULL);
+		pValA = &valANum;	
+	} else	{
+		ERROR("Expected VARNUM in IF statement");
+	}
+
+	setCw(getCw()+1);
+	if((cmpOp = checkIfComparator(getCToken())))	{
+		addNode(createNode(getCToken(),OP));
+	}
+	setCw(getCw()+1);
+
+	if(checkIfVariable(getCToken()))	{
+		pValB = getVarAddress(checkVarDeclared(getFirstCharacter(addNode(createNode(getCToken(),VAR)))));
+	} else if(checkIfNumber(getCToken()))	{
+		valBNum = strtod(addNode(createNode(getCToken(),NUM)),NULL);
+		pValB = &valBNum;
+	} else	{
+		ERROR("Expected VARNUM in IF statement");
+	}
+
+	setCw(getCw()+1);
+
+	if(compCurrCw(R_BRACE))  {
+		addNode(createNode(R_BRACE,MAIN));
+		setCw(getCw()+1);
+	} else {
+		ERROR("Expected { in IF statement");
+	}
+
+	if((ifResult = ifComparison(cmpOp,*pValA,*pValB)))	{
+		printf("IF STATEMENT TRUE\n");
+		while(!compCurrCw(L_BRACE))	{
+			statement();
+			setCw(getCw()+1);
+		}
+	} else	{
+		printf("IF STATEMENT FALSE\n");
+		setCw(getCw()+countBlock());
+	}
+	if(compCurrCw(L_BRACE))	{
+		removeLastSNodeOfType(R_BRACE);
+	} else	{
+		ERROR("IF block not closed");
+	}
+	setCw(getCw()+1);
+	if(compCurrCw(ELIF))	{
+		if(!ifResult)	{
+			ifParse(IF);		
+		} else	{
+			skipElif();
+		}
+	} else if(compCurrCw(ELSE)) {
+		if(!ifResult)	{	
+			elseParse();
+		} else	{
+			setCw(getCw()+countBlock());	
+		}	
+	} else	{
+		setCw(getCw()-1);
+	}
+}
+
+void elseParse()	{
+	printf("ELSE BLOCK BEING EXECUTED\n");
+	if(compCurrCw(ELSE)) {
+	addNode(createNode(ELSE,INSTRUC));
+	} else	{
+		ERROR("Trying to parse statement like ELSE");
+	}
+	setCw(getCw()+1);
+
+	if(compCurrCw(R_BRACE))  {
+        addNode(createNode(R_BRACE,MAIN));
+        setCw(getCw()+1);
+    } else {
+        ERROR("Expected { in ELSE statement");
+    }
+	
+	while(!compCurrCw(L_BRACE))	{
+		statement();
+		setCw(getCw()+1);
+	}
+
+	if(compCurrCw(L_BRACE)) {
+        removeLastSNodeOfType(R_BRACE);
+    } else  {
+        ERROR("IF block not closed");
+    }
+
+	setCw(getCw()+1);
+	if(compCurrCw(ELIF))	{
+		ERROR("Cannot have ELSE inside ELIF block");
+	}
+	setCw(getCw()-1);
+}
+
+void skipElif()	{
+	if(compCurrCw(ELIF))	{
+		setCw(getCw()+1);
+		if(checkIfVariable(getCToken()))	{
+			checkVarDeclared(getFirstCharacter(addNode(createNode(getCToken(),VAR))));	
+		} else if(checkIfNumber(getCToken()))	{
+			addNode(createNode(getCToken(),NUM));	
+		} else	{
+			ERROR("Expected VARNUM in IF statement");
+		}
+
+		setCw(getCw()+1);
+		if((checkIfComparator(getCToken())))	{
+			addNode(createNode(getCToken(),OP));
+		}
+		setCw(getCw()+1);
+		if(checkIfVariable(getCToken()))	{
+			checkVarDeclared(getFirstCharacter(addNode(createNode(getCToken(),VAR))));
+		} else if(checkIfNumber(getCToken()))	{
+			addNode(createNode(getCToken(),NUM));
+		} else	{
+			ERROR("Expected VARNUM in IF statement");
+		}
+
+		setCw(getCw()+1);
+
+		if(compCurrCw(R_BRACE))  {
+			addNode(createNode(R_BRACE,MAIN));
+			setCw(getCw()+1);
+		} else {
+			ERROR("Expected { in IF statement");
+		}
+
+		setCw(getCw()+countBlock());
+
+		if(compCurrCw(L_BRACE))	{
+			removeLastSNodeOfType(R_BRACE);
+		} else	{
+			ERROR("IF block not closed");
+		}
+
+		setCw(getCw()+1);
+		if(compCurrCw(ELIF))	{
+			skipElif();
+		} else if (compCurrCw(ELSE))	{
+			skipElse();
+		} else  {
+			setCw(getCw()-1);
+		}
+	} else	{
+		ERROR("Skipping elif erroneously");
+	}
+}
+
+void skipElse()	{
+	
+	if(compCurrCw(ELSE))	{
+		addNode(createNode(getCToken(),INSTRUC));
+	} else	{
+		ERROR("skipping ELSE on non-ELSE statement");
+	}
+
+	setCw(getCw()+1);
+
+	if(compCurrCw(R_BRACE))	{
+		addNode(createNode(getCToken(),INSTRUC));
+	} else	{
+		ERROR("Expected { in ELSE statement");
+	}
+
+	setCw(getCw()+countBlock());
+	if(compCurrCw(L_BRACE))	{
+		removeLastSNodeOfType(R_BRACE);	
+	} else	{
+		ERROR("Failed to close ELSE statement");
+	}
+}
+
+
+
+int countBlock()	{
+	int size;
+	for(size = 0;!compCurrCw(L_BRACE) && getCw() <= getTotalTokens() ;setCw(getCw()+1), size++)	{
+		/*do Nothing*/
+	}
+	setCw(getCw() - size);
+	return size;
+	
+}
+
+int ifComparison(ifComp op, double valA, double valB)	{
+
+	switch(op)	{
+		case GR:
+			if(valA>valB)	{
+				return 1;
+			}
+			break;
+		case LT:
+			if(valA<valB)	{
+				return 1;
+			}
+			break;
+		case GR_E:
+			if(valA>=valB)	{
+				return 1;
+			}
+			break;
+		case LT_E:
+			if(valA<=valB)	{
+				return 1;
+			}
+			break;
+		case EQU:
+			if(valA == valB)	{
+				return 1;
+			}
+			break;
+		case N_EQU:
+			if(valA != valB)	{
+				return 1;
+			}
+			break;
+		default:
+			ERROR("Invalid comparison operator");
+			break;
+	}
+	return 0;
+
+}
+
+ifComp checkIfComparator(char *comparator)	{
+	assert(comparator != NULL);
+	if(!strcmp(comparator,G_THAN))	{
+		return GR;	
+	} else if(!strcmp(comparator,L_THAN)) {
+		return LT;
+	} else if(!strcmp(comparator,G_THAN_E)) {
+		return GR_E;
+	} else if(!strcmp(comparator,L_THAN_E)) {
+		return LT_E;
+	} else if(!strcmp(comparator,EQ)) {
+		return EQU;
+	} else if(!strcmp(comparator,N_EQ))	{
+		return N_EQ;
+	} else	{
+		ERROR("Not valid comparison operator");
+	}
+}
+
 
 int doParse(char *instruction)	{
 	Program cProg = getProgram(NULL);
@@ -564,11 +853,14 @@ int doParse(char *instruction)	{
 		setCw(beforeLoopPos);
 		while(!compCurrCw(L_BRACE))	{
 			statement();
-		//	printStack();
 			setCw(getCw()+1);
 		}
 	}
-	removeLastSNodeOfType(R_BRACE);
+	if(compCurrCw(L_BRACE))	{
+		removeLastSNodeOfType(R_BRACE);
+	} else	{
+		ERROR("WHILE block not closed");
+	}
 	return 1;
 }
 
@@ -576,6 +868,7 @@ int doParse(char *instruction)	{
 char* syntaxStackquery(int n)	{
     SyntaxStack cStack = getSynStack(NULL);
     SyntaxNode node  = cStack->start;
+	assert(cStack->start != NULL);
 	int i;
 	for(i = 0; i < n; i++)	{
 		if(node->previous != NULL)	{
@@ -604,6 +897,7 @@ char* getCToken()	{
  *Parses a movement instruction
  */
 int movementParse(char *instruction)	{
+	printf("movement added\n");
 	Program cProg = getProgram(NULL);
    	addNode(createNode(instruction,INSTRUC));
 	setCw(getCw()+1);
@@ -669,6 +963,7 @@ int checkIfNumber(char *instruction)	{
 }
 
 int checkIfMovement(char *type)	{
+	assert(type!=NULL);
 	if(!strcmp(type,FORWARD) || !strcmp(type,R_TURN) || !strcmp(type,L_TURN))	{
 		return 1;
 	}
@@ -676,6 +971,7 @@ int checkIfMovement(char *type)	{
 }
 
 int checkIfOp(char *type)	{
+	assert(type!=NULL);
 	if(!strcmp(type,ADD) || !strcmp(type,SUB) || !strcmp(type,MULT) || !strcmp(type,DIV))	{
 		return 1;
 	}
@@ -709,12 +1005,22 @@ void printCurrentWord()	{
 	printf("cw %d is %s\n",getCw(),getProgram(NULL)->tokenList[getCw()]);
 }
 
+
+
+/*
+ *Compares passed in parameter against current program symbol
+ */
 int compCurrCw(char *comparison)	{
+	assert(comparison != NULL);
 	Program cProg = getProgram(NULL);
-	if(cProg->tokenNum > 0)	{
-		if(!strcmp(comparison,cProg->tokenList[getCw()]))	{
-			return 1;
+	if(getCw() < getTotalTokens()){	
+		if(cProg->tokenNum > 0)	{
+			if(!strcmp(comparison,cProg->tokenList[getCw()]))	{
+				return 1;
+			}
 		}
+	} else	{
+		ERROR("Closing Brace missed");	
 	}
 	return 0;
 }
@@ -723,7 +1029,6 @@ int compCurrCw(char *comparison)	{
  *Return index of current token
  */
 int getCw()	{
-
 	return getProgram(NULL)->cw;
 }
 
@@ -742,6 +1047,7 @@ Program getProgram(Program cProg)	{
 }
 
 void addToken(char *token)	{
+	assert(token != NULL);
 
 	Program cProg = getProgram(NULL);
 	cProg->tokenList = increaseStringList(cProg->tokenList,++cProg->tokenNum);
@@ -752,11 +1058,11 @@ void addToken(char *token)	{
 void clearTokens()	{
 	Program cProg = getProgram(NULL);
 	int i;
-	for (i = cProg->tokenNum - 1; i > 0; i--)	{
+	for (i = 0; i < cProg->tokenNum; i++)	{
 		free(cProg->tokenList[i]);
 		cProg->tokenList[i] = NULL;
-		cProg->tokenList = (char**) checkMalloc(realloc(cProg->tokenList,cProg->tokenNum - 1 * sizeof(*cProg->tokenList[i])));
 	}
+	free(cProg->tokenList);
     cProg->tokenList = NULL;
     cProg->tokenNum = 0;
     cProg->cw = 0;
@@ -833,6 +1139,7 @@ void programArrayTests()	{
 	addToken(FORWARD);
 	testVal(getTotalTokens(),1,"Valid: Number of Tokens is 1",EQUALS);
 	testVal(compCurrCw(FORWARD),1,"Valid: Current Token is FD",EQUALS);
+	testVal(compCurrCw("TEST"),0,"Invalid: Current Token is not TEST",EQUALS);
 	testVal(checkIfMovement(cProg->tokenList[getCw()]),1,"Valid: FD is movement keyword",EQUALS);
 	testVal(checkIfMovement(R_TURN),1,"Valid: RT is a movement keyword",EQUALS);
 	testVal(checkIfMovement(L_TURN),1,"Valid: LT is a movement keyword",EQUALS);
@@ -846,6 +1153,9 @@ void programArrayTests()	{
 	testVal(compCurrCw("10"),1,"Valid: Moved to the next token to parse",EQUALS);
 	clearTokens();
 	testVal(getTotalTokens(),0,"Valid: Cleared all tokens",EQUALS);
+	addToken("10");
+	testVal(compCurrCw("10"),1,"Valid: Able to add tokens again after clearing",EQUALS);
+	clearTokens();
     leaveSuite();
 }
 

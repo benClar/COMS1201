@@ -18,3 +18,13 @@
 #define MULT	"*"
 #define DIV		"/"
 #define END_POLISH	";"
+
+#define IF	"IF"
+#define ELIF	"ELIF"
+#define ELSE	"ELSE"
+#define G_THAN	">"
+#define L_THAN	"<"
+#define G_THAN_E	">="
+#define L_THAN_E	"<="
+#define	EQ	"=="
+#define N_EQ	"!="

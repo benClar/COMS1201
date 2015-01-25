@@ -24,6 +24,16 @@ typedef enum synType    {
 		CONNECTOR = 6
 
 } synType;
+typedef enum ifComp	{
+	
+	GR = 1,
+	LT = 2,
+	GR_E = 3,
+	LT_E = 4,
+	EQU = 5,
+	N_EQU = 6
+
+} ifComp;
 
 
 /*----------Symbolic Constants-----------*/
@@ -100,9 +110,17 @@ int movementParse(char *instruction);
 int doParse(char *instruction);
 void setParse();
 void polishParse();
+void ifParse(char *instruction);
 
 int checkIfNumber();
 int checkIfVariable(char *instruction);
+ifComp checkIfComparator(char *comparator);
+int ifComparison(ifComp op, double valA, double valB);
+int countBlock();
+
+void elseParse();
+void skipElse();
+void skipElif();
 
 int code();
 void prog();
