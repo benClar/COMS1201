@@ -12,7 +12,7 @@
 
 #define ZERO 	"0"
 
-#define EQUALS	":="
+#define P_EQUALS	":="
 #define ADD 	"+"
 #define SUB		"-"
 #define MULT	"*"

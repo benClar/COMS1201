@@ -84,6 +84,9 @@ VarTable getVarTable(VarTable nVT)	{
 
 }
 
+/*
+ *Adds a new variable to the var table or updates an already existing one
+ */
 char addVariable(char var, double val)	{
 
 	VarTable vt = getVarTable(NULL);
@@ -106,7 +109,9 @@ char addVariable(char var, double val)	{
 	}
 	return var;
 }
-
+/*
+ *Returns Variable Value
+ */
 double getVariable(char var)	{
 
 	VarTable vt = getVarTable(NULL);
@@ -169,7 +174,6 @@ double updateVariable(char var,double val)	{
 		}
 	}
 	ERROR("Variable not declared");
-
 }
 
 
@@ -195,6 +199,18 @@ int calcStackEmpty()	{
 		return 1;
 	}	else {
 		return 0;
+	}
+}
+
+void clearCalcStack()	{
+
+	CalcStack cStack = getCalcStack(NULL);
+	CalcNode temp = NULL;
+
+	while(!calcStackEmpty())	{
+		temp = cStack->start;
+		cStack->start = cStack->start->previous;
+		free(temp);
 	}
 }
 
@@ -228,9 +244,11 @@ CalcNode createCalcValNode(double value)	{
 }
 
 void addCalcNode(CalcNode newNode)	{
+	assert(newNode != NULL);
 	CalcStack cStack = getCalcStack(NULL);
 	newNode->previous = cStack->start;
 	cStack->start = newNode;
+
 }
 
 CalcStack getCalcStack(CalcStack cStack)	{
@@ -293,8 +311,11 @@ int removeLastSNodeOfType(char *type)	{
 	return 0;
 }
 
+int getNumberSynNodes()	{
+	return getSynStack(NULL)->numNodes;
+}
+
 void removeNode(SyntaxNode node)	{
-	//printf("popping %s\n",node->type);
 	SyntaxStack cStack = getSynStack(NULL);
 
 	if(strcmp(node->type,R_BRACE))	{
@@ -345,6 +366,7 @@ char* addNode(SyntaxNode Node)	{
 	if(strcmp(Node->type,R_BRACE))	{
 		cStack->instructionLength++; //!only count as part of instruction if not a brace
 	}
+	cStack->numNodes++;
 	return Node->type;
 }
 
@@ -401,7 +423,6 @@ void statement()	{
 	} else if(compCurrCw(SET))	{
 		setParse(SET);	
 	} else	{
-		sprint(cProg->tokenList[getCw()]);
 		ERROR("Unrecognisd Symbol");
 	}
 
@@ -417,7 +438,7 @@ void setParse()	{
 	} else	{
 		ERROR("Expected VAR in SET statement");
 	}
-	if(compCurrCw(EQUALS))	{
+	if(compCurrCw(P_EQUALS))	{
 		addNode(createNode(getCToken(),VAR));
 		setCw(getCw()+1);
 	}	else	{
@@ -430,6 +451,7 @@ void setParse()	{
 
 void polishParse()	{
 	char calcRes[MAXCALC];
+	CalcNode final = NULL;
 	while(!compCurrCw(END_POLISH))	{
 		if(checkIfOp(getCToken()))	{
 			addCalcNode(createCalcOpNode(getCToken()));	
@@ -443,7 +465,9 @@ void polishParse()	{
 		}
 		setCw(getCw()+1);
 	}
-	sprintf(calcRes,"%f",popCalcStack()->value);
+	final = popCalcStack();	
+	sprintf(calcRes,"%f",final->value);
+	free(final);
 	if(!calcStackEmpty())	{
 		ERROR("Error in POLISH statement: number of VAR and number of OP do not match");
 	}
@@ -536,34 +560,15 @@ int doParse(char *instruction)	{
 	}
 
 	beforeLoopPos = getCw();
-	for(;getVariable(minVal) < *pMaxVal;updateVariable(minVal,getVariable(minVal)+1))	{
+	for(;getVariable(minVal) <= *pMaxVal; updateVariable(minVal,getVariable(minVal)+1))	{
 		setCw(beforeLoopPos);
 		while(!compCurrCw(L_BRACE))	{
 			statement();
-			//printf("in loop:\n");
 		//	printStack();
 			setCw(getCw()+1);
 		}
 	}
 	removeLastSNodeOfType(R_BRACE);
-	return 1;
-}
-
-/*int getCurrInstructionValues(int symbol)	{
-	if(checkIfVariable(syntaxStackquery(symbol)))	{
-		return getVariable(getFirstCharacter(syntaxStackquery(symbol)));	 	
-	} else if(checkIfNumber(syntaxStackquery(symbol)))	{
-		return strtol(syntaxStackquery(symbol),NULL,10);
-	}
-
-	ERROR("Not a VARNUM");
-}*/
-
-int checkWhileCondition(double current, double max)	{
-
-	if(current > max)	{
-		return 0;
-	}
 	return 1;
 }
 
@@ -650,12 +655,17 @@ void removeCurrentInstruction()	{
  *Checks if string is an integer or floating point number
  */
 int checkIfNumber(char *instruction)	{
-	if(strtol(instruction,NULL,10) || compCurrCw(ZERO))	{
-		return 1;
-	} else if(strtod(instruction,NULL) > 0)	{
-		return 1;
+	int i;
+	for(i = 0;instruction[i] != '\0'; i ++)	{
+		if(instruction[i] != '.')	{
+			if(isdigit(instruction[i]))	{
+			/* Do Nothing*/	
+			} else {
+				return 0;	
+			}
+		}
 	}
-		return 0;
+	return 1;
 }
 
 int checkIfMovement(char *type)	{
@@ -701,11 +711,12 @@ void printCurrentWord()	{
 
 int compCurrCw(char *comparison)	{
 	Program cProg = getProgram(NULL);
-	if(!strcmp(comparison,cProg->tokenList[getCw()]))	{
-		return 1;
-	} else	{
-		return 0;
+	if(cProg->tokenNum > 0)	{
+		if(!strcmp(comparison,cProg->tokenList[getCw()]))	{
+			return 1;
+		}
 	}
+	return 0;
 }
 
 /*
@@ -738,6 +749,19 @@ void addToken(char *token)	{
 	strcat(cProg->tokenList[cProg->tokenNum - 1],token);
 }
 
+void clearTokens()	{
+	Program cProg = getProgram(NULL);
+	int i;
+	for (i = cProg->tokenNum - 1; i > 0; i--)	{
+		free(cProg->tokenList[i]);
+		cProg->tokenList[i] = NULL;
+		cProg->tokenList = (char**) checkMalloc(realloc(cProg->tokenList,cProg->tokenNum - 1 * sizeof(*cProg->tokenList[i])));
+	}
+    cProg->tokenList = NULL;
+    cProg->tokenNum = 0;
+    cProg->cw = 0;
+}
+
 void printTokenList()	{
 
 	Program cProg = getProgram(NULL);
@@ -761,21 +785,103 @@ char** increaseStringList(char **stringList, int current)	{
 /*---------- Testing Functions ----------*/
 
 void parserUnitTests()	{
-	enterSuite("Variable Table Tests");
-	testVal(addVariable('A',20),'A',"Valid: adding new variable to var table");	
-	testVal(getVariable('A'),20,"Valid: check variable value stored as 20");	
-	testVal(addVariable('B',40),'B',"Valid: adding new variable to var table");	
-	testVal(getVariable('B'),40,"Valid: check variable value stored as 40");
-	testVal(checkVarUnique('C'),1,"Valid: C has not yet been entered as a variable");
-	testVal(checkVarDeclared('B'),'B',"Valid: B has been entered as a variable");
-	testVal(updateVariable('B',30),1,"Valid: Updating B's value in variable table");
-	testVal(getVariable('B'),30,"Valid: check B's updated variable value is stored as 30");
-	leaveSuite();
-	enterSuite("Polish Calculator Tests");
-	addCalcNode(createCalcValNode(1.5));
-	addCalcNode(createCalcValNode(1));
-	addCalcNode(createCalcOpNode("+"));
-	testVal(calculatePolish(),2.5,"Valid: 1 + 1 = 2");
-	leaveSuite();
+	varTableTests();
+	polishCalcTests();
+	programArrayTests();
+	syntaxStackTests();
+	parsingTests();
+}
 
+void varTableTests()	{
+    enterSuite("Variable Table Tests");
+    testVal(addVariable('A',20),'A',"Valid: adding new variable to var table",EQUALS);
+    testVal(getVariable('A'),20,"Valid: check variable value stored as 20",EQUALS);
+    testVal(addVariable('B',40),'B',"Valid: adding new variable to var table",EQUALS);
+    testVal(getVariable('B'),40,"Valid: check variable value stored as 40",EQUALS);
+    testVal(checkVarUnique('C'),1,"Valid: C has not yet been entered as a variable",EQUALS);
+    testVal(checkVarDeclared('B'),'B',"Valid: B has been entered as a variable",EQUALS);
+    testVal(updateVariable('B',30),1,"Valid: Updating B's value in variable table",EQUALS);
+    testVal(getVariable('B'),30,"Valid: check B's updated variable value is stored as 30",EQUALS);
+    leaveSuite();
+}
+
+void polishCalcTests()	{
+    enterSuite("Polish Calculator Tests");
+    addCalcNode(createCalcValNode(1.5));
+    addCalcNode(createCalcValNode(1));
+    addCalcNode(createCalcOpNode("+"));
+    testVal(calculatePolish(),2.5,"Valid: 1 + 1 = 2",EQUALS);
+    addCalcNode(createCalcValNode(1));
+    addCalcNode(createCalcOpNode("-"));
+    testVal(calculatePolish(),1.5,"Valid: 2.5 - 1 = 1.5",EQUALS);
+    addCalcNode(createCalcValNode(2));
+    addCalcNode(createCalcOpNode("*"));
+    testVal(calculatePolish(),3,"Valid: 1.5 * 2 = 3",EQUALS);
+    addCalcNode(createCalcValNode(3));
+    addCalcNode(createCalcOpNode("/"));
+    testVal(calculatePolish(),1,"Valid: 3 / 3 = 1",EQUALS);
+	testVal(calcStackEmpty(),0,"Valid: Test Stack not Empty",EQUALS);
+	clearCalcStack();
+	testVal(calcStackEmpty(),1,"Valid: Test Stack Empty",EQUALS);
+    leaveSuite();
+}
+
+void programArrayTests()	{
+
+    enterSuite("Program Token Tests");
+	Program cProg = getProgram(NULL);
+	addToken(FORWARD);
+	testVal(getTotalTokens(),1,"Valid: Number of Tokens is 1",EQUALS);
+	testVal(compCurrCw(FORWARD),1,"Valid: Current Token is FD",EQUALS);
+	testVal(checkIfMovement(cProg->tokenList[getCw()]),1,"Valid: FD is movement keyword",EQUALS);
+	testVal(checkIfMovement(R_TURN),1,"Valid: RT is a movement keyword",EQUALS);
+	testVal(checkIfMovement(L_TURN),1,"Valid: LT is a movement keyword",EQUALS);
+	testVal(checkIfMovement("AD"),0,"invalid: not a movement keyword",EQUALS);
+	testVal(checkIfMovement("1"),0,"invalid: not a movement keyword",EQUALS);
+	testVal(checkIfMovement("TESTING"),0,"invalid: not a movement keyword",EQUALS);
+	testVal(checkIfMovement("RD"),0,"invalid: not a movement keyword",EQUALS);
+	addToken("10");
+	testVal(getTotalTokens(),2,"Valid: Number of Tokens is 2",EQUALS);
+	setCw(getCw()+1);
+	testVal(compCurrCw("10"),1,"Valid: Moved to the next token to parse",EQUALS);
+	clearTokens();
+	testVal(getTotalTokens(),0,"Valid: Cleared all tokens",EQUALS);
+    leaveSuite();
+}
+
+void syntaxStackTests()	{
+	bracketsTest();
+	clearTokens();
+}
+
+void bracketsTest()	{
+    enterSuite("Popping Brackets from Syntax stack Tests");
+	addNode(createNode(R_BRACE,MAIN));
+	testVal(strcmp(R_BRACE,getKeywordFromStack(1)),0,"Valid: Top of Syn stack is {",EQUALS);
+	removeLastSNodeOfType(R_BRACE);
+	testVal(checkSynStackEmpty(),1,"Valid: Removed last {.  Empty Synax Stack",EQUALS);
+	testVal(getNumberSynNodes(),0,"Valid: Number of syntax nodes is 0",EQUALS);
+    leaveSuite();
+}
+
+void parsingTests()	{
+    enterSuite("General Parsing Function Tests");
+	testVal(checkIfNumber("0"),1,"Valid: 0 is a number",EQUALS);
+	testVal(checkIfNumber("1.2"),1,"Valid: 1.2 is a number",EQUALS);
+	testVal(checkIfNumber("10"),1,"Valid: 10 is a number",EQUALS);
+	testVal(checkIfNumber("12shd"),0,"Invalid: not a number",EQUALS);
+	testVal(checkIfNumber("DO"),0,"Invalid: not a number",EQUALS);
+	testVal(checkIfNumber("egehd"),0,"Invalid: not a number",EQUALS);
+	testVal(checkIfVariable("A"),1,"Valid: A is valid variable name",EQUALS);
+	testVal(checkIfVariable("AE"),0,"Invalid: Variables names can only be one letter long",EQUALS);
+	testVal(checkIfVariable("1"),0,"Invalid:  Variable names cannot be numbers",EQUALS);
+	testVal(checkIfVariable("a"),0,"Invalid:  Variable names must be uppercase",EQUALS);
+	testVal(checkIfOp("*"),1,"Valid: * is multiplication operator",EQUALS);	
+	testVal(checkIfOp("+"),1,"Valid: + is addition operator",EQUALS);	
+	testVal(checkIfOp("-"),1,"Valid: - is subtraction operator",EQUALS);	
+	testVal(checkIfOp("/"),1,"Valid: / is division operator",EQUALS);	
+	testVal(checkIfOp("1"),0,"Invalid: not an operator",EQUALS);	
+	testVal(checkIfOp("dksjhas"),0,"Invalid: not an operator",EQUALS);	
+	testVal(checkIfOp("&"),0,"Invalid: not an operator",EQUALS);	
+    leaveSuite();
 }

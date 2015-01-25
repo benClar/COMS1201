@@ -15,6 +15,7 @@ typedef struct parseNode *ParseNode;
 
 /*----------Symbolic Constants-----------*/
 
+#define TESTING 0
 
 /*----------Structures----------*/
 
@@ -24,12 +25,16 @@ typedef struct parseNode *ParseNode;
 void createParseArr();
 ParseArr getParseArr(ParseArr cp);
 int addParseNode(char *cmd, int value);
+void clearParseArr();
 void freeParseArr();
 char* pCommand(ParseNode n);
 int pVal(ParseNode n);
+int getParseNodeNumber();
 
 void moveInterpret(char *command, double value);
 void readParseArray();
-void interpreterUnitTests();
+ParseNode getSpecParseNode(int n);
 
+void interpreterUnitTests();
+void parseArrayTests();
 #endif

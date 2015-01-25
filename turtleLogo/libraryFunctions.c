@@ -43,6 +43,14 @@ int getTokenLength(char *token) {
         return i+1;
 }
 
+int checkForNull(void *n)	{
+	if(n == NULL)	{
+		return 1;
+	} else {
+		return 0;
+	}
+}
+
 /*
  *Validation for Malloc
  */
@@ -58,5 +66,6 @@ void *checkMalloc(void *malP)   {
 void libraryUnitTests()	{
 
 	enterSuite("Library Function Tests");
-	testVal(getTokenLength("TEST"),5,"Valid: Length of word and null character is 5");
+	testVal(getTokenLength("TEST"),5,"Valid: Length of word and null character is 5",EQUALS);
+	leaveSuite();
 }

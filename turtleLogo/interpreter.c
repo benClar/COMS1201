@@ -45,6 +45,10 @@ int addParseNode(char *cmd, int value)	{
 	return pArr->items;
 }
 
+int getParseNodeNumber()	{
+	return getParseArr(NULL)->items;
+}
+
 ParseArr getParseArr(ParseArr cp)	{
 
 	static ParseArr currPArr;
@@ -64,29 +68,57 @@ void readParseArray()	{
 }
 
 char* pCommand(ParseNode n)	{
-	return n->command;
+	if(n != NULL)	{
+		return n->command;
+	}
+	return NULL;
 }
 
 int pVal(ParseNode n)	{
-	return n->val;
+	if(n != NULL)	{
+		return n->val;
+	}
+
+	ERROR("Attempt to access non existent symbol");
 }
 
-void freeParseArr()	{
+ParseNode getSpecParseNode(int n)	{
+	ParseArr pArr = getParseArr(NULL);
+	if(n<=pArr->items)	{
+		return pArr->nArr[n-1];
+	}
+
+	return NULL;
+}
+
+void clearParseArr()	{
 
 	ParseArr pArr = getParseArr(NULL);
 	int i;
-	for(i = 0; i < pArr->items; i++)	{
-		free(pArr->nArr[i]);
-		pArr->nArr[i] = NULL;
+	if(pArr != NULL)	{
+		for(i = 0; i < pArr->items; i++)	{
+			free(pArr->nArr[i]);
+			pArr->nArr[i] = NULL;
+		}
+		pArr->items = 0;
 	}
+}
 
-	free(pArr);
+void freeParseArr()	{
+	clearParseArr();
+	ParseArr pArr = getParseArr(NULL);
+
+	if(pArr != NULL)	{
+		free(pArr);
+	}
 }
 
 void moveInterpret(char *command, double value)	{
 	if(!strcmp(command,FORWARD))	{
 		moveTurtleForward(value);
-		drawLine(getOriginX(),getOriginY(),getTargetX(),getTargetY());
+		if(!TESTING)	{
+			drawLine(getOriginX(),getOriginY(),getTargetX(),getTargetY());
+		}
 	} else if(!strcmp(command,R_TURN))	{
 		turnTurtleRight(value);
 	} else if(!strcmp(command,L_TURN))	{
@@ -97,9 +129,23 @@ void moveInterpret(char *command, double value)	{
 /*---------- Testing Functions ----------*/
 
 void interpreterUnitTests()	{
+	parseArrayTests();
+}
 
-		enterSuite("Managing Parse Array");
-		testVal(addParseNode(FORWARD,10),1,"Valid: One parse node has been added");
-		testVal(addParseNode(FORWARD,20),2,"Valid: Two parse nodes have been added");
-		leaveSuite();
+void interpetingTest()	{
+	addParseNode(FORWARD,10);
+}
+
+void parseArrayTests()	{
+
+	enterSuite("Managing Parse Array");
+	testVal(addParseNode(FORWARD,10),1,"Valid: One parse node has been added",EQUALS);
+	testVal(addParseNode(FORWARD,20),2,"Valid: Two parse nodes have been added",EQUALS);
+	testVal(pVal(getSpecParseNode(1)),10,"Valid: Parse node one value is 10",EQUALS);
+	testVal(pVal(getSpecParseNode(2)),20,"Valid: Parse node two value is 20",EQUALS);
+	clearParseArr();
+	testVal(addParseNode(FORWARD,20),1,"Valid: One parse node added to cleared parse array",EQUALS);
+	clearParseArr();
+	testVal(checkForNull(pCommand(getSpecParseNode(1))),1,"Invalid: No parse nodes in tree",EQUALS);	
+	leaveSuite();
 }

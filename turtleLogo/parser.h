@@ -44,6 +44,7 @@ void addToken(char *token);
 char** increaseStringList(char **stringList, int current);
 void printTokenList();
 int getTotalTokens();
+void clearTokens();
 
 //!Variable functions
 char addVariable(char var, double val);
@@ -70,6 +71,7 @@ CalcStack getCalcStack(CalcStack cStack);
 CalcNode popCalcStack();
 double calculatePolish();
 int calcStackEmpty();
+void clearCalcStack();
 
 SyntaxNode createNode(char *type, synType sType);
 void createSynStack();
@@ -90,6 +92,7 @@ void removeCurrentInstruction();
 void printStack();
 char *getKeywordFromStack(int keywordNum);
 char* syntaxStackquery(int n);
+int getNumberSynNodes();
 
 //!Checks for each type of token
 int valueCheck();
@@ -100,7 +103,6 @@ void polishParse();
 
 int checkIfNumber();
 int checkIfVariable(char *instruction);
-int checkWhileCondition(double current, double max);
 
 int code();
 void prog();
@@ -110,3 +112,9 @@ void printCurrentWord();
 /*----------Testing Function Prototypes-----------*/
 
 void parserUnitTests();
+void polishCalcTests();
+void varTableTests();
+void programArrayTests();
+void syntaxStackTests();
+void bracketsTest();
+void parsingTests();

@@ -24,4 +24,5 @@ void testing();
 
 /*----------Testing Function Prototypes-----------*/
 
-
+void interpreterToTurtle();
+void parserToTurtle();

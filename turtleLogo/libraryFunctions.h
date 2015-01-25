@@ -2,6 +2,7 @@
 #define libraryFunctions_h
 
 #include "testLib.h"
+#include <assert.h>
 
 /*----------Enumerated Types-----------*/
 
@@ -23,6 +24,7 @@ char* createCharBuffer(char *buffer, int size);
 void *checkMalloc(void *malP);
 int getTokenLength(char *token);
 char getFirstCharacter(char *string);
+int checkForNull(void *n);
 
 void libraryUnitTests();
 

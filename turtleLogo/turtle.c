@@ -32,7 +32,7 @@ void initTurtle()	{
 	t->originY = SCREEN_HEIGHT/HALF;
 	t->targetX = SCREEN_WIDTH/HALF;
 	t->targetY = SCREEN_HEIGHT/HALF;
-	t->angle = 0;
+	t->angle = 270;
 	
 }
 
@@ -104,35 +104,36 @@ void moveTurtleForward(double magnitude)	{
 	t->originX = t->targetX;
 	t->originY = t->targetY;
 	t->targetX += magnitude*(cos(DEGREES_TO_RADIANS(t->angle)));
-	t->targetY -= magnitude*(sin(DEGREES_TO_RADIANS(t->angle)));
+	t->targetY += magnitude*(sin(DEGREES_TO_RADIANS(t->angle)));
 }
 
 /*---------- Testing Functions ----------*/
 
 void turtleUnitTests()	{
 
-	enterSuite("Turning Turtle ClockWise");
 	turnTurtleRightTest();
-	leaveSuite();
-	enterSuite("Turning Turtle AntiClockWise");
 	turnTurtleLeftTest();
-	leaveSuite();
 }
 
 void turnTurtleRightTest()	{
 
+	enterSuite("Turning Turtle ClockWise");
 	setAngle(0);
-	testVal((int) turnTurtleRight(90),90,"Valid: Turning turtle facing 0 degrees clockwise 90 degrees");
-	testVal((int) turnTurtleRight(360),90,"Valid: Turning turtle facing 90 degrees clockwise 360 degrees");
-	testVal((int) turnTurtleRight(270),0,"Valid: Turning turtle facing 90 degrees clockwise 270 degrees");
+	testVal((int) turnTurtleRight(90),90,"Valid: Turning turtle facing 0 degrees clockwise 90 degrees",EQUALS);
+	testVal((int) turnTurtleRight(360),90,"Valid: Turning turtle facing 90 degrees clockwise 360 degrees",EQUALS);
+	testVal((int) turnTurtleRight(270),0,"Valid: Turning turtle facing 90 degrees clockwise 270 degrees",EQUALS);
 	setAngle(330);
-	testVal((int) turnTurtleRight(100),70,"Valid: Turning turtle facing 330 degrees clockwise 100 degrees");
+	testVal((int) turnTurtleRight(100),70,"Valid: Turning turtle facing 330 degrees clockwise 100 degrees",EQUALS);
+	initTurtle();
+	leaveSuite();
 }
 
 void turnTurtleLeftTest()	{
+	enterSuite("Turning Turtle AntiClockWise");
 	setAngle(0);
-	testVal(turnTurtleLeft(90),270,"Valid: Turning turtle facing 0 degrees anti-clockwise 90 degrees");
-	testVal(turnTurtleLeft(240),30,"Valid: Turning turtle facing 270 degrees anti-clockwise 240 degrees");
-	testVal(turnTurtleLeft(110),280,"Valid: Turning turtle facing 30 degrees anti-clockwise 110 degrees");
-	
+	testVal(turnTurtleLeft(90),270,"Valid: Turning turtle facing 0 degrees anti-clockwise 90 degrees",EQUALS);
+	testVal(turnTurtleLeft(240),30,"Valid: Turning turtle facing 270 degrees anti-clockwise 240 degrees",EQUALS);
+	testVal(turnTurtleLeft(110),280,"Valid: Turning turtle facing 30 degrees anti-clockwise 110 degrees",EQUALS);
+	initTurtle();	
+	leaveSuite();
 }

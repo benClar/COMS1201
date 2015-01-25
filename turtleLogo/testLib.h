@@ -8,6 +8,12 @@
 typedef struct testSuite *TestSuite;
 /*----------Enumerated Types-----------*/
 
+typedef enum testType	{
+	EQUALS,
+	GREATER,
+	LESS,
+	NOTEQUALS	
+} testType;
 
 /*----------Symbolic Constants-----------*/
 
@@ -22,8 +28,12 @@ typedef struct testSuite *TestSuite;
 
 void createSuite();
 TestSuite getSuite(TestSuite tSuite);
-void testVal(double testResult,double expectedResult, char *description);
+void testVal(double testResult,double expectedResult, char *description, testType t);
 void leaveSuite();
 void enterSuite(char *suiteName);
-
+void finishTesting();
+int greaterThan(double res, double comp);
+int lessThan(double res, double comp);
+int equals(double res, double comp);
+int notEquals(double res, double comp);
 #endif
