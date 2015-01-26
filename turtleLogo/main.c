@@ -25,8 +25,8 @@ int main(){
 	} 
 	readFile("testingFile.txt");
 	prog();
+  	readParseArray();
 	do	{
-  		readParseArray();
 		endFrame();
 		initTurtle();
 	}while(!checkFinished());

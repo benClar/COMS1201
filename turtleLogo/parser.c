@@ -26,6 +26,14 @@ struct syntaxStack	{
 		SyntaxNode end;
 		int numNodes;
 		int instructionLength;
+		ModeNode modeStackStart;
+};
+
+struct modeNode	{
+
+	iMode pM;
+	ModeNode previous;
+
 };
 
 struct syntaxNode	{
@@ -282,7 +290,34 @@ void createSynStack()	{
 	newStack->start = newStack->end = NULL;
 	newStack->numNodes = 0;
 	newStack->instructionLength = 0;
+	newStack->modeStackStart = checkMalloc(malloc(sizeof(*newStack->start)));
+	newStack->modeStackStart->pM = exec;
+	newStack->modeStackStart->previous = NULL;
 	getSynStack(newStack);
+}
+
+void pushMode(iMode nm)	{
+
+	SyntaxStack cStack = getSynStack(NULL);
+	ModeNode temp;
+	assert(cStack->modeStackStart != NULL);
+	temp = cStack->modeStackStart;
+	cStack->modeStackStart = checkMalloc(malloc(sizeof(*cStack->start)));
+	cStack->modeStackStart->pM = nm;
+	cStack->modeStackStart->previous = temp;	
+}
+
+iMode popMode()	{
+
+    SyntaxStack cStack = getSynStack(NULL);
+    ModeNode temp;
+	iMode tMode;
+    assert(cStack->modeStackStart != NULL);
+    temp = cStack->modeStackStart;
+	cStack->modeStackStart = cStack->modeStackStart->previous;
+	tMode = temp->pM;
+	free(temp);
+	return tMode;
 }
 
 SyntaxStack getSynStack(SyntaxStack nStack)	{
@@ -416,18 +451,16 @@ void prog()	{
 int code()	{
 	//!Base case
 	if(checkSynStackEmpty() && !checkNoMoreWords())	{
-			ERROR("No more input expected");
-			return 0;
+		ERROR("No more input expected");
 	} else if(!checkSynStackEmpty() && checkNoMoreWords()) {
-			ERROR("Closing Brace missed");
-			return 0;	
+		ERROR("Closing Brace missed");
 	} else if(checkSynStackEmpty() && checkNoMoreWords()) {
 		printf("No errors\n");
 		return 1;
 	}
 	statement();
 	removeCurrentInstruction();
-	setCw(getCw()+1);	//!Moving on current Word to parse
+	//setCw(getCw()+1);	//!Moving on current Word to parse
 	code();
 	return 1;
 }
@@ -450,7 +483,7 @@ void statement()	{
 		sprint(getCToken());
 		ERROR("Unrecognisd Symbol");
 	}
-
+	setCw(getCw()+1);
 }
 
 
@@ -472,7 +505,9 @@ void setParse()	{
 	}
 
 	polishParse(getCToken());
-	addVariable(getFirstCharacter(getKeywordFromStack(3)),(double) strtod(getKeywordFromStack(1),NULL));
+	if(getMode())	{ //! Only add variable if in exec mode
+		addVariable(getFirstCharacter(getKeywordFromStack(3)),(double) strtod(getKeywordFromStack(1),NULL));
+	}
 }
 
 void polishParse()	{
@@ -497,7 +532,7 @@ void polishParse()	{
 	if(!calcStackEmpty())	{
 		ERROR("Error in POLISH statement: number of VAR and number of OP do not match");
 	}
-	addNode(createNode(calcRes,VAR));
+		addNode(createNode(calcRes,VAR));
 	//printStack(); //!prints the current calc
 }
 
@@ -525,15 +560,14 @@ double calculatePolish()	{
 
 void ifParse(char *instruction)	{
 
-	//Program cProg = getProgram(NULL);
+	pushMode(getMode());	//! Copying previous execution mode
 	addNode(createNode(instruction,INSTRUC));
 	setCw(getCw()+1);
-	//char valA, valB;
     double *pValB;
     double *pValA;
     double valANum, valBNum;
 	int ifResult;
-	//int beforeLoopPos;
+	iMode mTemp  = getMode();
 	ifComp cmpOp;
 	if(checkIfVariable(getCToken()))	{
 		pValA = getVarAddress(checkVarDeclared(getFirstCharacter(addNode(createNode(getCToken(),VAR)))));
@@ -568,16 +602,20 @@ void ifParse(char *instruction)	{
 		ERROR("Expected { in IF statement");
 	}
 
-	if((ifResult = ifComparison(cmpOp,*pValA,*pValB)))	{
-		printf("IF STATEMENT TRUE\n");
+	if((ifResult = ifComparison(cmpOp,*pValA,*pValB)) && (mTemp == exec))	{
 		while(!compCurrCw(L_BRACE))	{
 			statement();
-			setCw(getCw()+1);
 		}
 	} else	{
-		printf("IF STATEMENT FALSE\n");
-		setCw(getCw()+countBlock());
+		do {
+			setMode(skip);
+			statement();
+			if(mTemp)	{
+				setMode(exec);
+			}
+		} while(!compCurrCw(L_BRACE));
 	}
+
 	if(compCurrCw(L_BRACE))	{
 		removeLastSNodeOfType(R_BRACE);
 	} else	{
@@ -585,26 +623,27 @@ void ifParse(char *instruction)	{
 	}
 	setCw(getCw()+1);
 	if(compCurrCw(ELIF))	{
-		if(!ifResult)	{
-			ifParse(IF);		
+		if(!ifResult && getMode())	{
+			printf("PARSING ELIF in EXEC MODE\n");
+			ifParse(IF);
 		} else	{
 			skipElif();
 		}
 	} else if(compCurrCw(ELSE)) {
-		if(!ifResult)	{	
+		if(!ifResult && getMode())	{	
 			elseParse();
-		} else	{
-			setCw(getCw()+countBlock());	
+		} else 	{
+			skipElse();
 		}	
 	} else	{
 		setCw(getCw()-1);
 	}
+	popMode();
 }
 
 void elseParse()	{
-	printf("ELSE BLOCK BEING EXECUTED\n");
 	if(compCurrCw(ELSE)) {
-	addNode(createNode(ELSE,INSTRUC));
+		addNode(createNode(ELSE,INSTRUC));
 	} else	{
 		ERROR("Trying to parse statement like ELSE");
 	}
@@ -619,7 +658,7 @@ void elseParse()	{
 	
 	while(!compCurrCw(L_BRACE))	{
 		statement();
-		setCw(getCw()+1);
+		//setCw(getCw()+1);
 	}
 
 	if(compCurrCw(L_BRACE)) {
@@ -636,6 +675,7 @@ void elseParse()	{
 }
 
 void skipElif()	{
+	iMode mTemp = getMode(); //!Saving current execution mode
 	if(compCurrCw(ELIF))	{
 		setCw(getCw()+1);
 		if(checkIfVariable(getCToken()))	{
@@ -667,8 +707,14 @@ void skipElif()	{
 		} else {
 			ERROR("Expected { in IF statement");
 		}
-
-		setCw(getCw()+countBlock());
+		do {
+			setMode(skip);
+			statement();
+			if(mTemp)	{
+				setMode(exec);
+			}
+			//setCw(getCw()+1);
+		} while(!compCurrCw(L_BRACE));
 
 		if(compCurrCw(L_BRACE))	{
 			removeLastSNodeOfType(R_BRACE);
@@ -690,7 +736,7 @@ void skipElif()	{
 }
 
 void skipElse()	{
-	
+	iMode mTemp = getMode();
 	if(compCurrCw(ELSE))	{
 		addNode(createNode(getCToken(),INSTRUC));
 	} else	{
@@ -704,15 +750,22 @@ void skipElse()	{
 	} else	{
 		ERROR("Expected { in ELSE statement");
 	}
+	setCw(getCw()+1);
 
-	setCw(getCw()+countBlock());
+	do {
+		setMode(skip);
+		statement();
+		if(mTemp)	{
+			setMode(exec);
+		}
+	} while(!compCurrCw(L_BRACE));
+
 	if(compCurrCw(L_BRACE))	{
 		removeLastSNodeOfType(R_BRACE);	
 	} else	{
 		ERROR("Failed to close ELSE statement");
 	}
 }
-
 
 
 int countBlock()	{
@@ -779,7 +832,7 @@ ifComp checkIfComparator(char *comparator)	{
 	} else if(!strcmp(comparator,EQ)) {
 		return EQU;
 	} else if(!strcmp(comparator,N_EQ))	{
-		return N_EQ;
+		return N_EQU;
 	} else	{
 		ERROR("Not valid comparison operator");
 	}
@@ -791,14 +844,16 @@ int doParse(char *instruction)	{
 	addNode(createNode(instruction,INSTRUC));
 	setCw(getCw()+1);
 	char minVal, maxVal;
-	double *pMaxVal;
+	double *pMaxVal = NULL;
 	double mNumVal, beforeLoopPos;
 	if(checkIfVariable(cProg->tokenList[getCw()])){
 		addNode(createNode(getCToken(),VAR));
 		minVal = getFirstCharacter(getCToken());	
-		if(checkVarUnique(getFirstCharacter(getCToken())))	{
-			addVariable(getFirstCharacter(getCToken()),NEW_VAR);
-		} 
+		if(getMode())	{
+			if(checkVarUnique(getFirstCharacter(getCToken())))	{
+				addVariable(getFirstCharacter(getCToken()),NEW_VAR);
+			} 
+		}
 		setCw(getCw()+1);
 	} else {
 		ERROR("Expected VAR in DO statement");
@@ -812,9 +867,13 @@ int doParse(char *instruction)	{
 
 	if(checkIfVariable(getCToken()))	{
 		addNode(createNode(getCToken(),VAR));
-		updateVariable(minVal, getVariable(getFirstCharacter(getCToken())));
+		if(getMode())	{
+			updateVariable(minVal, getVariable(getFirstCharacter(getCToken())));
+		}
 	} else if(checkIfNumber(getCToken()))	{	
-		updateVariable(minVal, strtod(addNode(createNode(getCToken(),NUM)),NULL));
+		if(getMode())	{
+			updateVariable(minVal, strtod(addNode(createNode(getCToken(),NUM)),NULL));
+		}
 	} else {
 		ERROR("Expected VARNUM in DO statement");
 	}
@@ -828,14 +887,18 @@ int doParse(char *instruction)	{
 	}
 	
 	if(checkIfVariable(getCToken()))	{
-		maxVal = checkVarDeclared(getFirstCharacter(addNode(createNode(getCToken(),VAR))));
-		pMaxVal = getVarAddress(maxVal);
-		if(*pMaxVal != getVariable(maxVal))	{
-			ERROR("Memory Error: Local value variable does not match var table");
+		if(getMode())	{
+			maxVal = checkVarDeclared(getFirstCharacter(addNode(createNode(getCToken(),VAR))));
+			pMaxVal = getVarAddress(maxVal);
+			if(*pMaxVal != getVariable(maxVal))	{
+				ERROR("Memory Error: Local value variable does not match var table");
+			}
 		}
 	} else if(checkIfNumber(getCToken()))	{
-		mNumVal = strtod(addNode(createNode(getCToken(),NUM)),NULL);
-		pMaxVal = &mNumVal;
+		if(getMode())	{
+			mNumVal = strtod(addNode(createNode(getCToken(),NUM)),NULL);
+			pMaxVal = &mNumVal;
+		}
 	} else {
 		ERROR("Expected VARNUM in DO statement");
 	}
@@ -849,13 +912,21 @@ int doParse(char *instruction)	{
 	}
 
 	beforeLoopPos = getCw();
-	for(;getVariable(minVal) <= *pMaxVal; updateVariable(minVal,getVariable(minVal)+1))	{
-		setCw(beforeLoopPos);
+	if(getMode())	{
+		for(;getVariable(minVal) <= *pMaxVal; updateVariable(minVal,getVariable(minVal)+1))	{
+			setCw(beforeLoopPos);
+			while(!compCurrCw(L_BRACE))	{
+				statement();
+				//setCw(getCw()+1);
+			}
+		}
+	} else {
 		while(!compCurrCw(L_BRACE))	{
 			statement();
-			setCw(getCw()+1);
+			//setCw(getCw()+1);
 		}
 	}
+
 	if(compCurrCw(L_BRACE))	{
 		removeLastSNodeOfType(R_BRACE);
 	} else	{
@@ -897,23 +968,37 @@ char* getCToken()	{
  *Parses a movement instruction
  */
 int movementParse(char *instruction)	{
-	printf("movement added\n");
 	Program cProg = getProgram(NULL);
    	addNode(createNode(instruction,INSTRUC));
 	setCw(getCw()+1);
 	if(checkIfNumber(cProg->tokenList[getCw()]))	{
    		addNode(createNode(cProg->tokenList[getCw()],INSTRUC));
-		addParseNode(getKeywordFromStack(MOVE_COMMAND),strtod(getKeywordFromStack(VARIABLE),NULL)); //!sends move command to interpreter
+		//addParseNode(getKeywordFromStack(MOVE_COMMAND),strtod(getKeywordFromStack(VARIABLE),NULL)); //!sends move command to interpreter
+		if(getMode())	{
+			moveInterpret(getKeywordFromStack(MOVE_COMMAND),strtod(getKeywordFromStack(VARIABLE),NULL));
+		}
+	//	setCw(getCw()+1);
 		return 1;
 	} else if(checkIfVariable(cProg->tokenList[getCw()]))	{
 		addNode(createNode(cProg->tokenList[getCw()],INSTRUC));   
-		addParseNode(getKeywordFromStack(MOVE_COMMAND),getVariable(getFirstCharacter(getKeywordFromStack(VARIABLE)))); //!sends variable value to interpreter
+		//addParseNode(getKeywordFromStack(MOVE_COMMAND),getVariable(getFirstCharacter(getKeywordFromStack(VARIABLE)))); //!sends variable value to interpreter
+		if(getMode())	{
+			moveInterpret(getKeywordFromStack(MOVE_COMMAND),getVariable(getFirstCharacter(getKeywordFromStack(VARIABLE))));
+		}
+	//	setCw(getCw()+1);
 		return 1;
 	}	else {
 		ERROR("Expected Number or Variable after instruction");	
 	}
 }
 
+iMode getMode()	{
+	return(getSynStack(NULL)->modeStackStart->pM);
+}
+
+void setMode(iMode nM)	{
+	getSynStack(NULL)->modeStackStart->pM = nM;
+}
 
 char *getKeywordFromStack(int keywordNum)	{
 

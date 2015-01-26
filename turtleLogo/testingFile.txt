@@ -1,17 +1,43 @@
 {
-	SET A := 1 ;
+	SET A := 3	;
 	SET B := 2 2 + ;
 	FD 10
-	IF A > B {
-		RT 90 
-	} ELIF A > B {
-		RT 90 
-	} ELIF A > B {
-		LT 90
+	IF A == B {
+		FD 30
+		IF 2 < 1 {
+			LT 45
+		} ELIF 10 < 5 {
+			RT 45
+		} ELSE {
+			FD 100
+		}
+		FD 30
+	} ELIF A < B {
+		IF 1 > 2 {
+			RT 90
+			FD 100
+		} ELIF 1 < 2 {
+			DO A FROM 1 TO 100 {
+				SET C := A 1.5 * ;
+				FD C
+				RT 62
+			}
+		}
+	} ELIF A < 20 {
+		DO A FROM 1 TO 50 {
+			FD A
+			RT 30
+			DO B FROM 1 TO 8 {
+				SET C := A 5 / ;
+				FD C
+				RT 45
+			}
+		}
 	} ELSE {
 		FD 100
-		DO C FROM A TO 100	{
+		DO C FROM A TO 100 {
 			FD 10
 			RT 90
 		}
 	}
+}

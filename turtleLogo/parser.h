@@ -14,6 +14,7 @@ typedef struct calcStack *CalcStack;
 typedef struct calcNode *CalcNode;
 typedef struct varTable *VarTable;
 typedef struct varNode *VarNode;
+typedef struct modeNode *ModeNode;
 typedef enum synType    {
 
         MAIN= 1,
@@ -35,6 +36,12 @@ typedef enum ifComp	{
 
 } ifComp;
 
+typedef enum iMode	{
+	
+	skip = 0,
+	exec = 1 
+
+} iMode;
 
 /*----------Symbolic Constants-----------*/
 
@@ -103,6 +110,10 @@ void printStack();
 char *getKeywordFromStack(int keywordNum);
 char* syntaxStackquery(int n);
 int getNumberSynNodes();
+void pushMode(iMode nm);
+iMode popMode();
+iMode getMode();
+void setMode(iMode nM);
 
 //!Checks for each type of token
 int valueCheck();
