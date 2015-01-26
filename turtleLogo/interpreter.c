@@ -60,13 +60,13 @@ ParseArr getParseArr(ParseArr cp)	{
 	return currPArr;
 }
 
-void readParseArray()	{
+/*void readParseArray()	{
 	ParseArr pArr = getParseArr(NULL);
 	int i;
 	for(i = 0; i < pArr->items; i++)	{
 		moveInterpret(pCommand(pArr->nArr[i]),pVal(pArr->nArr[i]));		
 	}
-}
+}*/
 
 char* pCommand(ParseNode n)	{
 	if(n != NULL)	{
@@ -98,11 +98,11 @@ void clearParseArr()	{
 	int i;
 	if(pArr != NULL)	{
 		for(i = 0; i < pArr->items; i++)	{
-			//pArr->nArr[i] = NULL;
 			free(pArr->nArr[i]);
 		}
 		pArr->items = 0;
 	}
+	pArr->nArr = NULL;
 }
 
 void freeParseArr()	{
@@ -114,7 +114,7 @@ void freeParseArr()	{
 	}
 }
 
-void moveInterpret(char *command, double value)	{
+/*void moveInterpret(char *command, double value)	{
 	if(!strcmp(command,FORWARD))	{
 		moveTurtleForward(value);
 		if(!TESTING)	{
@@ -125,7 +125,7 @@ void moveInterpret(char *command, double value)	{
 	} else if(!strcmp(command,L_TURN))	{
 		turnTurtleLeft(value);
 	}
-}
+}*/
 
 /*---------- Testing Functions ----------*/
 

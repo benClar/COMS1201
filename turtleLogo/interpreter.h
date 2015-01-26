@@ -31,7 +31,7 @@ char* pCommand(ParseNode n);
 int pVal(ParseNode n);
 int getParseNodeNumber();
 
-void moveInterpret(char *command, double value);
+//void moveInterpret(char *command, double value);
 void readParseArray();
 ParseNode getSpecParseNode(int n);
 

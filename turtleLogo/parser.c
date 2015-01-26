@@ -480,7 +480,7 @@ void statement()	{
 	} else if(compCurrCw(IF))	{
 		ifParse(IF);	
 	} else	{
-		sprint(getCToken());
+		printf("%s",getCToken());
 		ERROR("Unrecognisd Symbol");
 	}
 	setCw(getCw()+1);
@@ -569,21 +569,26 @@ void ifParse(char *instruction)	{
 	int ifResult;
 	iMode mTemp  = getMode();
 	ifComp cmpOp;
+	
+	//!First VARNUM Presence check
 	if(checkIfVariable(getCToken()))	{
 		pValA = getVarAddress(checkVarDeclared(getFirstCharacter(addNode(createNode(getCToken(),VAR)))));
 	} else if(checkIfNumber(getCToken()))	{
 		valANum = strtod(addNode(createNode(getCToken(),NUM)),NULL);
 		pValA = &valANum;	
 	} else	{
+		sprint(getCToken());
 		ERROR("Expected VARNUM in IF statement");
 	}
 
+	//!Operator Check
 	setCw(getCw()+1);
 	if((cmpOp = checkIfComparator(getCToken())))	{
 		addNode(createNode(getCToken(),OP));
 	}
 	setCw(getCw()+1);
 
+	//!Second Varnum Presence check
 	if(checkIfVariable(getCToken()))	{
 		pValB = getVarAddress(checkVarDeclared(getFirstCharacter(addNode(createNode(getCToken(),VAR)))));
 	} else if(checkIfNumber(getCToken()))	{
@@ -604,14 +609,14 @@ void ifParse(char *instruction)	{
 
 	if((ifResult = ifComparison(cmpOp,*pValA,*pValB)) && (mTemp == exec))	{
 		while(!compCurrCw(L_BRACE))	{
-			statement();
+			statement(); //!Do statements in if loop if condition is true and mode is execution
 		}
 	} else	{
 		do {
-			setMode(skip);
+			setMode(skip);  //!Skip statements enclosed in block
 			statement();
 			if(mTemp)	{
-				setMode(exec);
+				setMode(exec);  //!Set mode back to execute if block was originally in execute mode before skip
 			}
 		} while(!compCurrCw(L_BRACE));
 	}
@@ -622,9 +627,9 @@ void ifParse(char *instruction)	{
 		ERROR("IF block not closed");
 	}
 	setCw(getCw()+1);
-	if(compCurrCw(ELIF))	{
+	ifDecision(ifResult);
+	/*if(compCurrCw(ELIF))	{
 		if(!ifResult && getMode())	{
-			printf("PARSING ELIF in EXEC MODE\n");
 			ifParse(IF);
 		} else	{
 			skipElif();
@@ -637,8 +642,30 @@ void ifParse(char *instruction)	{
 		}	
 	} else	{
 		setCw(getCw()-1);
-	}
+	}*/
 	popMode();
+}
+
+/*
+ * Check to see if there is another if block to parse
+ */
+void ifDecision(int ifResult)	{
+    if(compCurrCw(ELIF))    {
+        if(!ifResult && getMode())  {
+            ifParse(IF);
+        } else  {
+            skipElif();
+        }
+    } else if(compCurrCw(ELSE)) {
+        if(!ifResult && getMode())  {
+            elseParse();
+        } else  {
+            skipElse();
+        }
+    } else  {
+        setCw(getCw()-1);
+    }	
+
 }
 
 void elseParse()	{
@@ -653,6 +680,7 @@ void elseParse()	{
         addNode(createNode(R_BRACE,MAIN));
         setCw(getCw()+1);
     } else {
+		sprint(getCToken());
         ERROR("Expected { in ELSE statement");
     }
 	
@@ -973,23 +1001,38 @@ int movementParse(char *instruction)	{
 	setCw(getCw()+1);
 	if(checkIfNumber(cProg->tokenList[getCw()]))	{
    		addNode(createNode(cProg->tokenList[getCw()],INSTRUC));
-		//addParseNode(getKeywordFromStack(MOVE_COMMAND),strtod(getKeywordFromStack(VARIABLE),NULL)); //!sends move command to interpreter
+		if(TESTING && getMode())	{
+			addParseNode(getKeywordFromStack(MOVE_COMMAND),strtod(getKeywordFromStack(VARIABLE),NULL));
+		}
 		if(getMode())	{
 			moveInterpret(getKeywordFromStack(MOVE_COMMAND),strtod(getKeywordFromStack(VARIABLE),NULL));
 		}
-	//	setCw(getCw()+1);
 		return 1;
 	} else if(checkIfVariable(cProg->tokenList[getCw()]))	{
 		addNode(createNode(cProg->tokenList[getCw()],INSTRUC));   
-		//addParseNode(getKeywordFromStack(MOVE_COMMAND),getVariable(getFirstCharacter(getKeywordFromStack(VARIABLE)))); //!sends variable value to interpreter
+		if(TESTING)	{
+		addParseNode(getKeywordFromStack(MOVE_COMMAND),getVariable(getFirstCharacter(getKeywordFromStack(VARIABLE))));
+		}
 		if(getMode())	{
 			moveInterpret(getKeywordFromStack(MOVE_COMMAND),getVariable(getFirstCharacter(getKeywordFromStack(VARIABLE))));
 		}
-	//	setCw(getCw()+1);
 		return 1;
 	}	else {
 		ERROR("Expected Number or Variable after instruction");	
 	}
+}
+
+void moveInterpret(char *command, double value) {
+    if(!strcmp(command,FORWARD))    {
+        moveTurtleForward(value);
+        if(!TESTING)    {
+            drawLine(getOriginX(),getOriginY(),getTargetX(),getTargetY());
+        }
+    } else if(!strcmp(command,R_TURN))  {
+        turnTurtleRight(value);
+    } else if(!strcmp(command,L_TURN))  {
+        turnTurtleLeft(value);
+    }
 }
 
 iMode getMode()	{

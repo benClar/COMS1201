@@ -53,6 +53,7 @@ typedef enum iMode	{
 #define VARIABLE	1
 #define	MOVE_COMMAND	2
 #define NEW_VAR		0		//!Initial value for undefined variable
+#define RESET_CW	0		//!Resets current word to 0
 /*----------Function Prototypes-----------*/
 
 void createProgram();
@@ -123,6 +124,8 @@ void setParse();
 void polishParse();
 void ifParse(char *instruction);
 
+void moveInterpret(char *command, double value);
+
 int checkIfNumber();
 int checkIfVariable(char *instruction);
 ifComp checkIfComparator(char *comparator);
@@ -132,6 +135,7 @@ int countBlock();
 void elseParse();
 void skipElse();
 void skipElif();
+void ifDecision(int ifResult);
 
 int code();
 void prog();

@@ -9,7 +9,8 @@
 
 /*----------Symbolic Constants-----------*/
 
-
+#define FILE_ARG 1
+#define MAX_ARG		2
 
 /*----------Structures----------*/
 
@@ -17,7 +18,7 @@
 
 /*----------Function Prototypes-----------*/
 
-void initialize();
+void initialize(int argc);
 void end();
 void readFile(char *fileName);
 void testing();
@@ -25,4 +26,14 @@ void testing();
 /*----------Testing Function Prototypes-----------*/
 
 void interpreterToTurtle();
-void parserToTurtle();
+void singleIfTest();
+void singleElifTest();
+void singleElseTest();
+void nestedInIfTest();
+void nestedIfInElifTest();
+void ElifNestedInElseTest();
+void nestedElifTest();
+void nestedElseTest();
+
+void whileLoopTestTurtle();
+

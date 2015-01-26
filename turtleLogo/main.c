@@ -18,25 +18,25 @@
 //! Argv
 /*---------- Main -----------*/
 
-int main(){
-	initialize();
+int main(int argc, char *argv[]){
+	initialize(argc);
 	if(TESTING)	{
 		testing();
 	} 
-	readFile("testingFile.txt");
+	readFile(argv[FILE_ARG]);
 	prog();
-  	readParseArray();
 	do	{
 		endFrame();
-		initTurtle();
 	}while(!checkFinished());
 	end();
 }
 
 /*---------- Functions ----------*/
 
-void initialize()	{
-
+void initialize(int argc)	{
+		if(argc != MAX_ARG)	{
+			ERROR("You must specify file.");
+		}
 		createProgram();
 		createSuite();
 		createSynStack();
@@ -93,16 +93,288 @@ void testing()	{
 
 	//!Component Tests
 	interpreterToTurtle();	
-	parserToTurtle();
-
+	whileLoopTestTurtle();
 	finishTesting();
 	end();
 }
 
-void parserToTurtle()	{
-	enterSuite("Parser passing to Interpreter which moves turtle");
+void ifStatementTest()	{
+	singleIfTest();
+    singleElifTest();
+    singleElseTest();
+    nestedInIfTest();
+    nestedIfInElifTest();
+    ElifNestedInElseTest();
+}
+
+void clearForTesting()	{
+	setCw(RESET_CW);
+	clearTokens();
+    clearParseArr();
+    initTurtle();
+	setAngle(0);
+}
+void singleIfTest()	{
+    enterSuite("Simulating single if statement and moving turtle");
+	int oldY, oldX;
+    oldX = getTargetX();
+    oldY = getTargetY();
+
+	clearForTesting();
+    addToken(IF);
+    addToken("1");
+    addToken(L_THAN);
+    addToken("2");
+    addToken(R_BRACE); //!True: Execute
+    addToken(FORWARD);
+    addToken("10");
+    addToken(L_BRACE);
+	addToken(L_BRACE);
+	ifParse(IF);
+	removeCurrentInstruction();
+    testVal(checkSynStackEmpty(),1,"Valid: If Instruction has been popped. Empty Synax Stack",EQUALS);
+	testVal(getParseNodeNumber(),1,"Valid: One instruction has been placed on parse queue",EQUALS);	
+	testVal(pVal(getSpecParseNode(1)),10,"Valid: The ELIF instruction has been placed in list",EQUALS);
+	moveInterpret(pCommand(getSpecParseNode(1)),pVal(getSpecParseNode(1)));
+
+	testVal(oldX,getTargetX(),"Valid: Turtle moves right along x axis only",LESS);
+	testVal(oldY,getTargetY(),"Valid: Turtle y axis remains the same",EQUALS);
+
+	clearForTesting();	
+	leaveSuite();
+}
+
+void singleElifTest()	{
+	enterSuite("Simulating a single if else statement and moving turtle");
+	clearForTesting();
+
+	int oldY, oldX;
+    oldX = getTargetX();
+    oldY = getTargetY();
+
+    addToken(IF);
+    addToken("1");
+    addToken(G_THAN);
+    addToken("2");
+    addToken(R_BRACE);
+    addToken(FORWARD); //!False
+    addToken("10");
+    addToken(L_BRACE);
+	addToken(ELIF);
+	addToken("10");
+	addToken(G_THAN);
+	addToken("5");
+	addToken(R_BRACE); //! True: Execute
+	addToken(R_TURN);
+	addToken("90");
+	addToken(L_BRACE);
+	addToken(L_BRACE);
+	ifParse(IF);
+	removeCurrentInstruction();
+	testVal(checkSynStackEmpty(),1,"Valid: If Instruction has been popped. Empty Synax Stack",EQUALS);
+	testVal(getParseNodeNumber(),1,"Valid: One instruction has been placed in list",EQUALS);
+	testVal(pVal(getSpecParseNode(1)),90,"Valid: The ELIF instruction has been placed in list",EQUALS);
+	testVal(oldX,getTargetX(),"Valid: Turtle has not moved",EQUALS);
+    testVal(oldY,getTargetY(),"Valid: Turtle has not moved",EQUALS);
+	dprint(getAngle());
+    testVal(getAngle(),90,"Valid: Turtle turned 90 degrees clockwise",EQUALS);
+	clearForTesting();	
+	leaveSuite();
+}
+
+void singleElseTest()	{
+	enterSuite("Simulating a single if, elif, else statement and moving turtle");
+	clearForTesting();
+
+    int oldY, oldX;
+    oldX = getTargetX();
+    oldY = getTargetY();
+
+    addToken(IF);
+    addToken("1");
+    addToken(G_THAN);
+    addToken("2");
+    addToken(R_BRACE); //!False
+    addToken(FORWARD);
+    addToken("10");
+    addToken(L_BRACE);
+	addToken(ELIF);
+	addToken("10");
+	addToken(L_THAN);
+	addToken("5");
+	addToken(R_BRACE); //!False
+	addToken(R_TURN);
+	addToken("90");
+	addToken(L_BRACE);
+	addToken(ELSE); //!Execute
+	addToken(R_BRACE);
+	addToken(L_TURN);
+	addToken("100");
+	addToken(L_BRACE);
+	addToken(L_BRACE);
+	ifParse(IF);
+	removeCurrentInstruction();
+	testVal(checkSynStackEmpty(),1,"Valid: If Instruction has been popped. Empty Synax Stack",EQUALS);
+	testVal(getParseNodeNumber(),1,"Valid: One instruction has been placed in list",EQUALS);
+	testVal(pVal(getSpecParseNode(1)),100,"Valid: The ELIF instruction has been placed in list",EQUALS);
+	testVal(oldX,getTargetX(),"Valid: turtle has not moved",EQUALS);
+    testVal(oldY,getTargetY(),"Valid: turtle has not moved",EQUALS);
+	testVal(getAngle(),260,"Valid: Turtle turned 100 degrees anti-clockwise",EQUALS);
+	clearForTesting();	
+	leaveSuite();
+}
+
+void nestedInIfTest()	{
+	enterSuite("Nested if statement in if section of parent statement.");
+	clearForTesting();
+
+	int oldY, oldX;
+    oldX = getTargetX();
+    oldY = getTargetY();
+
+    addToken(IF);
+    addToken("1");
+    addToken(L_THAN);
+    addToken("2");
+    addToken(R_BRACE); //!True
+    addToken(IF);
+    addToken("4");
+    addToken(G_THAN);
+    addToken("2");
+    addToken(R_BRACE); //!True : Execute
+    addToken(FORWARD);
+    addToken("10");
+    addToken(L_BRACE);
+    addToken(L_BRACE);
+	addToken(ELSE);
+	addToken(R_BRACE);
+	addToken(R_TURN);
+	addToken("100");
+	addToken(L_BRACE);
+	addToken(L_BRACE);
+	ifParse(IF);
+	removeCurrentInstruction();
+    testVal(checkSynStackEmpty(),1,"Valid: If Instruction has been popped. Empty Synax Stack",EQUALS);
+	testVal(getParseNodeNumber(),1,"Valid: One instruction has been placed on parse queue. Else statement ignored.",EQUALS);	
+	testVal(pVal(getSpecParseNode(1)),10,"Valid: The ELIF instruction has been placed in list",EQUALS);
+	testVal(oldX,getTargetX(),"Valid: Turtle moves right along x axis only",LESS);
+    testVal(oldY,getTargetY(),"Valid: Turtle y axis remains the same",EQUALS);
+	clearForTesting();
+	leaveSuite();
+
+}
+
+void nestedIfInElifTest()	{
+	enterSuite("If statement nested in elif statement of parent statement");
+	clearForTesting();
+
+	int oldY, oldX;
+    oldX = getTargetX();
+    oldY = getTargetY();
+
+    addToken(IF);
+    addToken("1");
+    addToken(G_THAN);
+    addToken("2");
+    addToken(R_BRACE); //!False
+    addToken(FORWARD);
+    addToken("10");
+    addToken(L_BRACE);
+	addToken(ELIF);
+	addToken("10");
+	addToken(G_THAN); //!True
+	addToken("5");
+	addToken(R_BRACE);
+	addToken(IF);
+	addToken("20");
+	addToken(EQ);
+	addToken("20");
+	addToken(R_BRACE); //!True: Execute
+	addToken(R_TURN);
+	addToken("90");
+	addToken(L_BRACE);
+	addToken(L_BRACE);
+	addToken(L_BRACE);
+	ifParse(IF);
+	removeCurrentInstruction();
+	testVal(checkSynStackEmpty(),1,"Valid: If Instruction has been popped. Empty Synax Stack",EQUALS);
+	testVal(getParseNodeNumber(),1,"Valid: One instruction has been placed in list",EQUALS);
+	testVal(pVal(getSpecParseNode(1)),90,"Valid: The ELIF instruction has been placed in list",EQUALS);
+
+	testVal(oldX,getTargetX(),"Valid: Turtle has not moved",EQUALS);
+    testVal(oldY,getTargetY(),"Valid: Turtle turtle has not moved",EQUALS);
+	testVal(getAngle(),90,"Valid: Turtle turned 90 degrees clockwise",EQUALS);
+
+	clearForTesting();	
+	leaveSuite();
+
+
+}
+
+void ElifNestedInElseTest()	{
+enterSuite("Simulating satisfying an ELIF statement nested in parent ELSE statement and moving turtle");
+    clearForTesting();
+
+	int oldY, oldX;
+    oldX = getTargetX();
+    oldY = getTargetY();
+
+	//!If indenting simulated below for addition of tokens
+    addToken(IF);
+    addToken("1");
+    addToken(G_THAN);
+    addToken("2");
+   	addToken(R_BRACE); //!False
+    	addToken(FORWARD);
+ 		addToken("10");
+    addToken(L_BRACE);
+    addToken(ELIF);
+	addToken("10");
+    addToken(L_THAN);
+    addToken("5");
+    addToken(R_BRACE); //!False
+		addToken(R_TURN);
+		addToken("90");
+    addToken(L_BRACE);
+    addToken(ELSE);
+    addToken(R_BRACE); //! Execute else: IF and ELIF both false
+		addToken(IF);
+		addToken("1");
+		addToken(G_THAN);
+		addToken("2");
+		addToken(R_BRACE); //!False
+			addToken(FORWARD);
+			addToken("10");
+		addToken(L_BRACE);
+		addToken(ELIF);
+		addToken("500");
+		addToken(G_THAN);
+	    addToken("5");
+		addToken(R_BRACE);	//! True
+			addToken(R_TURN);
+			addToken("200");
+		addToken(L_BRACE);
+    addToken(L_BRACE);
+    addToken(L_BRACE);
+    ifParse(IF);
+    removeCurrentInstruction();
+    testVal(checkSynStackEmpty(),1,"Valid: If Instruction has been popped. Empty Synax Stack",EQUALS);
+    testVal(getParseNodeNumber(),1,"Valid: One instruction has been placed in list",EQUALS);
+    testVal(pVal(getSpecParseNode(1)),200,"Valid: The ELIF instruction has been placed in list",EQUALS);
+	testVal(oldX,getTargetX(),"Valid: Turtle has not moved",EQUALS);
+    testVal(oldY,getTargetY(),"Valid: Turtle has not moved",EQUALS);
+	testVal(getAngle(),200,"Valid: Turtle has turned 200 degrees clockwise",EQUALS);
+    clearForTesting();
+    leaveSuite();
+}
+
+
+
+void whileLoopTestTurtle()	{
+	enterSuite("simulating while loop moving turtle");
 	int i,oldX,oldY;
 	setAngle(0);	
+	setCw(RESET_CW);
 	//! Simulating a do loop being placed in program array
 	addToken(DO);
 	addToken("A");
@@ -169,8 +441,7 @@ void parserToTurtle()	{
 				break;
 		}
 	}
-	clearParseArr();
-	initTurtle();
+	clearForTesting();
 	leaveSuite();		
 }
 
