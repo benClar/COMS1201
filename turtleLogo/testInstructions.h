@@ -14,7 +14,7 @@ typedef struct parseNode *ParseNode;
 
 /*----------Symbolic Constants-----------*/
 
-#define TESTING 1
+#define TESTING 0
 
 /*----------Structures----------*/
 

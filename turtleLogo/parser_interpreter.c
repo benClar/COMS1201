@@ -168,6 +168,9 @@ double getVariable(char var)	{
 			return vt->vTable[i]->value;
 		}
 	}
+	if(!getMode())	{
+		return 1;
+	}
 	ERROR("Undefined Symbol");
 }
 
@@ -552,13 +555,6 @@ void createProgram()	{
 void prog()	{
 	setCw(0);
 	specParse("Missing { to start",R_BRACE,MAIN);
-	/*
-	if(compCurrCw(R_BRACE))	{
-		addNode(createNode(R_BRACE,MAIN));
-		setCw(getCw()+1);
-	} else {
-		ERROR("Missing { to start");
-	}*/
 	code();	
 }
 
@@ -620,12 +616,6 @@ void setParse()	{
 		ERROR("Expected VAR in SET statement");
 	}
 	specParse("Expected := in SET statement",P_EQUALS,VAR);
-	/*if(compCurrCw(P_EQUALS))	{
-		addNode(createNode(getCToken(),VAR));
-		setCw(getCw()+1);
-	}	else	{
-		ERROR("Expected := in SET statement");
-	}*/
 
 	polishParse(getCToken());
 	if(getMode())	{ //! Only add variable if in exec mode
@@ -658,8 +648,11 @@ void polishParse()	{
 	if(!calcStackEmpty())	{
 		ERROR("Error in POLISH statement: number of VAR and number of OP do not match");
 	}
+	if(checkIfNumber(calcRes))	{
 		addNode(createNode(calcRes,VAR));
-	//printStack(); //!prints the current calc
+	}	else	{
+		ERROR("Calculation not possible: please check");
+	}
 }
 
 /*
@@ -732,37 +725,15 @@ void ifParse(char *instruction)	{
 
 	setCw(getCw()+1);
 	specParse("Expected { in IF statement",R_BRACE,MAIN);
-	/*
-	if(compCurrCw(R_BRACE))  {
-		addNode(createNode(R_BRACE,MAIN));
-		setCw(getCw()+1);
-	} else {
-		ERROR("Expected { in IF statement");
-	}
-	*/
 	if((ifResult = ifComparison(cmpOp,*pValA,*pValB)) && (mTemp == exec))	{
 		while(!compCurrCw(L_BRACE))	{
 			statement(); //!Do statements in if loop if condition is true and mode is execution
 		}
 	} else	{
 		ifBlock(mTemp);
-		/*do {
-			setMode(skip);  //!Skip statements enclosed in block
-			statement();
-			if(mTemp)	{
-				setMode(exec);  //!Set mode back to execute if block was originally in execute mode before skip
-			}
-		} while(!compCurrCw(L_BRACE));*/
 	}
 
 	lBraceParse("IF block not closed");
-	/*
-	if(compCurrCw(L_BRACE))	{
-		removeLastSNodeOfType(R_BRACE);
-	} else	{
-		ERROR("IF block not closed");
-	}
-	*/
 	setCw(getCw()+1);
 
 
@@ -770,21 +741,6 @@ void ifParse(char *instruction)	{
 
 
 	ifDecision(ifResult);
-	/*if(compCurrCw(ELIF))	{
-		if(!ifResult && getMode())	{
-			ifParse(IF);
-		} else	{
-			skipElif();
-		}
-	} else if(compCurrCw(ELSE)) {
-		if(!ifResult && getMode())	{	
-			elseParse();
-		} else 	{
-			skipElse();
-		}	
-	} else	{
-		setCw(getCw()-1);
-	}*/
 	popMode();
 }
 
@@ -821,14 +777,6 @@ void elseParse()	{
 	}
 	setCw(getCw()+1);
 	specParse("Expected { in IF statement",R_BRACE,MAIN);
-	/*
-	if(compCurrCw(R_BRACE))  {
-        addNode(createNode(R_BRACE,MAIN));
-        setCw(getCw()+1);
-    } else {
-        ERROR("Expected { in ELSE statement");
-    }
-	*/
 	while(!compCurrCw(L_BRACE))	{
 		statement();
 		//setCw(getCw()+1);
@@ -877,29 +825,7 @@ void skipElif()	{
 
 		setCw(getCw()+1);
 		specParse("Expected { in IF statement",R_BRACE,MAIN);
-	/*
-		if(compCurrCw(R_BRACE))  {
-			addNode(createNode(R_BRACE,MAIN));
-			setCw(getCw()+1);
-		} else {
-			ERROR("Expected { in IF statement");
-		}*/
 		ifBlock(mTemp);
-		/*
-		do {
-			setMode(skip);
-			statement();
-			if(mTemp)	{
-				setMode(exec);
-			}
-			//setCw(getCw()+1);
-		} while(!compCurrCw(L_BRACE));
-		*/
-		/*if(compCurrCw(L_BRACE))	{
-			removeLastSNodeOfType(R_BRACE);
-		} else	{
-			ERROR("IF block not closed");
-		}*/
 
 		lBraceParse("IF block not closed");
 	
@@ -941,55 +867,14 @@ int checkForEmptyBlock()    {
 }
 
 /*
- *Checks that statement block as been closed with Left Brace
- */
-/*void closeBlock(char *error)	{
-	if(compCurrCw(L_BRACE))	{
-		removeLastSNodeOfType(R_BRACE);
-	} else	{
-		ERROR("IF block not closed");
-	}
-}*/
-
-/*
  *Skip else statement
  */
 void skipElse()	{
 	iMode mTemp = getMode();
 	specParse("Skipping ELSE on non-ELSE statement",ELSE,INSTRUC);
-	/*if(compCurrCw(ELSE))	{
-		addNode(createNode(getCToken(),INSTRUC));
-	//	setCw(getCw()+1);
-	} else	{
-		ERROR("skipping ELSE on non-ELSE statement");
-	}*/
-
 	specParse("Expected { in ELSE statement",R_BRACE,MAIN);
-	/*	
-	if(compCurrCw(R_BRACE))	{
-		addNode(createNode(getCToken(),INSTRUC));
-	} else	{
-		ERROR("Expected { in ELSE statement");
-	}
-	setCw(getCw()+1);
-	*/
 	ifBlock(mTemp);
-	/*
-	do {
-		setMode(skip);
-		statement();
-		if(mTemp)	{
-			setMode(exec);
-		}
-	} while(!compCurrCw(L_BRACE));
-	*/
 	lBraceParse("Failed to close ELSE statement");
-	/*
-	if(compCurrCw(L_BRACE))	{
-		removeLastSNodeOfType(R_BRACE);	
-	} else	{
-		ERROR("Failed to close ELSE statement");
-	}*/
 }
 
 
@@ -1084,14 +969,6 @@ int doParse(char *instruction)	{
 
 	specParse("Expected FROM in DO statement",FROM,CONNECTOR);
 
-	/*
-  	if(compCurrCw(FROM))	{
-		addNode(createNode(getCToken(),CONNECTOR));
-		setCw(getCw()+1);
-	} else	{
-		ERROR("Expected FROM in DO statememt");
-	}*/
-
 	if(checkIfVariable(getCToken()))	{
 		addNode(createNode(getCToken(),VAR));
 		if(getMode())	{
@@ -1127,14 +1004,6 @@ int doParse(char *instruction)	{
 
 	setCw(getCw()+1);
 	specParse("Expected { in DO statement",R_BRACE,MAIN);
-	/*
-	if(compCurrCw(R_BRACE))  {
-		addNode(createNode(R_BRACE,MAIN));
-		setCw(getCw()+1);
-	} else {
-		ERROR("Expected { in DO statement");
-	}
-	*/
 	beforeLoopPos = getCw();
 	if(getMode())	{
 		for(;getVariable(minVal) <= *pMaxVal; updateVariable(minVal,getVariable(minVal)+1))	{
