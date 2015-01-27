@@ -62,19 +62,20 @@ void endFrame()	{
 }
 
 // Gobble all events & ignore most
-void Neill_SDL_Events()	{
+int Neill_SDL_Events()	{
 	SDL_Simplewin sw = getSw(NULL);
    	SDL_Event event;
-	while(SDL_PollEvent(&event)) 
-	{      
+	while(SDL_PollEvent(&event))	{
 		switch (event.type){
 			case SDL_QUIT:
-         	case SDL_MOUSEBUTTONDOWN:
+       	  	case SDL_MOUSEBUTTONDOWN:
       		case SDL_KEYDOWN:
-         	sw->finished = 1;
-       }
-    }
+       	  	sw->finished = 1;
+    	}
+	}
+	return sw->finished;
 }
+
 
 int checkFinished()	{
 	return getSw(NULL)->finished;

@@ -30,7 +30,7 @@ typedef struct SDL_simplewin *SDL_Simplewin;
 
 void Neill_SDL_SetDrawColour(Uint8 r, Uint8 g, Uint8 b);
 void Neill_SDL_Init();
-void Neill_SDL_Events();
+int Neill_SDL_Events();
 void Neill_SDL_SetDrawColour(Uint8 r, Uint8 g, Uint8 b);
 void Neill_SDL_RenderFillCircle(SDL_Renderer *rend, int cx, int cy, int r);
 void Neill_SDL_RenderDrawCircle(SDL_Renderer *rend, int cx, int cy, int r);

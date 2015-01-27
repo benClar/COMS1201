@@ -27,7 +27,8 @@ struct program	{
 
 		char **tokenList; //@ List of tokens
 		int tokenNum; //@Number of tokens
-		int cw;	//@Current token to be parsed
+		int cw;	//@Current token to be parsed **Depricted in extension**
+		AddressStack startCw; //Head of stack holding current execution address
 		//int nw;
 };
 
@@ -41,6 +42,35 @@ struct syntaxStack	{
 		int numNodes;	//@Number of nodes in stack
 		int instructionLength;	//@Length of current instruction, ignoring brackets
 		ModeNode modeStackStart;	//@Stack holding execution nodes
+};
+
+/**!
+ *Nod of address Stack storing  addresses in program token list
+ */
+struct addressStack	{
+
+	int sCw; 	//!Address in program token list
+	AddressStack previous; 	//@Previous node in stack
+
+};
+
+/**!
+ *Head of array holding functions and their addresses
+ */
+struct functionAddrTable	{
+	
+	FunctionAddrNode *funTable;  //@ Table holding all functions
+	int numOfFunctions;	 //@Number of functions in program
+
+};
+
+/**
+ *Function Nodes of function array table
+ */
+struct functionAddrNode	{
+
+	char *functionName; //@ String identifier of function
+	int funAddr;	//@address of function
 };
 
 /**!
@@ -222,7 +252,6 @@ double* getVarAddress(char var)	{
  *Updates specified variable with specified value
  */
 double updateVariable(char var,double val)	{
-	
 	int i;
 	VarTable vt = getVarTable(NULL);
 	for(i = 0; i < vt->vNum; i++)	{
@@ -389,6 +418,7 @@ void createSynStack()	{
 	newStack->modeStackStart->previous = NULL;
 	getSynStack(newStack);
 }
+
 
 void freeSyntaxStack()	{
 	SyntaxStack stack = getSynStack(NULL);
@@ -571,9 +601,40 @@ void createProgram()	{
 	Program newProgram = (Program) checkMalloc(malloc(sizeof(*newProgram)));
 	newProgram->tokenList = NULL;
 	newProgram->tokenNum = 0;
+	newProgram->startCw = (AddressStack) checkMalloc(malloc(sizeof(*newProgram->startCw)));
+	newProgram->startCw->sCw = 0;
+	newProgram->startCw->previous = NULL;
 	newProgram->cw = 0;
 	getProgram(newProgram);
+}
 
+void addAddressStackNode(int newCw)	{
+
+	Program newProgram = getProgram(NULL);
+	AddressStack newStack = (AddressStack) checkMalloc(malloc(sizeof(*newStack)));
+	newStack->previous = newProgram->startCw;
+	newProgram->startCw  = newStack; 
+	newStack->sCw = newCw;	
+}
+
+void popAddressStackNode()	{
+
+	Program programC = getProgram(NULL);
+	AddressStack temp = programC->startCw;
+	programC->startCw = programC->startCw->previous;
+	free(temp);	
+
+}
+
+void enterFunction()	{
+	addAddressStackNode(getFunctionAddress(getCToken()));
+	setCw(getCw()+1);
+
+	while(!compCurrCw(L_BRACE)) {
+    	statement();
+    }
+	lBraceParse("Function block not closed");
+	popAddressStackNode();	
 }
 
 /*
@@ -621,13 +682,136 @@ void statement()	{
 		setParse(SET);	
 	} else if(compCurrCw(IF))	{
 		ifParse(IF);	
-	} else	{
-		iprint(getCw());
-		printf("%s\n",getCToken());
-		ERROR("Unrecognisd Symbol");
+	} else if(compCurrCw(FUNC))	{
+		funcParse();	
+	} else {
+		if(checkIfFunction(getCToken()))	{
+			if(getMode())	{
+				enterFunction();
+			}
+		} else {
+			iprint(getCw());
+			printf("%s\n",getCToken());
+			ERROR("Unrecognisd Symbol");
+		}
 	}
 	setCw(getCw()+1);
 }
+
+/*
+ *Creates function table
+ */
+void createFunctionTable()	{
+
+	FunctionAddrTable newFTable = (FunctionAddrTable) checkMalloc(malloc(sizeof(*newFTable)));
+	newFTable->funTable = NULL;
+	newFTable->numOfFunctions = 0;
+	getFTable(newFTable);
+}
+
+void clearFunctionTable()	{
+	FunctionAddrTable FTable = getFTable(NULL);
+	int i;
+	for(i = 0; i < FTable->numOfFunctions; i++)	{
+		free(FTable->funTable[i]);
+	}	
+	FTable->numOfFunctions = 0;
+
+}
+
+void freeFunctionTable()	{
+	clearFunctionTable();
+	free(getFTable(NULL));
+}
+
+FunctionAddrTable getFTable(FunctionAddrTable nTab)	{
+	
+	static FunctionAddrTable cT;
+	if(nTab != NULL)	{
+		cT = nTab;
+	}
+
+	return cT;
+}
+
+int getFunctionAddress(char *name)	{
+
+    FunctionAddrTable FTable = getFTable(NULL);
+    int i;
+    for(i = 0; i < FTable->numOfFunctions; i++) {
+        if(!strcmp(FTable->funTable[i]->functionName,name))   {
+			return FTable->funTable[i]->funAddr;
+        }
+    }
+	ERROR("Function Does not exist");
+}
+
+int checkIfFunction(char *name)	{
+
+    FunctionAddrTable FTable = getFTable(NULL);
+    int i;
+    for(i = 0; i < FTable->numOfFunctions; i++) {
+        if(!strcmp(FTable->funTable[i]->functionName,name))   {
+			return 1;
+        }
+    }
+    return 0;	
+}
+
+/*
+ *Add new function to function table
+ */
+void addNewFunction(char *fName, int address)	{
+	FunctionAddrTable FTable = getFTable(NULL);
+	assert(address <= getTotalTokens());
+	validateFunctionName(fName);
+	if(!checkIfFunction(fName))	{
+		if(!FTable->numOfFunctions)	{
+				FTable->funTable = (FunctionAddrNode*) checkMalloc(malloc(sizeof(*FTable->funTable)));
+		} else	{
+				FTable->funTable = (FunctionAddrNode*) checkMalloc(realloc(FTable->funTable,FTable->numOfFunctions+1*sizeof(FTable->funTable[FTable->numOfFunctions])));
+			}
+		
+		FTable->funTable[FTable->numOfFunctions] = (FunctionAddrNode) checkMalloc(malloc(sizeof(*FTable->funTable[FTable->numOfFunctions]))); //Creating function node
+		FTable->funTable[FTable->numOfFunctions]->functionName = (char*) checkMalloc(calloc(getTokenLength(fName),sizeof(char))); //!Creating space for function string name
+		strcat(FTable->funTable[FTable->numOfFunctions]->functionName,fName);
+		FTable->funTable[FTable->numOfFunctions]->funAddr = address;	
+		FTable->numOfFunctions++;
+	} else {
+		ERROR("Duplicate function declared");	
+	}
+}
+
+/*
+ *Ensures function name follows standard
+ */
+int validateFunctionName(char *fName)	{
+
+	int i;
+	for(i = 0; fName[i] != '\0'; i++)	{
+		if(!isupper(fName[i]) || (i >= MAX_F_NAME))	{
+			printf(("%s\n"),fName);
+			ERROR("Invalid Function Name");	
+		}
+	}
+
+	return 1;
+
+}
+
+/*
+ *Parses function declaration
+ */
+void funcParse()	{
+	specParse("Trying to parse non-function statement like function statement",FUNC,INSTRUC);	
+	addNewFunction(addNode(createNode(getCToken(),MAIN)),getCw());
+	setCw(getCw()+1);
+	specParse("Missing { in function declaration",R_BRACE,MAIN);	
+	ifBlock(getMode());	
+    lBraceParse("Function Declaration Block not closed");
+}
+
+
 
 /*
  *Parses and interprets set command
@@ -711,7 +895,7 @@ double calculatePolish()	{
  *Parses and interprets base if statement
  */
 void ifParse(char *instruction)	{
-
+	//iprint(getMode());
 	pushMode(getMode());	//! Copying previous execution mode
 	addNode(createNode(instruction,INSTRUC));
 	setCw(getCw()+1);
@@ -724,7 +908,7 @@ void ifParse(char *instruction)	{
 	
 	//!First VARNUM Presence check
 	if(checkIfVariable(getCToken()))	{
-		pValA = getVarAddress(checkVarDeclared(getFirstCharacter(addNode(createNode(getCToken(),VAR)))));
+			pValA = getVarAddress(checkVarDeclared(getFirstCharacter(addNode(createNode(getCToken(),VAR)))));
 	} else if(checkIfNumber(getCToken()))	{
 		valANum = strtod(addNode(createNode(getCToken(),NUM)),NULL);
 		pValA = &valANum;	
@@ -864,7 +1048,7 @@ void skipElif()	{
 }
 
 /*
- *Checks if if block has finished, Changing execution mode as appropriate
+ *Skips if block, Checks if if block has finished, Changing execution mode as appropriate
  */
 void ifBlock(iMode mT)	{
 	while(!compCurrCw(L_BRACE))	{
@@ -880,7 +1064,6 @@ void ifBlock(iMode mT)	{
  *Returns true if empty block
  */
 int checkForEmptyBlock()    {
-	sprint(getCToken());
 	if(compCurrCw(L_BRACE))	{
 		return 1;
 	}
@@ -1294,14 +1477,16 @@ int compCurrCw(char *comparison)	{
  *Return index of current token
  */
 int getCw()	{
-	return getProgram(NULL)->cw;
+	return getProgram(NULL)->startCw->sCw;
+	//return getProgram(NULL)->cw;
 }
 
 /*
  *Set current CW indec to absolute passed in value
  */
 void setCw(int newValue)	{
-	getProgram(NULL)->cw = newValue;
+	getProgram(NULL)->startCw->sCw  = newValue;
+	//getProgram(NULL)->cw = newValue;
 }
 
 /*
@@ -1341,7 +1526,7 @@ void clearTokens()	{
 	free(cProg->tokenList);
     cProg->tokenList = NULL;
     cProg->tokenNum = 0;
-    cProg->cw = 0;
+	setCw(0);
 }
 
 void freeProgramArray()	{
@@ -1382,6 +1567,7 @@ void parserUnitTests()	{
 	polishCalcTests();
 	programArrayTests();
 	syntaxStackTests();
+	functionTests();
 	parsingTests();
 }
 
@@ -1470,8 +1656,26 @@ void bracketsTest()	{
     leaveSuite();
 }
 
+void functionTests()	{
+	enterSuite("Testing Function functions");
+	clearTokens();
+	addNewFunction("TESTFUNCTION",0);
+	testVal(checkIfFunction("TESTFUNCTION"),1,"Valid: Testing added function exists in function table",EQUALS);
+	testVal(getFunctionAddress("TESTFUNCTION"),0,"Valid: Address of added function is 0",EQUALS);
+	setCw(20);
+	testVal(getCw(),20,"Valid: Current word set to 20",EQUALS);	
+	addAddressStackNode(getFunctionAddress("TESTFUNCTION"));
+	testVal(getCw(),0,"Valid: Simulating entering function.  Current word set to 0",EQUALS);
+	popAddressStackNode();
+	testVal(getCw(),20,"Valid: Simulated leaving function.  Current word set back to 20",EQUALS);
+	clearTokens();
+	leaveSuite();
+}
+
+
 void parsingTests()	{
     enterSuite("General Parsing Function Tests");
+	clearTokens();
 	testVal(checkIfNumber("0"),1,"Valid: 0 is a number",EQUALS);
 	testVal(checkIfNumber("1.2"),1,"Valid: 1.2 is a number",EQUALS);
 	testVal(checkIfNumber("10"),1,"Valid: 10 is a number",EQUALS);
@@ -1501,6 +1705,9 @@ void parsingTests()	{
 	testVal(ifComparison(GR,1,2),0,"Invalid: 1 is not greater than 2",EQUALS);
 	testVal(ifComparison(GR,2,1),1,"Valid: 2 is greater than 1",EQUALS);
 	testVal(ifComparison(EQU,1,1),1,"Valid: 1 is equals to 1",EQUALS);
+	testVal(validateFunctionName("TESTFUNCTION"),1,"Valid: function name valid",EQUALS);
     leaveSuite();
 }
+
+
 

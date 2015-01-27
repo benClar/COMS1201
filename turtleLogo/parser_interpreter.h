@@ -3,7 +3,7 @@
 #include "testInstructions.h"
 
 /*----------Enumerated Types-----------*/
-
+#define MAX_F_NAME	40
 
 /*----------TypeDefs-----------*/
 
@@ -15,6 +15,9 @@ typedef struct calcNode *CalcNode;
 typedef struct varTable *VarTable;
 typedef struct varNode *VarNode;
 typedef struct modeNode *ModeNode;
+typedef struct addressStack *AddressStack;
+typedef struct functionAddrTable *FunctionAddrTable;
+typedef struct functionAddrNode *FunctionAddrNode;
 
 typedef enum synType    {
 
@@ -142,8 +145,8 @@ int checkIfVariable(char *instruction);
 ifComp checkIfComparator(char *comparator);
 int ifComparison(ifComp op, double valA, double valB);
 int countBlock();
-int specParse(char *error,char *comparison, synType t ); //T
-int lBraceParse(char *error); //T
+int specParse(char *error,char *comparison, synType t );
+int lBraceParse(char *error);
 void closeBlock(char *error);
 
 //! If statement functions
@@ -153,12 +156,23 @@ void skipElif();
 void ifDecision(int ifResult);
 void ifBlock(iMode mT);
 int checkForEmptyBlock();
+void funcParse();
+int validateFunctionName(char *fName); 
 
 //!Recursive descent functions
 int code();
 void prog();
 void statement();
 
+void addNewFunction(char *fName, int address);
+FunctionAddrTable getFTable(FunctionAddrTable nTab);
+void createFunctionTable();
+int checkifFuncUnique(char *func);
+int checkIfFunction(char *name);
+int getFunctionAddress(char *name);
+void popAddressStackNode();
+void freeFunctionTable();
+void clearFunctionTable();
 /*----------Testing Function Prototypes-----------*/
 
 void parserUnitTests();
@@ -168,3 +182,4 @@ void programArrayTests();
 void syntaxStackTests();
 void bracketsTest();
 void parsingTests();
+void functionTests();

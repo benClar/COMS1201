@@ -43,6 +43,7 @@ void initialize(int argc)	{
 		createTurtle();
 		createVarTable();
 		createParseArr();
+		createFunctionTable();
 		if(!TESTING)	{
 			Neill_SDL_Init();
 		}
@@ -53,7 +54,7 @@ void end()	{
 	freeParseArr();
 	clearTokens();
 	freeSyntaxStack();
-	exit(1);
+	freeFunctionTable();
 }
 
 

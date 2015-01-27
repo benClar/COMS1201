@@ -28,3 +28,5 @@
 #define L_THAN_E	"<="
 #define	EQ	"=="
 #define N_EQ	"!="
+
+#define FUNC	"FUNC"
