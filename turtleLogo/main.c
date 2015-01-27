@@ -13,9 +13,8 @@
 
 
 /*---------- To do -----------*/
-//! Testing
-//! Extension
-//! Argv
+//! PROG BLACKBOX IF TESTING
+//!CODE REFACTOR
 /*---------- Main -----------*/
 
 int main(int argc, char *argv[]){
@@ -34,7 +33,7 @@ int main(int argc, char *argv[]){
 /*---------- Functions ----------*/
 
 void initialize(int argc)	{
-		if(argc != MAX_ARG)	{
+		if(argc != MAX_ARG && !TESTING)	{
 			ERROR("You must specify file.");
 		}
 		createProgram();
@@ -50,6 +49,7 @@ void initialize(int argc)	{
 }
 
 void end()	{
+	freeCalcStack();
 	freeParseArr();
 	clearTokens();
 	exit(1);
@@ -94,6 +94,7 @@ void testing()	{
 	//!Component Tests
 	interpreterToTurtle();	
 	whileLoopTestTurtle();
+	ifStatementTest();
 	finishTesting();
 	end();
 }
@@ -105,6 +106,7 @@ void ifStatementTest()	{
     nestedInIfTest();
     nestedIfInElifTest();
     ElifNestedInElseTest();
+	emptyIf();
 }
 
 void clearForTesting()	{
@@ -176,7 +178,6 @@ void singleElifTest()	{
 	testVal(pVal(getSpecParseNode(1)),90,"Valid: The ELIF instruction has been placed in list",EQUALS);
 	testVal(oldX,getTargetX(),"Valid: Turtle has not moved",EQUALS);
     testVal(oldY,getTargetY(),"Valid: Turtle has not moved",EQUALS);
-	dprint(getAngle());
     testVal(getAngle(),90,"Valid: Turtle turned 90 degrees clockwise",EQUALS);
 	clearForTesting();	
 	leaveSuite();
@@ -308,6 +309,38 @@ void nestedIfInElifTest()	{
 	clearForTesting();	
 	leaveSuite();
 
+
+}
+
+void emptyIf()	{
+	enterSuite("Simulating empty if statement");
+	clearForTesting();
+	addToken(IF);
+	addToken("1");
+	addToken(G_THAN);
+	addToken("2");
+	addToken(R_BRACE);
+	addToken(L_BRACE);
+	addToken(ELIF);
+	addToken("1");
+	addToken(G_THAN);
+	addToken("0");
+	addToken(R_BRACE);
+	addToken(L_BRACE);
+	addToken(ELSE);
+	addToken(R_BRACE);
+	addToken(IF);
+	addToken("1");
+	addToken(G_THAN);
+	addToken("0");
+	addToken(R_BRACE);
+	addToken(L_BRACE);
+	addToken(L_BRACE);
+    ifParse(IF);
+    removeCurrentInstruction();
+    testVal(checkSynStackEmpty(),1,"Valid: If Instruction has been popped. Empty Synax Stack",EQUALS);
+    testVal(getParseNodeNumber(),0,"Valid: No instructions placed in list",EQUALS);
+	leaveSuite();
 
 }
 

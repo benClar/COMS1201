@@ -1,3 +1,11 @@
+//////
+//
+//Turtle.c
+//Holds values of turtle and provides means to access and set them
+//
+/////////////////////
+
+
 /*---------- Standard Headers -----------*/
 #include <stdio.h>
 #include <string.h>
@@ -6,26 +14,33 @@
 
 /*---------- Custom Headers -----------*/
 #include "turtle.h"
-#include "display.h"
+#include "neillsdl2.h"
 #include "debug.h"
 
+//! Structure that holds turtle values
 struct turtle	{
 
-		double originX;
-		double originY;
-		double targetX;
-		double targetY;
-		double angle;
+		double originX; //@ Starting point of move on x axis 
+		double originY;	//@ Starting point of move on y axis
+		double targetX;	//@ Destination of move on x axis
+		double targetY;	//@ Destination of move on y axis
+		double angle;	//@Current angle turtle is facing
 };
 
 /*---------- Functions ----------*/
+
+/*
+ *Creates turtle structure
+ */
 void createTurtle()	{
 
 	Turtle t = checkMalloc(malloc(sizeof(*t)));
 	getTurtle(t);
 	initTurtle();
 }
-
+/*
+ *Resets turtle's data
+ */
 void initTurtle()	{
 	Turtle t = getTurtle(NULL);
 	t->originX = SCREEN_WIDTH/HALF;
@@ -36,6 +51,9 @@ void initTurtle()	{
 	
 }
 
+/*
+ *Returns pointer to turtle structure
+ */
 Turtle getTurtle(Turtle nt)	{
 
 	static Turtle ct;
@@ -48,22 +66,37 @@ Turtle getTurtle(Turtle nt)	{
 
 }
 
+/*
+ *Accessor for target Y value
+ */
 double getTargetY()	{
 	return getTurtle(NULL)->targetY;
 }
 
+/*
+ *Accessor for target X value
+ */
 double getTargetX()	{
 	return getTurtle(NULL)->targetX;
 }
 
+/*
+ *Accessor for origin Y value
+ */
 double getOriginY()	{
 	return getTurtle(NULL)->originY;
 }
 
+/*
+ *Accessor for origin X value
+ */
 double getOriginX()	{
 	return getTurtle(NULL)->originX;
 }
 
+/*
+ *Turn turtle clockwise
+ */
 double turnTurtleRight(double degrees)	{
 
 	Turtle t = getTurtle(NULL);
@@ -72,6 +105,9 @@ double turnTurtleRight(double degrees)	{
 	return t->angle;
 }
 
+/*
+ *Turn turtle anti-clockwise
+ */
 double turnTurtleLeft(double degrees)	{
 
 	Turtle t = getTurtle(NULL);
@@ -85,6 +121,9 @@ double turnTurtleLeft(double degrees)	{
 	return t->angle;
 }
 
+/*
+ *Set function for turtle angle value
+ */
 void setAngle(double nAngle)	{
 
 	Turtle t = getTurtle(NULL);
@@ -92,12 +131,18 @@ void setAngle(double nAngle)	{
 
 }
 
+/*
+ *Accessor for angle value
+ */
 double getAngle()	{
 
 	Turtle t = getTurtle(NULL);
 	return t->angle;
 }
 
+/*
+ *Moves turtle value forward by specified amount
+ */
 void moveTurtleForward(double magnitude)	{
 
 	Turtle t = getTurtle(NULL);

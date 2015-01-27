@@ -1,7 +1,6 @@
-#include "parser.h"
-#include "interpreter.h"
+#include "parser_interpreter.h"
+#include "testInstructions.h"
 #include "turtle.h"
-//#include "display.h"
 #include "neillsdl2.h"
 
 /*----------Enumerated Types-----------*/
@@ -34,6 +33,7 @@ void nestedIfInElifTest();
 void ElifNestedInElseTest();
 void nestedElifTest();
 void nestedElseTest();
-
+void emptyIf();
+void ifStatementTest();
 void whileLoopTestTurtle();
 
