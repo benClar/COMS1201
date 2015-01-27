@@ -370,6 +370,12 @@ CalcStack getCalcStack(CalcStack cStack)	{
 }
 
 /*
+ *Accessor for current instruction length
+ */
+int getInstructionLength()	{
+	return(getSynStack(NULL)->instructionLength);
+}
+/*
  *Creates syntax stack structure
  */
 void createSynStack()	{
@@ -382,6 +388,25 @@ void createSynStack()	{
 	newStack->modeStackStart->pM = exec;
 	newStack->modeStackStart->previous = NULL;
 	getSynStack(newStack);
+}
+
+void freeSyntaxStack()	{
+	SyntaxStack stack = getSynStack(NULL);
+	SyntaxNode sNode, tSNode;	
+	ModeNode mNode, tMNode;
+	assert(stack != NULL);
+	int i;
+	for(i = 0, sNode = stack->start ; i < stack->numNodes; i++, sNode = tSNode)	{
+		tSNode = sNode->previous;
+		free(sNode);
+	}
+
+	for(mNode = stack->modeStackStart; mNode->previous != NULL;mNode = tMNode)	{
+		tMNode = mNode->previous;
+		free(mNode);
+	}
+	free(mNode);
+	free(stack);
 }
 
 /*
@@ -445,6 +470,7 @@ SyntaxNode createNode(char *type, synType sType)	{
 int removeLastSNodeOfType(char *type)	{
 	SyntaxStack cStack = getSynStack(NULL);
 	SyntaxNode cNode = cStack->start;
+	assert(cStack->numNodes != 0);
 	if(!strcmp(type,cStack->start->type))	{
 		removeNode(cNode);
 		return 1;
@@ -521,6 +547,7 @@ void popFromStack()	{
 char* addNode(SyntaxNode Node)	{
 
 	SyntaxStack cStack = getSynStack(NULL);
+	assert(cStack != NULL);
 	if(cStack->start == NULL)	{
 		cStack->start = cStack->end = Node;
 	} else	{
@@ -735,11 +762,6 @@ void ifParse(char *instruction)	{
 
 	lBraceParse("IF block not closed");
 	setCw(getCw()+1);
-
-
-
-
-
 	ifDecision(ifResult);
 	popMode();
 }
@@ -779,7 +801,6 @@ void elseParse()	{
 	specParse("Expected { in IF statement",R_BRACE,MAIN);
 	while(!compCurrCw(L_BRACE))	{
 		statement();
-		//setCw(getCw()+1);
 	}
 
 	if(compCurrCw(L_BRACE)) {
@@ -842,16 +863,17 @@ void skipElif()	{
 	}
 }
 
+/*
+ *Checks if if block has finished, Changing execution mode as appropriate
+ */
 void ifBlock(iMode mT)	{
 	while(!compCurrCw(L_BRACE))	{
 		setMode(skip);
-		//if(!checkForEmptyBlock())	{
        	statement();
-	//	}
         if(mT)   {
 			setMode(exec);
 		}
-	} /*while(!compCurrCw(L_BRACE));*/
+	}
 }
 
 /*
@@ -1322,6 +1344,11 @@ void clearTokens()	{
     cProg->cw = 0;
 }
 
+void freeProgramArray()	{
+	clearTokens();
+	free(getProgram(NULL));
+}
+
 /*
  *Print token list.  Debug.
  */
@@ -1428,11 +1455,18 @@ void syntaxStackTests()	{
 
 void bracketsTest()	{
     enterSuite("Popping Brackets from Syntax stack Tests");
+	clearTokens();
 	addNode(createNode(R_BRACE,MAIN));
 	testVal(strcmp(R_BRACE,getKeywordFromStack(1)),0,"Valid: Top of Syn stack is {",EQUALS);
 	removeLastSNodeOfType(R_BRACE);
 	testVal(checkSynStackEmpty(),1,"Valid: Removed last {.  Empty Synax Stack",EQUALS);
 	testVal(getNumberSynNodes(),0,"Valid: Number of syntax nodes is 0",EQUALS);
+	addNode(createNode(R_BRACE,MAIN));	
+	addToken(L_BRACE);
+	setCw(0);
+	testVal(lBraceParse("BRACKETS TEST"),1,"Valid: Right bracket found and removed\n",EQUALS);
+	testVal(getNumberSynNodes(),0,"Valid: Number of syntax nodes is 0",EQUALS);
+	clearTokens();
     leaveSuite();
 }
 
@@ -1454,6 +1488,19 @@ void parsingTests()	{
 	testVal(checkIfOp("/"),1,"Valid: / is division operator",EQUALS);	
 	testVal(checkIfOp("1"),0,"Invalid: not an operator",EQUALS);	
 	testVal(checkIfOp("dksjhas"),0,"Invalid: not an operator",EQUALS);	
-	testVal(checkIfOp("&"),0,"Invalid: not an operator",EQUALS);	
+	testVal(checkIfOp("&"),0,"Invalid: not an operator",EQUALS);
+	addNode(createNode(DO,INSTRUC));
+	addToken(DO);
+	addToken("A");
+	testVal(getInstructionLength(),1,"Valid: Instruction length is one",EQUALS);
+	testVal(specParse("TESTING SPECIFIC PARSE",DO,INSTRUC),1,"Valid: Recognises as DO",EQUALS);
+	removeCurrentInstruction();
+	testVal(getInstructionLength(),0,"Valid: Instruction length is zero",EQUALS);
+	clearTokens();
+	testVal(checkIfComparator(G_THAN),GR,"Valid: Greater than string returns correct enum",EQUALS); 
+	testVal(ifComparison(GR,1,2),0,"Invalid: 1 is not greater than 2",EQUALS);
+	testVal(ifComparison(GR,2,1),1,"Valid: 2 is greater than 1",EQUALS);
+	testVal(ifComparison(EQU,1,1),1,"Valid: 1 is equals to 1",EQUALS);
     leaveSuite();
 }
+

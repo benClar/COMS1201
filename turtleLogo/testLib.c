@@ -126,9 +126,9 @@ void leaveSuite()	{
 	TestSuite tSuite = getSuite(NULL);
 	printf("### Leaving Suite [%d] : %s ###\n",tSuite->sNumber,tSuite->currentSuite);
 	if(tSuite->failNumber == 0)	{
-		printf("SUCCESS: %d tests passed\n",tSuite->passNumber);
+		printf("SUCCESS: %d tests passed\n\n",tSuite->passNumber);
 	} else {
-		printf("FAILURE: %d tests failed\n",tSuite->failNumber);
+		printf("FAILURE: %d tests failed\n\n",tSuite->failNumber);
 	}
 	tSuite->failNumber = tSuite->passNumber = 0;
 	free(tSuite->currentSuite);

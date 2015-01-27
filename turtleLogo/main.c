@@ -52,6 +52,7 @@ void end()	{
 	freeCalcStack();
 	freeParseArr();
 	clearTokens();
+	freeSyntaxStack();
 	exit(1);
 }
 
@@ -62,6 +63,7 @@ void readFile(char *fileName)	{
 	int tokenLength = 0;
 	char *token = NULL;
 	char c;
+
 	if((fp = fopen(fileName, "r")) != NULL){
 		while((c = getc(fp)) != EOF)	{
 			if(c != ' ' && c != '\n' && c != '	')	{
